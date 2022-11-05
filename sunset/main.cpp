@@ -2,27 +2,12 @@
 // Created by gaetz on 05/11/2022.
 //
 
-#include "raylib.h"
-
-#define SCREEN_WIDTH (1280)
-#define SCREEN_HEIGHT (720)
-
-#define WINDOW_TITLE "Sunset Reveries"
+#include "../gaemi/Engine.h"
 
 int main()
 {
-    InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, WINDOW_TITLE);
-    SetTargetFPS(60);
-
-    while (!WindowShouldClose())
-    {
-        BeginDrawing();
-        ClearBackground(BLACK);
-
-        EndDrawing();
-    }
-
-    CloseWindow();
+    Engine engine;
+    engine.Start(1280, 720, "Sunset Reveries");
 
     return 0;
 }

@@ -23,11 +23,12 @@ if (NOT raylib_FOUND) # If there's none, fetch and build raylib
 endif()
 
 # Add code
+add_subdirectory( gaemi )
 add_subdirectory( sunset )
 
 # Declaring our executable
 add_executable(${PROJECT_NAME} sunset/main.cpp)
-target_link_libraries(${PROJECT_NAME} game)
+target_link_libraries(${PROJECT_NAME} game gaemi)
 
 # C++ hardcode options
 target_compile_features(${CMAKE_PROJECT_NAME} PUBLIC cxx_std_20)
