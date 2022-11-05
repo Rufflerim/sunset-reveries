@@ -5,19 +5,25 @@
 #include "Engine.h"
 #include "raylib.h"
 #include "Window.h"
+#include "IGame.h"
 
-void Engine::Start(int windowWidth, int windowHeight, const std::string& gameNameP)
+void Engine::Start(int windowWidth, int windowHeight, const std::string& gameNameP,
+                   unique_ptr<IGame> gameP)
 {
     gameName = gameNameP;
+    game = std::move(gameP);
 
     Window window { windowWidth, windowHeight, gameName };
     SetTargetFPS(60);
 
+    game->Load();
     while (!window.ShouldClose())
     {
-        BeginDrawing();
-        ClearBackground(BLACK);
+        game->Update(0);
 
-        EndDrawing();
+        renderer.BeginDraw();
+        renderer.ClearScreen();
+        game->Draw(renderer);
+        renderer.EndDraw();
     }
 }
