@@ -14,6 +14,7 @@ public:
     virtual void Load() = 0;
     virtual void Update(float dt) = 0;
     virtual void Draw(const Renderer& renderer) = 0;
+    virtual void Unload() = 0;
 };
 
 #endif //GAEMI_IGAME_H

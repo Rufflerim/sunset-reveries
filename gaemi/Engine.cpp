@@ -18,13 +18,12 @@ void Engine::Start(i32 windowWidth, i32 windowHeight, const str& gameNameP,
     LOG(LogLevel::Info) << "Window initialized";
 
     SetTargetFPS(60);
-
     game->Load();
     LOG(LogLevel::Info) << "Game loaded";
 
     while (!window.ShouldClose())
     {
-        game->Update(0);
+        game->Update(0.017f);
 
         renderer.BeginDraw();
         renderer.ClearScreen();
@@ -32,5 +31,6 @@ void Engine::Start(i32 windowWidth, i32 windowHeight, const str& gameNameP,
         renderer.EndDraw();
     }
 
+    game->Unload();
     LOG(LogLevel::Info) << "Bye :)";
 }
