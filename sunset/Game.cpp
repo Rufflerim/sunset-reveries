@@ -3,7 +3,6 @@
 //
 
 #include "Game.h"
-#include "../gaemi/Renderer.h"
 #include "SceneGame.h"
 #include <ranges>
 
@@ -18,9 +17,9 @@ void Game::Update(float dt) {
     }
 }
 
-void Game::Draw(const Renderer& renderer) {
+void Game::Draw() {
     for (auto&& scene : std::ranges::reverse_view(sceneStack)) {
-        scene->Draw(renderer);
+        scene->Draw();
         if (!scene->getTransparent()) break;
     }
 }

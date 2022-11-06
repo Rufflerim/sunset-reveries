@@ -25,10 +25,10 @@ void Engine::Start(i32 windowWidth, i32 windowHeight, const str& gameNameP,
     {
         game->Update(0.017f);
 
-        renderer.BeginDraw();
-        renderer.ClearScreen();
-        game->Draw(renderer);
-        renderer.EndDraw();
+        render::BeginDraw();
+        render::ClearScreen();
+        game->Draw();
+        render::EndDraw();
     }
 
     game->Unload();

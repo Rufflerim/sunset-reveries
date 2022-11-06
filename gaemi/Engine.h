@@ -21,7 +21,6 @@ public:
 
     str gameName;
     unique_ptr<IGame> game;
-    Renderer renderer {};
 };
 
 

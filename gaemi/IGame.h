@@ -5,15 +5,13 @@
 #ifndef GAEMI_IGAME_H
 #define GAEMI_IGAME_H
 
-class Renderer;
-
 class IGame {
 public:
     virtual ~IGame() = default;
 
     virtual void Load() = 0;
     virtual void Update(float dt) = 0;
-    virtual void Draw(const Renderer& renderer) = 0;
+    virtual void Draw() = 0;
     virtual void Unload() = 0;
 };
 

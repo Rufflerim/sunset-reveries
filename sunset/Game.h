@@ -17,7 +17,7 @@ class Game : public IGame {
 public:
     void Load() override;
     void Update(float dt) override;
-    void Draw(const Renderer& renderer) override;
+    void Draw() override;
     void Unload() override;
 
     void AddScene(unique_ptr<IScene> newScene);
