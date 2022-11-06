@@ -6,17 +6,22 @@
 #include "raylib.h"
 #include "Window.h"
 #include "IGame.h"
+#include "Log.h"
 
-void Engine::Start(int windowWidth, int windowHeight, const std::string& gameNameP,
-                   unique_ptr<IGame> gameP)
+void Engine::Start(i32 windowWidth, i32 windowHeight, const str& gameNameP,
+                   unique_ptr<IGame>&& gameP) noexcept
 {
     gameName = gameNameP;
     game = std::move(gameP);
 
     Window window { windowWidth, windowHeight, gameName };
+    LOG(LogLevel::Info) << "Window initialized";
+
     SetTargetFPS(60);
 
     game->Load();
+    LOG(LogLevel::Info) << "Game loaded";
+
     while (!window.ShouldClose())
     {
         game->Update(0);
@@ -26,4 +31,6 @@ void Engine::Start(int windowWidth, int windowHeight, const std::string& gameNam
         game->Draw(renderer);
         renderer.EndDraw();
     }
+
+    LOG(LogLevel::Info) << "Bye :)";
 }

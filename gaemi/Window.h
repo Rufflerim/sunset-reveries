@@ -6,18 +6,19 @@
 #define GAEMI_WINDOW_H
 
 #include <string>
+#include "Defines.h"
 
 class Window {
 public:
-    Window(int width, int height, std::string title);
+    Window(i32 width, i32 height, str title);
     ~Window();
 
     bool ShouldClose();
 
 private:
-    int width;
-    int height;
-    std::string title;
+    i32 width;
+    i32 height;
+    str title;
 
 };
 
