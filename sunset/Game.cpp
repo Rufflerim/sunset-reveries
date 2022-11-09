@@ -13,14 +13,14 @@ void Game::Load() {
 void Game::Update(float dt) {
     for (auto&& scene : std::ranges::reverse_view(sceneStack)) {
         scene->Update(dt);
-        if (scene->getLocking()) break;
+        if (scene->GetLocking()) break;
     }
 }
 
 void Game::Draw() {
     for (auto&& scene : std::ranges::reverse_view(sceneStack)) {
         scene->Draw();
-        if (!scene->getTransparent()) break;
+        if (!scene->GetTransparent()) break;
     }
 }
 

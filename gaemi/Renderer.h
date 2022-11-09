@@ -9,6 +9,7 @@
 
 struct Texture;
 struct Color;
+struct Rectangle;
 
 namespace render {
 
@@ -19,6 +20,8 @@ namespace render {
     void EndDraw();
 
     GAPI void DrawTexture(Texture texture2D, i32 x, i32 y, Color tint);
+    GAPI void DrawSprite(Texture texture2D, Rectangle srcRect, Rectangle dstRect, Color tint);
+
 }
 
 
