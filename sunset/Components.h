@@ -7,6 +7,7 @@
 
 #include "raylib.h"
 #include "Defines.h"
+#include "AssetsManager.h"
 
 enum class ComponentIndices {
     Transform2D = 0,
@@ -28,13 +29,15 @@ struct Sprite {
         entityId { entityIdP },
         srcRect { 0, 0, width, height },
         dstRect { 0, 0, width, height },
-        texName { textNameP }
+        texName { textNameP },
+        tex { AssetsManager::GetTexture(textNameP) }
     {}
 
     u32 entityId;
     Rectangle srcRect { 0, 0, 1, 1 };
     Rectangle dstRect { 0, 0, 1, 1 };
     str texName;
+    const Texture& tex;
 };
 
 struct Rigidbody2D {
@@ -46,6 +49,23 @@ struct Rigidbody2D {
     u32 entityId;
     Rectangle boundingBox { 0, 0, 1, 1 };
     Vector2 velocity { 0, 0 };
+};
+
+// Utils
+
+struct Collision2D {
+    Collision2D(u32 entityId, Rectangle currentBox, Vector2 velocity,
+                u32 otherId, Rectangle otherCurrentBox, Vector2 otherVelocity):
+            entityId { entityId}, currentBox { currentBox }, velocity { velocity },
+            otherId { otherId }, otherCurrentBox { otherCurrentBox }, otherVelocity { otherVelocity }
+    {}
+
+    u32 entityId;
+    Rectangle currentBox;
+    Vector2 velocity;
+    u32 otherId;
+    Rectangle otherCurrentBox;
+    Vector2 otherVelocity;
 };
 
 #endif //SUNSET_REVERIES_COMPONENTS_H

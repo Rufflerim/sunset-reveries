@@ -10,7 +10,7 @@ void Game::Load() {
     AddScene(std::make_unique<SceneGame>());
 }
 
-void Game::Update(float dt) {
+void Game::Update(f32 dt) {
     for (auto&& scene : std::ranges::reverse_view(sceneStack)) {
         scene->Update(dt);
         if (scene->GetLocking()) break;
