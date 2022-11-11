@@ -32,7 +32,7 @@ target_link_libraries(${PROJECT_NAME} game gaemi)
 
 # C++ hardcode options
 target_compile_features(${CMAKE_PROJECT_NAME} PUBLIC cxx_std_20)
-target_compile_options(${CMAKE_PROJECT_NAME} PUBLIC -Wall)
+target_compile_options(${CMAKE_PROJECT_NAME} PUBLIC -Wall -Wno-c++98-compat -Wno-c++98-compat-pedantic)
 
 # Copying assets to the build folder
 add_custom_command(

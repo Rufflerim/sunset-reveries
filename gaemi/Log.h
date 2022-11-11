@@ -12,12 +12,12 @@
 #include <array>
 #include "LogLevel.h"
 
-const str GAME_LOG_FILE = "Reveries.log";
 
 class Log {
 public:
     GAPI Log();
     GAPI ~Log();
+    const static str GAME_LOG_FILE;
 
     Log(const Log&) = delete;
     Log& operator=(const Log&) = delete;

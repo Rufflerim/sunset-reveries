@@ -6,6 +6,7 @@
 #include <iostream>
 #include "PlatformUtils.h"
 
+const str Log::GAME_LOG_FILE = "Reveries.log";
 std::ofstream Log::file;
 
 Log::Log() {
