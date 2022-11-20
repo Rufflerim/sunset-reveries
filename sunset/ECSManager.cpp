@@ -9,12 +9,14 @@ void ECSManager::Update(f32 dt) {
     SystemPhysicsUpdate(dt);
     SystemScreenBounceUpdate();
 
-    // Update conponents' data
+    // Update components' data
     UpdateComponentsWithTransform();
 }
 
 void ECSManager::Draw() {
     SystemSpriteDraw();
+
+    CleanRemovedEntities();
 }
 
 u32 ECSManager::CreateEntity() {
@@ -44,7 +46,7 @@ void ECSManager::CreateRigidbody2DComponent(u32 entityId, const Rectangle& box) 
 
 void ECSManager::UpdateEntityWithComponent(u32 entityId, i32 newComponentId, ComponentIndices componentIndex) {
     i32 iComponentIndex = static_cast<i32>(componentIndex);
-    entities[entityId].components[iComponentIndex] = newComponentId;
+    FindEntity(entityId).components[iComponentIndex] = newComponentId;
 }
 
 void ECSManager::UpdateComponentsWithTransform() {
@@ -101,13 +103,11 @@ void ECSManager::SystemScreenBounceUpdate() {
         float blackRibbonHeight { 120.0f };
         float screenWidth { 1280.0f };
         float screenHeight { 720.0f };
-        // Horizontal bounce
-        if (currentBox.x + currentBox.width > screenWidth) {
-            transform.pos.x = screenWidth - currentBox.width;
-            body.velocity.x *= -1;
-        } else if (currentBox.x < 0.0f) {
-            transform.pos.x = 0.0f;
-            body.velocity.x *= -1;
+        // Horizontal exit
+        if (currentBox.x > screenWidth) {
+            RemoveEntity(body.entityId);
+        } else if (currentBox.x + currentBox.width < 0.0f) {
+            RemoveEntity(body.entityId);
         }
         // Vertical bounce
         if (currentBox.y + currentBox.height > screenHeight - blackRibbonHeight) {
@@ -127,14 +127,65 @@ void ECSManager::SystemSpriteDraw() {
 }
 
 Transform2D& ECSManager::GetTransform2DComponent(u32 entityId) {
-    return transforms.at(entities.at(entityId).components.at(static_cast<i32>(ComponentIndices::Transform2D)));
+    return transforms.at(FindEntity(entityId).components.at(static_cast<i32>(ComponentIndices::Transform2D)));
 }
 
 Sprite& ECSManager::GetSpriteComponent(u32 entityId) {
-    return sprites.at(entities.at(entityId).components.at(static_cast<i32>(ComponentIndices::Sprite)));
+    return sprites.at(FindEntity(entityId).components.at(static_cast<i32>(ComponentIndices::Sprite)));
 }
 
 Rigidbody2D& ECSManager::GetRigidbody2DComponent(u32 entityId) {
-    return bodies.at(entities.at(entityId).components.at(static_cast<i32>(ComponentIndices::Rigidbody2D)));
+    return bodies.at(FindEntity(entityId).components.at(static_cast<i32>(ComponentIndices::Rigidbody2D)));
+}
+
+void ECSManager::RemoveEntity(u32 entityId) {
+    entitiesToRemove.push_back(entityId);
+}
+
+void ECSManager::CleanRemovedEntities() {
+    for (auto entityId : entitiesToRemove) {
+
+        auto& removedEntity = FindEntity(entityId);
+        // Transform
+        i32 componentTypeIndex = static_cast<i32>(ComponentIndices::Transform2D);
+        auto componentIndex = removedEntity.components.at(componentTypeIndex);
+        if (componentIndex != -1) {
+            auto last = transforms.end() - 1;
+            FindEntity(last->entityId).components[componentTypeIndex] = componentIndex;
+            auto removedComponent = transforms.begin() + componentIndex;
+            std::iter_swap(removedComponent, last);
+            transforms.pop_back();
+        }
+        // Sprites
+        componentTypeIndex = static_cast<i32>(ComponentIndices::Sprite);
+        componentIndex = removedEntity.components.at(componentTypeIndex);
+        if (componentIndex != -1) {
+            auto last = sprites.end() - 1;
+            FindEntity(last->entityId).components[componentTypeIndex] = componentIndex;
+            auto removedComponent = sprites.begin() + componentIndex;
+            std::iter_swap(removedComponent, last);
+            sprites.pop_back();
+        }
+        // Rigidbodies
+        componentTypeIndex = static_cast<i32>(ComponentIndices::Rigidbody2D);
+        componentIndex = removedEntity.components.at(componentTypeIndex);
+        if (componentIndex != -1) {
+            auto last = bodies.end() - 1;
+            FindEntity(last->entityId).components[componentTypeIndex] = componentIndex;
+            auto removedComponent = bodies.begin() + componentIndex;
+            std::iter_swap(removedComponent, last);
+            bodies.pop_back();
+        }
+
+        std::erase_if(entities, [=](Entity entity) {
+            return entity.id == entityId;
+        });
+    }
+    entitiesToRemove.clear();
+}
+
+Entity& ECSManager::FindEntity(u32 entityId) {
+    auto res = std::find_if(entities.begin(), entities.end(), [entityId](Entity& entity) { return entity.id == entityId; });
+    return *res;
 }
 
