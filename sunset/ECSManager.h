@@ -9,6 +9,7 @@
 #include "Entity.h"
 #include "Components.h"
 #include <vector>
+#include <variant>
 
 using std::vector;
 
@@ -18,21 +19,27 @@ using std::vector;
 
 class ECSManager {
 public:
-    void Update(f32 dt);
-    void Draw();
+    void UpdateSceneGame(f32 dt);
+    void DrawSceneGame();
 
     u32 CreateEntity();
     void RemoveEntity(u32 entityId);
-    void CleanRemovedEntities();
     Entity& FindEntity(u32 entityId);
 
     void CreateTransform2DComponent(u32 entityId);
     void CreateSpriteComponent(u32 entityId, const str& texName);
     void CreateRigidbody2DComponent(u32 entityId, const Rectangle& box);
 
-    Transform2D& GetTransform2DComponent(u32 entityId);
-    Sprite& GetSpriteComponent(u32 entityId);
-    Rigidbody2D& GetRigidbody2DComponent(u32 entityId);
+    template<class T>
+    T& GetComponent(u32 entityId) {
+        if constexpr (std::is_same_v<T, Transform2D>) {
+            return transforms.at(FindEntityComponent(entityId, ComponentIndex::Transform2D));
+        } else if constexpr (std::is_same_v<T, Sprite>) {
+            return sprites.at(FindEntityComponent(entityId, ComponentIndex::Sprite));
+        } else if constexpr (std::is_same_v<T, Rigidbody2D>) {
+            return bodies.at(FindEntityComponent(entityId, ComponentIndex::Rigidbody2D));
+        }
+    }
 
 private:
     vector<Entity> entities;
@@ -42,12 +49,40 @@ private:
 
     vector<u32> entitiesToRemove {};
 
-    void UpdateEntityWithComponent(u32 entityId, i32 newComponentId, ComponentIndices componentIndex);
+    i32 FindEntityComponent(u32 entityId, ComponentIndex componentIndex);
+    void UpdateEntityWithComponent(u32 entityId, i32 newComponentId, ComponentIndex componentIndex);
+    void CleanRemovedEntities();
+
     void UpdateComponentsWithTransform();
 
     void SystemPhysicsUpdate(float dt);
     void SystemScreenBounceUpdate();
     void SystemSpriteDraw();
+
+    template<class T>
+    void RemoveComponent(vector<T>& components, Entity& removedEntity, ComponentIndex componentTypeIndex) {
+        i32 typeIndex = static_cast<i32>(componentTypeIndex);
+        auto componentIndex = removedEntity.components.at(typeIndex);
+        if (componentIndex != -1) {
+            auto last = components.end() - 1;
+            FindEntity(last->entityId).components[typeIndex] = componentIndex;
+            auto removedComponent = components.begin() + componentIndex;
+            std::iter_swap(removedComponent, last);
+            components.pop_back();
+        }
+    }
+
+    template<class T>
+    void RemoveEntityComponent(u32 entityId) {
+        auto& removedEntity = FindEntity(entityId);
+        if constexpr (std::is_same_v<T, Transform2D>) {
+            RemoveComponent<Transform2D>(transforms, removedEntity, ComponentIndex::Transform2D);
+        } else if constexpr (std::is_same_v<T, Sprite>) {
+            RemoveComponent<Sprite>(sprites, removedEntity, ComponentIndex::Sprite);
+        } else if constexpr (std::is_same_v<T, Rigidbody2D>) {
+            RemoveComponent<Rigidbody2D>(bodies, removedEntity, ComponentIndex::Rigidbody2D);
+        }
+    }
 };
 
 

@@ -23,7 +23,8 @@ void Engine::Start(i32 windowWidth, i32 windowHeight, const str& gameNameP,
 
     while (!window.ShouldClose())
     {
-        game->Update(0.017f);
+        f32 dt = GetFrameTime();
+        game->Update(dt);
 
         render::BeginDraw();
         render::ClearScreen();

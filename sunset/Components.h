@@ -9,7 +9,7 @@
 #include "Defines.h"
 #include "AssetsManager.h"
 
-enum class ComponentIndices {
+enum class ComponentIndex {
     Transform2D = 0,
     Sprite = 1,
     Rigidbody2D = 2
