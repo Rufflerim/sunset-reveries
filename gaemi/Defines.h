@@ -7,7 +7,29 @@
 
 #include <string>
 
-#define GAPI __declspec(dllexport)
+
+// Platform specific
+#if defined(WIN32) || defined(_WIN32) || defined(__WIN32__) || defined(_MSC_VER)
+    #define GPLATFORM_WINDOWS 1
+#elif defined(__GNUC__)
+    #define GPLATFORM_LINUX 1
+#endif
+
+#if defined(GPLATFORM_WINDOWS)
+//  Microsoft
+    #define GAPI __declspec(dllexport)
+    #define GIMPORT __declspec(dllimport)
+#elif defined(GPLATFORM_LINUX)
+    //  GCC
+    #define GAPI __attribute__((visibility("default")))
+    #define GIMPORT
+#else
+//  Do nothing and hope for the best?
+    #define GAPI
+    #define GIMPORT
+    #pragma warning Unknown dynamic link import/export semantics.
+#endif
+
 
 // Types
 using u8 = unsigned char;
@@ -24,11 +46,6 @@ using f32 = float;
 using f64 = double;
 
 using str = std::string;
-
-// Platform specific
-#if defined(WIN32) || defined(_WIN32) || defined(__WIN32__)
-    #define GPLATFORM_WINDOWS 1
-#endif
 
 // Debug
 #if defined(_DEBUG) || defined(DEBUG)

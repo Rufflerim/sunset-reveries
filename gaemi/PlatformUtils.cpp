@@ -4,9 +4,10 @@
 
 #include "PlatformUtils.h"
 #include "LogLevel.h"
-#include <array>
+#include <iostream>
 
 #ifdef GPLATFORM_WINDOWS
+#include <array>
 #include <windows.h>
 #endif
 
