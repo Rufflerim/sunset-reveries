@@ -8,10 +8,13 @@
 #include "Defines.h"
 #include "Entity.h"
 #include "Components.h"
+#include "WorldChange.h"
 #include <vector>
 #include <variant>
+#include <memory>
 
 using std::vector;
+using std::shared_ptr;
 
 /// TODO Same update function is called from any scene class
 /// - Workaround: create one public update function per calling class, good for very simple game
@@ -21,6 +24,8 @@ class ECSManager {
 public:
     void UpdateSceneGame(f32 dt);
     void DrawSceneGame();
+
+    void UpdateWorld();
 
     u32 CreateEntity();
     void RemoveEntity(u32 entityId);
@@ -48,6 +53,10 @@ private:
     vector<Rigidbody2D> bodies;
 
     vector<u32> entitiesToRemove {};
+
+    vector<CollisionChange> collisionChanges;
+    vector<PositionChange> positionChanges;
+    vector<BounceChange> bounceChanges;
 
     i32 FindEntityComponent(u32 entityId, ComponentIndex componentIndex);
     void UpdateEntityWithComponent(u32 entityId, i32 newComponentId, ComponentIndex componentIndex);

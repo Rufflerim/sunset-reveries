@@ -7,7 +7,8 @@
 #include <ranges>
 
 void Game::Load() {
-    AddScene(std::make_unique<SceneGame>());
+    ecs = std::make_shared<ECSManager>();
+    AddScene(std::make_unique<SceneGame>(ecs));
 }
 
 void Game::Update(f32 dt) {

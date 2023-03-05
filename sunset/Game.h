@@ -7,11 +7,13 @@
 
 #include "../gaemi/IGame.h"
 #include "IScene.h"
+#include "ECSManager.h"
 #include <vector>
 #include <memory>
 
 using std::vector;
 using std::unique_ptr;
+using std::shared_ptr;
 
 class Game : public IGame {
 public:
@@ -26,6 +28,7 @@ public:
 
 private:
     vector<unique_ptr<IScene>> sceneStack {};
+    shared_ptr<ECSManager> ecs;
 };
 
 

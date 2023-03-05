@@ -6,13 +6,17 @@
 #include "../gaemi/Renderer.h"
 #include "../gaemi/AssetsManager.h"
 
+SceneGame::SceneGame(shared_ptr<ECSManager> ecsRef)
+: ecs { ecsRef }
+{
+
+}
 
 void SceneGame::Load() {
     AssetsManager::LoadTexture("bg_sunset", "assets/bg_sunset.png", ToSceneId(SceneName::SceneGame));
     texture = AssetsManager::GetTexture("bg_sunset");
     AssetsManager::LoadTexture("player", "assets/player.png", ToSceneId(SceneName::SceneGame));
 
-    ecs = std::make_unique<ECSManager>();
 
     u32 playerId = ecs->CreateEntity();
     ecs->CreateTransform2DComponent(playerId);
@@ -60,4 +64,6 @@ u32 SceneGame::CreateRandomBouncingEntity() {
 
     return newId;
 }
+
+
 
