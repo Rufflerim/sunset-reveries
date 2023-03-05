@@ -6,12 +6,21 @@
 #define GAEMI_ENGINE_H
 
 #include <string>
+#include <memory>
+#include "Renderer.h"
+#include "Defines.h"
+
+using std::unique_ptr;
+
+class IGame;
 
 class Engine {
 public:
-    __declspec(dllexport) void Start(int windowWidth, int windowHeight, const std::string& gameName);
+    GAPI void Start(i32 windowWidth, i32 windowHeight, const str& gameName,
+                                     unique_ptr<IGame>&& gameP) noexcept;
 
-    std::string gameName;
+    str gameName;
+    unique_ptr<IGame> game;
 };
 
 

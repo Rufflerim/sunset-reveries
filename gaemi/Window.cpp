@@ -6,7 +6,7 @@
 #include "raylib.h"
 
 
-Window::Window(int width, int height, std::string titleP):
+Window::Window(i32 width, i32 height, str titleP):
     width { width },
     height { height },
     title { std::move(titleP) }
