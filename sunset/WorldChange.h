@@ -7,19 +7,19 @@
 
 struct CollisionChange {
     u32 entityId;
-    Vector2 newPosition;
+    Vector2 positionDelta;
     Vector2 newVelocity;
 };
 
 struct PositionChange {
     u32 entityId;
-    Vector2 newPosition;
+    Vector2 positionDelta;
 };
 
 struct BounceChange {
     u32 entityId;
     f32 newY;
-    f32 newVelocityY;
+    f32 newVerticalVelocity;
 };
 
 #endif //SUNSET_REVERIES_WORLDCHANGE_H

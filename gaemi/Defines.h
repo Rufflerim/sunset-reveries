@@ -1,7 +1,6 @@
 //
 // Created by gaetz on 05/11/2022.
 //
-
 #ifndef GAEMI_DEFINES_H
 #define GAEMI_DEFINES_H
 

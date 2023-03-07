@@ -5,13 +5,11 @@
 #include "ECSManager.h"
 #include "Renderer.h"
 #include "WorldChange.h"
+#include "GMath.h"
 
 void ECSManager::UpdateSceneGame(f32 dt) {
-
     SystemPhysicsUpdate(dt);
     SystemScreenBounceUpdate();
-
-    UpdateWorld();
 }
 
 void ECSManager::DrawSceneGame() {
@@ -28,20 +26,20 @@ u32 ECSManager::CreateEntity() {
 
 void ECSManager::CreateTransform2DComponent(u32 entityId) {
     i32 newComponentId = static_cast<i32>(transforms.size());
-    transforms.emplace_back(Transform2D(entityId));
+    transforms.emplace_back(entityId);
     UpdateEntityWithComponent(entityId, newComponentId, ComponentIndex::Transform2D);
 }
 
 void ECSManager::CreateSpriteComponent(u32 entityId, const str& texName) {
     i32 newComponentId = static_cast<i32>(sprites.size());
     const Texture& tex = AssetsManager::GetTexture(texName);
-    sprites.emplace_back(Sprite(entityId, texName, static_cast<float>(tex.width), static_cast<float>(tex.height)));
+    sprites.emplace_back(entityId, texName, static_cast<float>(tex.width), static_cast<float>(tex.height));
     UpdateEntityWithComponent(entityId, newComponentId, ComponentIndex::Sprite);
 }
 
 void ECSManager::CreateRigidbody2DComponent(u32 entityId, const Rectangle& box) {
     i32 newComponentId = static_cast<i32>(bodies.size());
-    bodies.emplace_back(Rigidbody2D(entityId, box));
+    bodies.emplace_back(entityId, box);
     UpdateEntityWithComponent(entityId, newComponentId, ComponentIndex::Rigidbody2D);
 }
 
@@ -63,14 +61,14 @@ void ECSManager::SystemPhysicsUpdate(float dt) {
     for (auto itr = bodies.begin(); itr != bodies.end(); ++itr) {
         // Apply velocity
         auto transform = GetComponent<Transform2D>(itr->entityId);
-        float newX = transform.pos.x + itr->velocity.x * dt;
-        float newY = transform.pos.y + itr->velocity.y * dt;
-        PositionChange positionChange { itr->entityId, { newX, newY } };
+        float deltaX = itr->velocity.x * dt;
+        float deltaY = itr->velocity.y * dt;
+        PositionChange positionChange { itr->entityId, { deltaX, deltaY } };
         positionChanges.emplace_back(positionChange);
 
         // Collision test
-        Rectangle currentBox { newX + itr->boundingBox.x,
-                               newY + itr->boundingBox.y,
+        Rectangle currentBox { transform.pos.x + deltaX + itr->boundingBox.x,
+                               transform.pos.y + deltaY + itr->boundingBox.y,
                                itr->boundingBox.width, itr->boundingBox.height
         };
         for (auto other = bodies.begin(); other != bodies.end(); ++other) {
@@ -84,7 +82,7 @@ void ECSManager::SystemPhysicsUpdate(float dt) {
                 //collisions.emplace_back(itr->entityId, currentBox, itr->velocity, other->entityId, otherBox, other->velocity);
                 CollisionChange collisionChange {
                         itr->entityId,
-                        Vector2 { transform.pos.x - itr->velocity.x * dt, transform.pos.y - itr->velocity.y * dt },
+                        Vector2 { -itr->velocity.x * dt, -itr->velocity.y * dt },
                         Vector2 { -itr->velocity.x, -itr->velocity.y }
                 };
                 collisionChanges.emplace_back(collisionChange);
@@ -163,25 +161,24 @@ i32 ECSManager::FindEntityComponent(u32 entityId, ComponentIndex componentIndex)
     return FindEntity(entityId).components.at(static_cast<i32>(componentIndex));
 }
 
-void ECSManager::UpdateWorld() {
-    /// TODO Create new world state instead
+WorldState ECSManager::UpdateWorld() {
     // Position
     for (auto positionChange : positionChanges) {
         auto& transform = GetComponent<Transform2D>(positionChange.entityId);
-        transform.pos = positionChange.newPosition;
+        transform.pos = transform.pos + positionChange.positionDelta;
     }
     // Collisions
     for (auto collisionChange : collisionChanges) {
         auto& transform = GetComponent<Transform2D>(collisionChange.entityId);
         auto& body = GetComponent<Rigidbody2D>(collisionChange.entityId);
-        transform.pos = collisionChange.newPosition;
+        transform.pos = transform.pos + collisionChange.positionDelta;
         body.velocity = collisionChange.newVelocity;
     }
     for (auto bounceChange : bounceChanges) {
         auto& transform = GetComponent<Transform2D>(bounceChange.entityId);
         auto& body = GetComponent<Rigidbody2D>(bounceChange.entityId);
         transform.pos.y = bounceChange.newY;
-        body.velocity.y = bounceChange.newVelocityY;
+        body.velocity.y = bounceChange.newVerticalVelocity;
     }
 
     positionChanges.clear();
@@ -190,6 +187,11 @@ void ECSManager::UpdateWorld() {
 
     // Update components' data
     UpdateComponentsWithTransform();
+
+    WorldState newWorldState {
+        entities, transforms, sprites, bodies
+    };
+    return newWorldState;
 }
 
 

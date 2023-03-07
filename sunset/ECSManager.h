@@ -9,6 +9,7 @@
 #include "Entity.h"
 #include "Components.h"
 #include "WorldChange.h"
+#include "WorldState.h"
 #include <vector>
 #include <variant>
 #include <memory>
@@ -25,7 +26,7 @@ public:
     void UpdateSceneGame(f32 dt);
     void DrawSceneGame();
 
-    void UpdateWorld();
+    WorldState UpdateWorld();
 
     u32 CreateEntity();
     void RemoveEntity(u32 entityId);

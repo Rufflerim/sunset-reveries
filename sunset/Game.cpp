@@ -16,6 +16,7 @@ void Game::Update(f32 dt) {
         scene->Update(dt);
         if (scene->GetLocking()) break;
     }
+    worldStates.push_back(std::move(ecs->UpdateWorld()));
 }
 
 void Game::Draw() {

@@ -13,7 +13,7 @@ void AssetsManager::LoadTexture(const str& name, const str& path, i32 sceneId) {
     sceneLoadedTextures.emplace(sceneId, name);
 }
 
-const Texture& AssetsManager::GetTexture(const str& name) {
+const Texture AssetsManager::GetTexture(const str& name) {
     return textures.at(name);
 }
 

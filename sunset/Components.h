@@ -30,33 +30,14 @@ struct Sprite {
         srcRect { 0, 0, width, height },
         dstRect { 0, 0, width, height },
         texName { textNameP },
-        tex { const_cast<Texture&>(AssetsManager::GetTexture(textNameP)) }
+        tex { AssetsManager::GetTexture(textNameP) }
     {}
-
-    Sprite(Sprite&& other) noexcept :
-            entityId { other.entityId },
-            srcRect { other.srcRect },
-            dstRect { other.dstRect },
-            texName { other.texName },
-            tex { const_cast<Texture&>(AssetsManager::GetTexture(texName)) }
-    {
-
-    }
-
-    Sprite& operator=(Sprite&& other) noexcept {
-        entityId = other.entityId;
-        srcRect = other.srcRect;
-        dstRect = other.dstRect;
-        texName = other.texName;
-        tex = AssetsManager::GetTexture(texName);
-        return *this;
-    };
 
     u32 entityId;
     Rectangle srcRect { 0, 0, 1, 1 };
     Rectangle dstRect { 0, 0, 1, 1 };
     str texName;
-    Texture& tex;
+    Texture tex;
 };
 
 struct Rigidbody2D {

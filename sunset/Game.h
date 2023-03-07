@@ -29,6 +29,7 @@ public:
 private:
     vector<unique_ptr<IScene>> sceneStack {};
     shared_ptr<ECSManager> ecs;
+    vector<WorldState> worldStates;
 };
 
 
