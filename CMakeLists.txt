@@ -12,15 +12,24 @@ if (UNIX)
     set(OpenGL_GL_PREFERENCE LEGACY)
 endif(UNIX)
 ## -- Raylib
-cmake_policy(SET CMP0135 NEW)
+if (UNIX)
+    cmake_policy(SET CMP0135 NEW)
+endif(UNIX)
 set(RAYLIB_VERSION 4.2.0)
 find_package(raylib ${RAYLIB_VERSION} QUIET) # QUIET or REQUIRED
 if (NOT raylib_FOUND) # If there's none, fetch and build raylib
     include(FetchContent)
-    FetchContent_Declare(
-            raylib
-            URL https://github.com/raysan5/raylib/archive/refs/tags/${RAYLIB_VERSION}.tar.gz
-    )
+    if (UNIX)
+        FetchContent_Declare(
+                raylib
+                URL https://github.com/raysan5/raylib/archive/refs/tags/${RAYLIB_VERSION}.tar.gz
+        )
+    elseif (WIN32)
+        FetchContent_Declare(
+                raylib
+                URL https://github.com/raysan5/raylib/archive/refs/tags/${RAYLIB_VERSION}.zip
+        )
+    endif()
     FetchContent_GetProperties(raylib)
     if (NOT raylib_POPULATED) # Have we downloaded raylib yet?
         set(FETCHCONTENT_QUIET NO)
@@ -39,7 +48,9 @@ add_executable(${PROJECT_NAME} sunset/main.cpp)
 target_link_libraries(${PROJECT_NAME} game gaemi)
 
 # C++ hardcode options
-#target_compile_features(${CMAKE_PROJECT_NAME} PUBLIC cxx_std_20)
+if (WIN32)
+    target_compile_features(${CMAKE_PROJECT_NAME} PUBLIC cxx_std_20)
+endif(WIN32)
 if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
     target_compile_options(${CMAKE_PROJECT_NAME} PUBLIC -Wno-c++98-compat -Wno-c++98-compat-pedantic)
 elseif (CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
