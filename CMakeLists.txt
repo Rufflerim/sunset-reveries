@@ -2,9 +2,9 @@ cmake_minimum_required(VERSION 3.20)
 project(sunset-reveries)
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
-if (UNIX)
-    option(BUILD_SHARED_LIBS "Build shared libraries (.dll/.so) instead of static ones (.lib/.a)" ON)
-endif(UNIX)
+#if (UNIX)
+#    option(BUILD_SHARED_LIBS "Build shared libraries (.dll/.so) instead of static ones (.lib/.a)" ON)
+#endif(UNIX)
 
 # Dependencies
 ## -- OpenGL
@@ -12,9 +12,7 @@ if (UNIX)
     set(OpenGL_GL_PREFERENCE LEGACY)
 endif(UNIX)
 ## -- Raylib
-if (UNIX)
-    cmake_policy(SET CMP0135 NEW)
-endif(UNIX)
+cmake_policy(SET CMP0135 NEW)
 set(RAYLIB_VERSION 4.2.0)
 find_package(raylib ${RAYLIB_VERSION} QUIET) # QUIET or REQUIRED
 if (NOT raylib_FOUND) # If there's none, fetch and build raylib
