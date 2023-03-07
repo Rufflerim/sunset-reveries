@@ -8,6 +8,8 @@
 #include "../gaemi/IGame.h"
 #include "IScene.h"
 #include "ECSManager.h"
+#include "WorldStateManager.hpp"
+
 #include <vector>
 #include <memory>
 
@@ -29,7 +31,7 @@ public:
 private:
     vector<unique_ptr<IScene>> sceneStack {};
     shared_ptr<ECSManager> ecs;
-    vector<WorldState> worldStates;
+    shared_ptr<WorldStateManager> worldStateManager;
 };
 
 

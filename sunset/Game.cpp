@@ -8,7 +8,8 @@
 
 void Game::Load() {
     ecs = std::make_shared<ECSManager>();
-    AddScene(std::make_unique<SceneGame>(ecs));
+    worldStateManager = std::make_shared<WorldStateManager>(ecs);
+    AddScene(std::make_unique<SceneGame>(ecs, worldStateManager));
 }
 
 void Game::Update(f32 dt) {
@@ -16,7 +17,7 @@ void Game::Update(f32 dt) {
         scene->Update(dt);
         if (scene->GetLocking()) break;
     }
-    worldStates.push_back(std::move(ecs->UpdateWorld()));
+    worldStateManager->StoreNewState(ecs->UpdateWorld());
 }
 
 void Game::Draw() {

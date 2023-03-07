@@ -194,4 +194,11 @@ WorldState ECSManager::UpdateWorld() {
     return newWorldState;
 }
 
+void ECSManager::SetWorldState(const WorldState &newWorldState) {
+    entities = newWorldState.entities;
+    transforms = newWorldState.transforms;
+    sprites = newWorldState.sprites;
+    bodies = newWorldState.bodies;
+}
+
 

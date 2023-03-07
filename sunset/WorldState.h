@@ -5,8 +5,10 @@
 #ifndef SUNSET_REVERIES_WORLDSTATE_H
 #define SUNSET_REVERIES_WORLDSTATE_H
 
-#include <vector>
+#include "Components.h"
+#include "Entity.h"
 
+#include <vector>
 using std::vector;
 
 struct WorldState {

@@ -3,11 +3,14 @@
 //
 
 #include "SceneGame.h"
+
+#include <utility>
 #include "../gaemi/Renderer.h"
 #include "../gaemi/AssetsManager.h"
 
-SceneGame::SceneGame(shared_ptr<ECSManager> ecsRef)
-: ecs { ecsRef }
+SceneGame::SceneGame(shared_ptr<ECSManager> ecsRef,
+                     shared_ptr<WorldStateManager> worldStateManager)
+: ecs {std::move( ecsRef )}, worldStateManager {std::move( worldStateManager )}
 {
 
 }
@@ -36,6 +39,18 @@ void SceneGame::Load() {
 }
 
 void SceneGame::Update(f32 dt) {
+    if (IsKeyDown(KEY_LEFT)) {
+        pause = true;
+        worldStateManager->Rewind(4);
+    }
+
+    if (IsKeyReleased(KEY_LEFT)) {
+        pause = false;
+        worldStateManager->Resume();
+    }
+
+    if (pause) return;
+
     ecs->UpdateSceneGame(dt);
 }
 

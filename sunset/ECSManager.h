@@ -27,6 +27,7 @@ public:
     void DrawSceneGame();
 
     WorldState UpdateWorld();
+    void SetWorldState(const WorldState& newWorldState);
 
     u32 CreateEntity();
     void RemoveEntity(u32 entityId);
