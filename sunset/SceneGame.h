@@ -9,6 +9,7 @@
 #include "raylib.h"
 #include "ECSManager.h"
 #include "WorldStateManager.hpp"
+#include "Game.h"
 
 #include <vector>
 #include <array>
@@ -22,18 +23,16 @@ using std::shared_ptr;
 class SceneGame : public IScene {
 public:
     SceneGame(shared_ptr<ECSManager> ecsRef,
-              shared_ptr<WorldStateManager> worldStateManager);
+              Game& game);
     void Load() override;
     void Update(f32 dt) override;
     void Draw() override;
     void Unload() override;
 
 private:
+    Game& game;
     shared_ptr<ECSManager> ecs;
-    shared_ptr<WorldStateManager> worldStateManager;
     Texture2D texture;
-
-    bool pause { false };
 
     u32 CreateRandomBouncingEntity();
 };

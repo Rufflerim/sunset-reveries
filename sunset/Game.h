@@ -28,10 +28,13 @@ public:
     void RemoveCurrentScene();
     void SwitchScene(unique_ptr<IScene> newScene);
 
+    void Rewind(u64 frameSpeed);
+    void Resume();
+
 private:
     vector<unique_ptr<IScene>> sceneStack {};
     shared_ptr<ECSManager> ecs;
-    shared_ptr<WorldStateManager> worldStateManager;
+    unique_ptr<WorldStateManager> worldStateManager;
 };
 
 

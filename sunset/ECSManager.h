@@ -23,11 +23,12 @@ using std::shared_ptr;
 
 class ECSManager {
 public:
-    void UpdateSceneGame(f32 dt);
-    void DrawSceneGame();
+    void UpdateScene(f32 dt);
+    void DrawScene();
 
     WorldState UpdateWorld();
     void SetWorldState(const WorldState& newWorldState);
+    void PrepareDraw();
 
     u32 CreateEntity();
     void RemoveEntity(u32 entityId);
@@ -64,10 +65,9 @@ private:
     void UpdateEntityWithComponent(u32 entityId, i32 newComponentId, ComponentIndex componentIndex);
     void CleanRemovedEntities();
 
-    void UpdateComponentsWithTransform();
-
     void SystemPhysicsUpdate(float dt);
     void SystemScreenBounceUpdate();
+
     void SystemSpriteDraw();
 
     template<class T>

@@ -9,8 +9,8 @@
 #include "../gaemi/AssetsManager.h"
 
 SceneGame::SceneGame(shared_ptr<ECSManager> ecsRef,
-                     shared_ptr<WorldStateManager> worldStateManager)
-: ecs {std::move( ecsRef )}, worldStateManager {std::move( worldStateManager )}
+                     Game& game)
+: ecs {std::move( ecsRef )}, game { game }
 {
 
 }
@@ -40,23 +40,16 @@ void SceneGame::Load() {
 
 void SceneGame::Update(f32 dt) {
     if (IsKeyDown(KEY_LEFT)) {
-        pause = true;
-        worldStateManager->Rewind(4);
+        game.Rewind(2);
     }
 
     if (IsKeyReleased(KEY_LEFT)) {
-        pause = false;
-        worldStateManager->Resume();
+        game.Resume();
     }
-
-    if (pause) return;
-
-    ecs->UpdateSceneGame(dt);
 }
 
 void SceneGame::Draw() {
     render::DrawTexture(texture, 0, 120, WHITE);
-    ecs->DrawSceneGame();
 }
 
 void SceneGame::Unload() {

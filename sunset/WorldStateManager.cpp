@@ -12,7 +12,7 @@ WorldStateManager::WorldStateManager(shared_ptr<ECSManager> ecs) :
 
 
 void WorldStateManager::StoreNewState(WorldState newState) {
-    if (!isRecording) return;
+    if (!IsRecording()) return;
     currentFrame = worldStates.size();
     worldStates.push_back(std::move(newState));
 }
@@ -30,12 +30,12 @@ void WorldStateManager::SetFrame(u64 targetFrame) {
 }
 
 void WorldStateManager::Rewind(u64 rewindSpeed) {
-    isRecording = false;
+    recordingStatus = RecordingStatus::Stop;
     u64 targetFrame = currentFrame - rewindSpeed;
     if (rewindSpeed > currentFrame) targetFrame = 0;
     SetFrame(targetFrame);
 }
 
 void WorldStateManager::Resume() {
-    isRecording = true;
+    recordingStatus = RecordingStatus::Recording;
 }

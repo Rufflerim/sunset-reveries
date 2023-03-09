@@ -7,12 +7,12 @@
 #include "WorldChange.h"
 #include "GMath.h"
 
-void ECSManager::UpdateSceneGame(f32 dt) {
+void ECSManager::UpdateScene(f32 dt) {
     SystemPhysicsUpdate(dt);
     SystemScreenBounceUpdate();
 }
 
-void ECSManager::DrawSceneGame() {
+void ECSManager::DrawScene() {
     SystemSpriteDraw();
 
     CleanRemovedEntities();
@@ -48,19 +48,20 @@ void ECSManager::UpdateEntityWithComponent(u32 entityId, i32 newComponentId, Com
     FindEntity(entityId).components[iComponentIndex] = newComponentId;
 }
 
-void ECSManager::UpdateComponentsWithTransform() {
+void ECSManager::PrepareDraw() {
     // Update sprite positions
     for (auto& sprite : sprites) {
-        auto& transform = GetComponent<Transform2D>(sprite.entityId);
+        const auto& transform = GetComponent<Transform2D>(sprite.entityId);
         sprite.dstRect = { transform.pos.x, transform.pos.y, static_cast<float>(sprite.tex.width), static_cast<float>(sprite.tex.height) };
     }
 }
 
 void ECSManager::SystemPhysicsUpdate(float dt) {
-    vector<Collision2D> collisions;
+    positionChanges.reserve(transforms.size());
+    collisionChanges.reserve(bodies.size() * 2);
     for (auto itr = bodies.begin(); itr != bodies.end(); ++itr) {
         // Apply velocity
-        auto transform = GetComponent<Transform2D>(itr->entityId);
+        const auto& transform = GetComponent<Transform2D>(itr->entityId);
         float deltaX = itr->velocity.x * dt;
         float deltaY = itr->velocity.y * dt;
         PositionChange positionChange { itr->entityId, { deltaX, deltaY } };
@@ -73,7 +74,7 @@ void ECSManager::SystemPhysicsUpdate(float dt) {
         };
         for (auto other = bodies.begin(); other != bodies.end(); ++other) {
             if (itr == other) continue;
-            auto& otherTransform = GetComponent<Transform2D>(other->entityId);
+            const auto& otherTransform = GetComponent<Transform2D>(other->entityId);
             Rectangle otherBox { otherTransform.pos.x + other->boundingBox.x,
                                  otherTransform.pos.y + other->boundingBox.y,
                                  other->boundingBox.width, other->boundingBox.height
@@ -92,8 +93,9 @@ void ECSManager::SystemPhysicsUpdate(float dt) {
 }
 
 void ECSManager::SystemScreenBounceUpdate() {
+    bounceChanges.reserve(bodies.size());
     for (auto body : bodies) {
-        auto transform = GetComponent<Transform2D>(body.entityId);
+        const auto& transform = GetComponent<Transform2D>(body.entityId);
         Rectangle currentBox { transform.pos.x + body.boundingBox.x,
                                transform.pos.y + body.boundingBox.y,
                                body.boundingBox.width, body.boundingBox.height
@@ -185,8 +187,7 @@ WorldState ECSManager::UpdateWorld() {
     collisionChanges.clear();
     bounceChanges.clear();
 
-    // Update components' data
-    UpdateComponentsWithTransform();
+    //PrepareDraw();
 
     WorldState newWorldState {
         entities, transforms, sprites, bodies
