@@ -20,20 +20,20 @@ void SceneGame::Load() {
     texture = AssetsManager::GetTexture("bg_sunset");
     AssetsManager::LoadTexture("player", "assets/player.png", ToSceneId(SceneName::SceneGame));
 
-
     u32 playerId = ecs->CreateEntity();
+
+    const f32 playerX { 400 };
+    const f32 playerY { 400 };
     ecs->CreateTransform2DComponent(playerId);
-    ecs->GetComponent<Transform2D>(playerId).pos.x = 400;
-    ecs->GetComponent<Transform2D>(playerId).pos.y = 400;
+    ecs->GetComponent<Transform2D>(playerId).pos = { playerX, playerY };
 
     ecs->CreateSpriteComponent(playerId, "player");
 
     const auto& playerTexture = AssetsManager::GetTexture("player");
-    ecs->CreateRigidbody2DComponent(playerId, { 0, 0, static_cast<float>(playerTexture.width), static_cast<float>(playerTexture.height)});
-    ecs->GetComponent<Rigidbody2D>(playerId).velocity.x = 500.0f;
-    ecs->GetComponent<Rigidbody2D>(playerId).velocity.y = 500.0f;
+    ecs->CreateRigidbody2DComponent(playerId, { playerX, playerY }, { 0, 0, static_cast<float>(playerTexture.width), static_cast<float>(playerTexture.height)});
+    ecs->GetComponent<Rigidbody2D>(playerId).velocity = { 500.0f, 500.0f };
 
-    for (i32 i = 0; i < 15; ++i) {
+    for (i32 i = 0; i < 1000; ++i) {
         CreateRandomBouncingEntity();
     }
 }
@@ -59,14 +59,16 @@ void SceneGame::Unload() {
 u32 SceneGame::CreateRandomBouncingEntity() {
     u32 newId = ecs->CreateEntity();
 
+    const f32 x = static_cast<f32>(GetRandomValue(100, 1100));
+    const f32 y = static_cast<f32>(GetRandomValue(150, 550));
+
     ecs->CreateTransform2DComponent(newId);
-    ecs->GetComponent<Transform2D>(newId).pos.x = static_cast<float>(GetRandomValue(100, 1100));
-    ecs->GetComponent<Transform2D>(newId).pos.y = static_cast<float>(GetRandomValue(150, 550));
+    ecs->GetComponent<Transform2D>(newId).pos = { x, y };
 
     ecs->CreateSpriteComponent(newId, "player");
 
     const auto& playerTexture = AssetsManager::GetTexture("player");
-    ecs->CreateRigidbody2DComponent(newId, { 0, 0, static_cast<float>(playerTexture.width), static_cast<float>(playerTexture.height)});
+    ecs->CreateRigidbody2DComponent(newId, { x, y }, { 0, 0, static_cast<float>(playerTexture.width), static_cast<float>(playerTexture.height)});
     ecs->GetComponent<Rigidbody2D>(newId).velocity.x = static_cast<float>(GetRandomValue(0, 600));
     ecs->GetComponent<Rigidbody2D>(newId).velocity.y = static_cast<float>(GetRandomValue(0, 600));
 

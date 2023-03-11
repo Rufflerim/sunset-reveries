@@ -9,8 +9,6 @@ WorldStateManager::WorldStateManager(shared_ptr<ECSManager> ecs) :
 
 }
 
-
-
 void WorldStateManager::StoreNewState(WorldState newState) {
     if (!IsRecording()) return;
     currentFrame = worldStates.size();

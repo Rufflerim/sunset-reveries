@@ -36,7 +36,7 @@ public:
 
     void CreateTransform2DComponent(u32 entityId);
     void CreateSpriteComponent(u32 entityId, const str& texName);
-    void CreateRigidbody2DComponent(u32 entityId, const Rectangle& box);
+    void CreateRigidbody2DComponent(u32 entityId, const Vector2& pos, const Rectangle& box);
 
     template<class T>
     T& GetComponent(u32 entityId) {
@@ -50,6 +50,9 @@ public:
     }
 
 private:
+    static u32 maxId;
+
+    vector<u32> entityIds;
     vector<Entity> entities;
     vector<Transform2D> transforms;
     vector<Sprite> sprites;

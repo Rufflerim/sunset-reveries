@@ -12,6 +12,7 @@
 using std::vector;
 
 struct WorldState {
+    vector<u32> entityIds;
     vector<Entity> entities;
     vector<Transform2D> transforms;
     vector<Sprite> sprites;

@@ -41,12 +41,14 @@ struct Sprite {
 };
 
 struct Rigidbody2D {
-    explicit Rigidbody2D(u32 entityIdP, const Rectangle& box) :
+    explicit Rigidbody2D(u32 entityIdP, const Vector2& pos, const Rectangle& box) :
         entityId { entityIdP },
+        pos { pos },
         boundingBox { box }
     {}
 
     u32 entityId;
+    Vector2 pos { 0.0f, 0.0f };
     Rectangle boundingBox { 0, 0, 1, 1 };
     Vector2 velocity { 0, 0 };
 };
