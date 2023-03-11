@@ -6,7 +6,6 @@
 
 #include <utility>
 #include "../gaemi/Renderer.h"
-#include "../gaemi/AssetsManager.h"
 
 SceneGame::SceneGame(shared_ptr<ECSManager> ecsRef,
                      Game& game)
@@ -20,7 +19,7 @@ void SceneGame::Load() {
     texture = AssetsManager::GetTexture("bg_sunset");
     AssetsManager::LoadTexture("player", "assets/player.png", ToSceneId(SceneName::SceneGame));
 
-    u32 playerId = ecs->CreateEntity();
+    playerId = ecs->CreateEntity();
 
     const f32 playerX { 400 };
     const f32 playerY { 400 };
@@ -31,14 +30,30 @@ void SceneGame::Load() {
 
     const auto& playerTexture = AssetsManager::GetTexture("player");
     ecs->CreateRigidbody2DComponent(playerId, { playerX, playerY }, { 0, 0, static_cast<float>(playerTexture.width), static_cast<float>(playerTexture.height)});
-    ecs->GetComponent<Rigidbody2D>(playerId).velocity = { 500.0f, 500.0f };
-
-    for (i32 i = 0; i < 1000; ++i) {
-        CreateRandomBouncingEntity();
-    }
+    ecs->GetComponent<Rigidbody2D>(playerId).velocity = { 0.0f, 0.0f };
 }
 
 void SceneGame::Update(f32 dt) {
+    // Player movement
+    Rigidbody2D& playerBody = ecs->GetComponent<Rigidbody2D>(playerId);
+    Vector2 acceleration { 0.0f, 0.0f };
+    if (IsKeyDown(KEY_D)) {
+        acceleration.x += 3000.0f * dt;
+    } else if (IsKeyDown(KEY_A) || IsKeyDown(KEY_Q)) {
+        acceleration.x += -3000.0f * dt;
+    }
+
+    // Jump
+    if (IsKeyDown(KEY_SPACE) && playerBody.pos.y == 600.0f - playerBody.boundingBox.height) {
+        acceleration.y += -50000.0f * dt;
+    }
+
+    // Apply player changes
+    PlayerChange playerChange { playerId, acceleration };
+    game.PushPlayerChange(playerChange);
+
+
+    // Time rewind
     if (IsKeyDown(KEY_LEFT)) {
         game.Rewind(2);
     }

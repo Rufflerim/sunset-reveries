@@ -11,7 +11,7 @@ u32 ECSManager::maxId { 0 };
 
 void ECSManager::UpdateScene(f32 dt) {
     SystemPhysicsUpdate(dt);
-    SystemScreenBounceUpdate();
+    //SystemScreenBounceUpdate();
 }
 
 void ECSManager::DrawScene() {
@@ -66,7 +66,14 @@ void ECSManager::SystemPhysicsUpdate(float dt) {
         // Apply velocity
         float deltaX = body.velocity.x * dt;
         float deltaY = body.velocity.y * dt;
-        PositionChange positionChange { body.entityId, { deltaX, deltaY } };
+        // Friction and gravity
+        PositionChange positionChange { body.entityId, false,
+                                        { deltaX, deltaY },
+                                        { body.velocity.x * -0.05f, 1000.0f * dt }
+        };
+        positionChange.isGrounded = body.pos.y + positionChange.positionDelta.y >= 600.f - body.boundingBox.height;
+        f32 velocityDeltaY = positionChange.isGrounded ? 0.0f : 2000.0f * dt;
+        positionChange.velocityDelta.y = velocityDeltaY;
         positionChanges.emplace_back(positionChange);
 
         // Collision test
@@ -165,12 +172,26 @@ i32 ECSManager::FindEntityComponent(u32 entityId, ComponentIndex componentIndex)
 }
 
 WorldState ECSManager::UpdateWorld() {
+    // Player
+    bool hasJumped = false;
+    for (auto playerChange : playerChanges) {
+        auto& body = GetComponent<Rigidbody2D>(playerChange.entityId);
+        body.velocity = body.velocity + playerChange.velocityDelta;
+        if (playerChange.velocityDelta.y < 0) {
+            hasJumped = true;
+        }
+    }
     // Position
     for (auto positionChange : positionChanges) {
         auto& transform = GetComponent<Transform2D>(positionChange.entityId);
         auto& body = GetComponent<Rigidbody2D>(positionChange.entityId);
         transform.pos = transform.pos + positionChange.positionDelta;
         body.pos = transform.pos;
+        body.velocity = body.velocity + positionChange.velocityDelta;
+        if (positionChange.isGrounded && !hasJumped) {
+            body.velocity.y = 0.0f;
+            body.pos.y = 600.0f - body.boundingBox.height;
+        }
     }
     // Collisions
     for (auto collisionChange : collisionChanges) {

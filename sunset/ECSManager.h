@@ -17,15 +17,12 @@
 using std::vector;
 using std::shared_ptr;
 
-/// TODO Same update function is called from any scene class
-/// - Workaround: create one public update function per calling class, good for very simple game
-/// - Implement a strategy pattern and inject a friend class with and update and draw function
-
 class ECSManager {
 public:
     void UpdateScene(f32 dt);
     void DrawScene();
 
+    void SetPlayerChanges(const vector<PlayerChange>& playerChangesP) { playerChanges = playerChangesP; }
     WorldState UpdateWorld();
     void SetWorldState(const WorldState& newWorldState);
     void PrepareDraw();
@@ -63,6 +60,7 @@ private:
     vector<CollisionChange> collisionChanges;
     vector<PositionChange> positionChanges;
     vector<BounceChange> bounceChanges;
+    vector<PlayerChange> playerChanges;
 
     i32 FindEntityComponent(u32 entityId, ComponentIndex componentIndex);
     void UpdateEntityWithComponent(u32 entityId, i32 newComponentId, ComponentIndex componentIndex);

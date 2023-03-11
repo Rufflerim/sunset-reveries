@@ -31,10 +31,15 @@ public:
     void Rewind(u64 frameSpeed);
     void Resume();
 
+    void PushPlayerChange(PlayerChange playerChange);
+    void ConsumePlayerChanges();
+
 private:
     vector<unique_ptr<IScene>> sceneStack {};
     shared_ptr<ECSManager> ecs;
     unique_ptr<WorldStateManager> worldStateManager;
+
+    vector<PlayerChange> playerChanges;
 };
 
 

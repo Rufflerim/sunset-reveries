@@ -5,6 +5,11 @@
 #ifndef SUNSET_REVERIES_WORLDCHANGE_H
 #define SUNSET_REVERIES_WORLDCHANGE_H
 
+struct PlayerChange {
+    u32 entityId;
+    Vector2 velocityDelta;
+};
+
 struct CollisionChange {
     u32 entityId;
     Vector2 positionDelta;
@@ -13,7 +18,9 @@ struct CollisionChange {
 
 struct PositionChange {
     u32 entityId;
-    Vector2 positionDelta;
+    bool isGrounded;
+    Vector2 positionDelta { 0.0f, 0.0f };
+    Vector2 velocityDelta { 0.0f, 0.0f };
 };
 
 struct BounceChange {

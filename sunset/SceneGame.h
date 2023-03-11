@@ -33,6 +33,7 @@ private:
     Game& game;
     shared_ptr<ECSManager> ecs;
     Texture2D texture;
+    u32 playerId;
 
     u32 CreateRandomBouncingEntity();
 };

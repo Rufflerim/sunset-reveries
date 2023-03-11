@@ -18,6 +18,7 @@ void Game::Update(f32 dt) {
         if (scene->GetLocking()) break;
     }
     if (worldStateManager->IsRecording()) ecs->UpdateScene(dt);
+    ConsumePlayerChanges();
     worldStateManager->StoreNewState(ecs->UpdateWorld());
 }
 
@@ -61,6 +62,15 @@ void Game::Rewind(u64 frameSpeed) {
 
 void Game::Resume() {
     worldStateManager->Resume();
+}
+
+void Game::PushPlayerChange(PlayerChange playerChange) {
+    playerChanges.emplace_back(playerChange);
+}
+
+void Game::ConsumePlayerChanges() {
+    ecs->SetPlayerChanges(playerChanges);
+    playerChanges.clear();
 }
 
 
