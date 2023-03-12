@@ -51,12 +51,57 @@ void ECSManager::UpdateEntityWithComponent(u32 entityId, i32 newComponentId, Com
     FindEntity(entityId).components[iComponentIndex] = newComponentId;
 }
 
+void ECSManager::SystemSpriteDraw() {
+    for (auto& sprite : sprites) {
+        render::DrawSprite(sprite.tex, sprite.srcRect, sprite.dstRect, WHITE);
+    }
+}
+
+void ECSManager::RemoveEntity(u32 entityId) {
+    entitiesToRemove.push_back(entityId);
+}
+
+void ECSManager::CleanRemovedEntities() {
+    for (auto entityId : entitiesToRemove) {
+        // Transform
+        RemoveEntityComponent<Transform2D>(entityId);
+        // Sprites
+        RemoveEntityComponent<Sprite>(entityId);
+        // Rigidbodies
+        RemoveEntityComponent<Rigidbody2D>(entityId);
+
+        std::erase(entityIds, entityId);
+        std::erase_if(entities, [=](Entity entity) {
+            return entity.id == entityId;
+        });
+    }
+    entitiesToRemove.clear();
+}
+
+Entity& ECSManager::FindEntity(u32 entityId) {
+    auto itr = std::lower_bound(entityIds.begin(), entityIds.end(), entityId);
+    return entities.at(std::distance(entityIds.begin(), itr));
+}
+
+i32 ECSManager::FindEntityComponent(u32 entityId, ComponentIndex componentIndex) {
+    return FindEntity(entityId).components.at(static_cast<i32>(componentIndex));
+}
+
+
 void ECSManager::PrepareDraw() {
     // Update sprite positions
     for (auto& sprite : sprites) {
         const auto& transform = GetComponent<Transform2D>(sprite.entityId);
         sprite.dstRect = { transform.pos.x, transform.pos.y, static_cast<float>(sprite.tex.width), static_cast<float>(sprite.tex.height) };
     }
+}
+
+void ECSManager::SetWorldState(const WorldState &newWorldState) {
+    entityIds = newWorldState.entityIds;
+    entities = newWorldState.entities;
+    transforms = newWorldState.transforms;
+    sprites = newWorldState.sprites;
+    bodies = newWorldState.bodies;
 }
 
 void ECSManager::SystemPhysicsUpdate(float dt) {
@@ -119,9 +164,9 @@ void ECSManager::SystemScreenBounceUpdate() {
         // Vertical bounce
         if (currentBox.y + currentBox.height > screenHeight - blackRibbonHeight) {
             BounceChange bounceChange {
-                body.entityId,
-                screenHeight - blackRibbonHeight - currentBox.height,
-                -body.velocity.y
+                    body.entityId,
+                    screenHeight - blackRibbonHeight - currentBox.height,
+                    -body.velocity.y
             };
             bounceChanges.emplace_back(bounceChange);
         } else if (currentBox.y < blackRibbonHeight) {
@@ -133,42 +178,6 @@ void ECSManager::SystemScreenBounceUpdate() {
             bounceChanges.emplace_back(bounceChange);
         }
     }
-}
-
-void ECSManager::SystemSpriteDraw() {
-    for (auto& sprite : sprites) {
-        render::DrawSprite(sprite.tex, sprite.srcRect, sprite.dstRect, WHITE);
-    }
-}
-
-void ECSManager::RemoveEntity(u32 entityId) {
-    entitiesToRemove.push_back(entityId);
-}
-
-void ECSManager::CleanRemovedEntities() {
-    for (auto entityId : entitiesToRemove) {
-        // Transform
-        RemoveEntityComponent<Transform2D>(entityId);
-        // Sprites
-        RemoveEntityComponent<Sprite>(entityId);
-        // Rigidbodies
-        RemoveEntityComponent<Rigidbody2D>(entityId);
-
-        std::erase(entityIds, entityId);
-        std::erase_if(entities, [=](Entity entity) {
-            return entity.id == entityId;
-        });
-    }
-    entitiesToRemove.clear();
-}
-
-Entity& ECSManager::FindEntity(u32 entityId) {
-    auto itr = std::lower_bound(entityIds.begin(), entityIds.end(), entityId);
-    return entities.at(std::distance(entityIds.begin(), itr));
-}
-
-i32 ECSManager::FindEntityComponent(u32 entityId, ComponentIndex componentIndex) {
-    return FindEntity(entityId).components.at(static_cast<i32>(componentIndex));
 }
 
 WorldState ECSManager::UpdateWorld() {
@@ -218,13 +227,4 @@ WorldState ECSManager::UpdateWorld() {
     };
     return newWorldState;
 }
-
-void ECSManager::SetWorldState(const WorldState &newWorldState) {
-    entityIds = newWorldState.entityIds;
-    entities = newWorldState.entities;
-    transforms = newWorldState.transforms;
-    sprites = newWorldState.sprites;
-    bodies = newWorldState.bodies;
-}
-
 
