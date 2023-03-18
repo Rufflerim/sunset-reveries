@@ -6,11 +6,14 @@
 #define SUNSET_REVERIES_COMPONENTS_H
 
 #include <optional>
+#include <vector>
 #include "raylib.h"
 #include "Defines.h"
 #include "AssetsManager.h"
 #include "GMath.h"
 #include "Renderer.h"
+
+using std::vector;
 
 enum class ComponentIndex {
     Transform2D = 0,
@@ -76,6 +79,10 @@ struct RigidbodyRaycast2D {
         if (horizontalRaysCount < 2) {
             horizontalRaysCount = 2;
         }
+        verticalRays.clear();
+        verticalRays = std::move(UpdateVerticalRays());
+        horizontalRays.clear();
+        horizontalRays = std::move(UpdateHorizontalRays());
     }
 
     u32 entityId;
@@ -88,31 +95,27 @@ struct RigidbodyRaycast2D {
     Ray2DDirection currentVerticalDirection { Ray2DDirection::Down };
     Ray2DDirection currentHorizontalDirection { Ray2DDirection::Right };
 
-    std::vector<Ray2D> verticalRays;
-    std::vector<Ray2D> horizontalRays;
+    vector<Ray2D> verticalRays;
+    vector<Ray2D> horizontalRays;
 
     void SetRayDirection(Ray2DDirection direction) {
         switch (direction) {
             case Ray2DDirection::Left:
                 if (currentHorizontalDirection == Ray2DDirection::Left) return;
                 currentHorizontalDirection = Ray2DDirection::Left;
-                horizontalRays.clear();
-                horizontalRays = std::move(UpdateHorizontalRays());
+                break;
             case Ray2DDirection::Right:
                 if (currentHorizontalDirection == Ray2DDirection::Right) return;
                 currentHorizontalDirection = Ray2DDirection::Right;
-                horizontalRays.clear();
-                horizontalRays = std::move(UpdateHorizontalRays());
+                break;
             case Ray2DDirection::Down:
                 if (currentVerticalDirection == Ray2DDirection::Down) return;
                 currentVerticalDirection = Ray2DDirection::Down;
-                verticalRays.clear();
-                verticalRays = std::move(UpdateVerticalRays());
+                break;
             case Ray2DDirection::Up:
                 if (currentVerticalDirection == Ray2DDirection::Up) return;
                 currentVerticalDirection = Ray2DDirection::Up;
-                verticalRays.clear();
-                verticalRays = std::move(UpdateVerticalRays());
+                break;
         }
     }
 
@@ -147,14 +150,14 @@ struct RigidbodyRaycast2D {
         if (currentVerticalDirection == Ray2DDirection::Down) {
             for (i32 i = 0; i < verticalRaysCount; ++i) {
                 rays.emplace_back(
-                        startPosition + offset * i + Vector2 { 0, margin } + Vector2 { 0, attachBody.boundingBox.height },
+                        startPosition + offset * i - Vector2 { 0, margin } + Vector2 { 0, attachBody.boundingBox.height },
                         Vector2 { 0, 1 },
                         verticalRayLength + margin);
             }
         } else {
             for (i32 i = 0; i < verticalRaysCount; ++i) {
                 rays.emplace_back(
-                        startPosition + offset * i - Vector2 { 0, margin },
+                        startPosition + offset * i + Vector2 { 0, margin },
                         Vector2 { 0, -1 },
                         verticalRayLength + margin);
             }
@@ -162,7 +165,22 @@ struct RigidbodyRaycast2D {
         return rays;
     }
 
+    void Update() {
+        for (auto& vRay : verticalRays) {
+            verticalRays.clear();
+            verticalRays = std::move(UpdateVerticalRays());
+        }
+        for (auto& hRay : horizontalRays) {
+            horizontalRays.clear();
+            horizontalRays = std::move(UpdateHorizontalRays());
+        }
+    }
+
     void DrawRays() {
+        const Rectangle box { attachBody.pos.x + attachBody.boundingBox.x,
+                        attachBody.pos.y + attachBody.boundingBox.y,
+                        attachBody.boundingBox.width, attachBody.boundingBox.height };
+        DrawRectangleLines(box.x, box.y, box.width, box.height, RED);
         for (auto& vRay : verticalRays) {
             render::DrawLine(vRay.origin, vRay.direction, vRay.length, RED);
         }

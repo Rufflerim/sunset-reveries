@@ -2,6 +2,8 @@
 // Created by gaetz on 05/11/2022.
 //
 
+#include <algorithm>
+
 #include "Engine.h"
 #include "raylib.h"
 #include "Window.h"
@@ -23,7 +25,11 @@ void Engine::Start(i32 windowWidth, i32 windowHeight, const str& gameNameP,
 
     while (!window.ShouldClose())
     {
+#ifdef GDEBUG
+        f32 dt = std::min(GetFrameTime(), 0.0166f);
+#else
         f32 dt = GetFrameTime();
+#endif
         game->Update(dt);
 
         render::BeginDraw();

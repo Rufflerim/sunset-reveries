@@ -168,6 +168,7 @@ void ECSManager::SystemPhysicsUpdate(float dt) {
         } else if (raycast.attachBody.velocity.y < 0) {
             raycast.SetRayDirection(Ray2DDirection::Up);
         }
+        raycast.Update();
     }
 }
 

@@ -3,6 +3,7 @@
 //
 
 #include "GMath.h"
+#include <limits>
 
 Vector2 operator+(Vector2 lh, Vector2 rh) {
     Vector2 res { lh.x + rh.x, lh.y + rh.y };

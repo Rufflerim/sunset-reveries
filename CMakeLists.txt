@@ -12,7 +12,9 @@ if (UNIX)
     set(OpenGL_GL_PREFERENCE LEGACY)
 endif(UNIX)
 ## -- Raylib
-#cmake_policy(SET CMP0135 NEW)
+if (UNIX)
+    cmake_policy(SET CMP0135 NEW)
+endif(UNIX)
 set(RAYLIB_VERSION 4.2.0)
 find_package(raylib ${RAYLIB_VERSION} QUIET) # QUIET or REQUIRED
 if (NOT raylib_FOUND) # If there's none, fetch and build raylib
@@ -37,13 +39,20 @@ if (NOT raylib_FOUND) # If there's none, fetch and build raylib
     endif()
 endif()
 
-# Debug
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -O0")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O0")
-
 # Add code
 add_subdirectory( gaemi )
 add_subdirectory( sunset )
+
+# Debug on Linux
+if (UNIX)
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -O0")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O0")
+    target_compile_definitions(gaemi PRIVATE
+            $<$<CONFIG:Debug>:
+            _DEBUG=1
+            >
+            )
+endif(UNIX)
 
 # Declaring our executable
 add_executable(${PROJECT_NAME} sunset/main.cpp)
