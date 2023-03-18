@@ -46,6 +46,15 @@ void ECSManager::CreateRigidbody2DComponent(u32 entityId, const Vector2& pos, co
     UpdateEntityWithComponent(entityId, newComponentId, ComponentIndex::Rigidbody2D);
 }
 
+void ECSManager::CreateBodyRaycast2DComponent(u32 entityId, const Rigidbody2D& body, i32 horizontalRaysCount,
+                                              i32 verticalRaysCount, f32 horizontalRayLength, f32 verticalRayLength,
+                                              f32 margin) {
+    i32 newComponentId = static_cast<i32>(bodyRays.size());
+    bodyRays.emplace_back(entityId, body, horizontalRaysCount, verticalRaysCount, horizontalRayLength, verticalRayLength, margin);
+    UpdateEntityWithComponent(entityId, newComponentId, ComponentIndex::BodyRaycast2D);
+}
+
+
 void ECSManager::UpdateEntityWithComponent(u32 entityId, i32 newComponentId, ComponentIndex componentIndex) {
     i32 iComponentIndex = static_cast<i32>(componentIndex);
     FindEntity(entityId).components[iComponentIndex] = newComponentId;
@@ -54,6 +63,10 @@ void ECSManager::UpdateEntityWithComponent(u32 entityId, i32 newComponentId, Com
 void ECSManager::SystemSpriteDraw() {
     for (auto& sprite : sprites) {
         render::DrawSprite(sprite.tex, sprite.srcRect, sprite.dstRect, WHITE);
+    }
+    /// TODO remove after test
+    for (auto& raycast : bodyRays) {
+        raycast.DrawRays();
     }
 }
 
@@ -143,6 +156,19 @@ void ECSManager::SystemPhysicsUpdate(float dt) {
             }
         }
     }
+    /// TODO remove after test
+    for (auto& raycast : bodyRays) {
+        if (raycast.attachBody.velocity.x > 0) {
+            raycast.SetRayDirection(Ray2DDirection::Right);
+        } else if (raycast.attachBody.velocity.x < 0) {
+            raycast.SetRayDirection(Ray2DDirection::Left);
+        }
+        if (raycast.attachBody.velocity.y > 0) {
+            raycast.SetRayDirection(Ray2DDirection::Down);
+        } else if (raycast.attachBody.velocity.y < 0) {
+            raycast.SetRayDirection(Ray2DDirection::Up);
+        }
+    }
 }
 
 void ECSManager::SystemScreenBounceUpdate() {
@@ -183,7 +209,7 @@ void ECSManager::SystemScreenBounceUpdate() {
 WorldState ECSManager::UpdateWorld() {
     // Player
     bool hasJumped = false;
-    for (auto playerChange : playerChanges) {
+    for (auto playerChange: playerChanges) {
         auto& body = GetComponent<Rigidbody2D>(playerChange.entityId);
         body.velocity = body.velocity + playerChange.velocityDelta;
         if (playerChange.velocityDelta.y < 0) {
@@ -191,7 +217,7 @@ WorldState ECSManager::UpdateWorld() {
         }
     }
     // Position
-    for (auto positionChange : positionChanges) {
+    for (auto positionChange: positionChanges) {
         auto& transform = GetComponent<Transform2D>(positionChange.entityId);
         auto& body = GetComponent<Rigidbody2D>(positionChange.entityId);
         transform.pos = transform.pos + positionChange.positionDelta;
@@ -203,14 +229,14 @@ WorldState ECSManager::UpdateWorld() {
         }
     }
     // Collisions
-    for (auto collisionChange : collisionChanges) {
+    for (auto collisionChange: collisionChanges) {
         auto& transform = GetComponent<Transform2D>(collisionChange.entityId);
         auto& body = GetComponent<Rigidbody2D>(collisionChange.entityId);
         transform.pos = transform.pos + collisionChange.positionDelta;
         body.pos = transform.pos;
         body.velocity = collisionChange.newVelocity;
     }
-    for (auto bounceChange : bounceChanges) {
+    for (auto bounceChange: bounceChanges) {
         auto& transform = GetComponent<Transform2D>(bounceChange.entityId);
         auto& body = GetComponent<Rigidbody2D>(bounceChange.entityId);
         transform.pos.y = bounceChange.newY;
@@ -226,5 +252,5 @@ WorldState ECSManager::UpdateWorld() {
         entityIds, entities, transforms, sprites, bodies
     };
     return newWorldState;
-}
 
+}

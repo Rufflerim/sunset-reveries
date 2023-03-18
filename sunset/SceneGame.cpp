@@ -31,11 +31,14 @@ void SceneGame::Load() {
     const auto& playerTexture = AssetsManager::GetTexture("player");
     ecs->CreateRigidbody2DComponent(playerId, { playerX, playerY }, { 0, 0, static_cast<float>(playerTexture.width), static_cast<float>(playerTexture.height)});
     ecs->GetComponent<Rigidbody2D>(playerId).velocity = { 0.0f, 0.0f };
+
+    ecs->CreateBodyRaycast2DComponent(playerId, ecs->GetComponent<Rigidbody2D>(playerId),
+            4, 3, 100.0f, 100.0f, 5.0f);
 }
 
 void SceneGame::Update(f32 dt) {
     // Player movement
-    Rigidbody2D& playerBody = ecs->GetComponent<Rigidbody2D>(playerId);
+    auto& playerBody = ecs->GetComponent<Rigidbody2D>(playerId);
     Vector2 acceleration { 0.0f, 0.0f };
     if (IsKeyDown(KEY_D)) {
         acceleration.x += 3000.0f * dt;

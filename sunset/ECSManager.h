@@ -34,6 +34,9 @@ public:
     void CreateTransform2DComponent(u32 entityId);
     void CreateSpriteComponent(u32 entityId, const str& texName);
     void CreateRigidbody2DComponent(u32 entityId, const Vector2& pos, const Rectangle& box);
+    void CreateBodyRaycast2DComponent(u32 entityId, const Rigidbody2D& body,
+                                      i32 horizontalRaysCount, i32 verticalRaysCount,
+                                      f32 horizontalRayLength, f32 verticalRayLength, f32 margin);
 
     template<class T>
     T& GetComponent(u32 entityId) {
@@ -43,6 +46,8 @@ public:
             return sprites.at(FindEntityComponent(entityId, ComponentIndex::Sprite));
         } else if constexpr (std::is_same_v<T, Rigidbody2D>) {
             return bodies.at(FindEntityComponent(entityId, ComponentIndex::Rigidbody2D));
+        } else if constexpr (std::is_same_v<T, RigidbodyRaycast2D>) {
+            return bodies.at(FindEntityComponent(entityId, ComponentIndex::BodyRaycast2D));
         }
     }
 
@@ -54,6 +59,7 @@ private:
     vector<Transform2D> transforms;
     vector<Sprite> sprites;
     vector<Rigidbody2D> bodies;
+    vector<RigidbodyRaycast2D> bodyRays;
 
     vector<u32> entitiesToRemove {};
 

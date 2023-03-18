@@ -5,14 +5,18 @@
 #ifndef SUNSET_REVERIES_COMPONENTS_H
 #define SUNSET_REVERIES_COMPONENTS_H
 
+#include <optional>
 #include "raylib.h"
 #include "Defines.h"
 #include "AssetsManager.h"
+#include "GMath.h"
+#include "Renderer.h"
 
 enum class ComponentIndex {
     Transform2D = 0,
     Sprite = 1,
-    Rigidbody2D = 2
+    Rigidbody2D = 2,
+    BodyRaycast2D = 3
 };
 
 struct Transform2D {
@@ -51,6 +55,121 @@ struct Rigidbody2D {
     Vector2 pos { 0.0f, 0.0f };
     Rectangle boundingBox { 0, 0, 1, 1 };
     Vector2 velocity { 0, 0 };
+};
+
+enum class Ray2DDirection {
+    Left, Right, Down, Up
+};
+
+struct RigidbodyRaycast2D {
+    RigidbodyRaycast2D(u32 entityId, const Rigidbody2D& attachBody,
+                       i32 horizontalRaysCount, i32 verticalRaysCount,
+                       f32 horizontalRayLength, f32 verticalRayLength, f32 margin
+                       ):
+        entityId { entityId }, attachBody { attachBody },
+        verticalRaysCount { verticalRaysCount }, horizontalRaysCount { horizontalRaysCount },
+        horizontalRayLength {horizontalRayLength}, verticalRayLength { verticalRayLength }, margin { margin }
+    {
+        if (verticalRaysCount < 2) {
+            verticalRaysCount = 2;
+        }
+        if (horizontalRaysCount < 2) {
+            horizontalRaysCount = 2;
+        }
+    }
+
+    u32 entityId;
+    const Rigidbody2D& attachBody;
+    i32 horizontalRaysCount;
+    i32 verticalRaysCount;
+    f32 horizontalRayLength;
+    f32 verticalRayLength;
+    f32 margin;
+    Ray2DDirection currentVerticalDirection { Ray2DDirection::Down };
+    Ray2DDirection currentHorizontalDirection { Ray2DDirection::Right };
+
+    std::vector<Ray2D> verticalRays;
+    std::vector<Ray2D> horizontalRays;
+
+    void SetRayDirection(Ray2DDirection direction) {
+        switch (direction) {
+            case Ray2DDirection::Left:
+                if (currentHorizontalDirection == Ray2DDirection::Left) return;
+                currentHorizontalDirection = Ray2DDirection::Left;
+                horizontalRays.clear();
+                horizontalRays = std::move(UpdateHorizontalRays());
+            case Ray2DDirection::Right:
+                if (currentHorizontalDirection == Ray2DDirection::Right) return;
+                currentHorizontalDirection = Ray2DDirection::Right;
+                horizontalRays.clear();
+                horizontalRays = std::move(UpdateHorizontalRays());
+            case Ray2DDirection::Down:
+                if (currentVerticalDirection == Ray2DDirection::Down) return;
+                currentVerticalDirection = Ray2DDirection::Down;
+                verticalRays.clear();
+                verticalRays = std::move(UpdateVerticalRays());
+            case Ray2DDirection::Up:
+                if (currentVerticalDirection == Ray2DDirection::Up) return;
+                currentVerticalDirection = Ray2DDirection::Up;
+                verticalRays.clear();
+                verticalRays = std::move(UpdateVerticalRays());
+        }
+    }
+
+    std::vector<Ray2D> UpdateHorizontalRays() {
+        std::vector<Ray2D> rays;
+        const Vector2 startPosition { attachBody.pos + Vector2 { attachBody.boundingBox.x, attachBody.boundingBox.y } };
+        const Vector2 endPosition = startPosition + Vector2 { 0, attachBody.boundingBox.height };
+        const Vector2 offset = (endPosition - startPosition) / static_cast<f32>(horizontalRaysCount - 1);
+        if (currentHorizontalDirection == Ray2DDirection::Left) {
+            for (i32 i = 0; i < horizontalRaysCount; ++i) {
+                rays.emplace_back(
+                        startPosition + offset * i + Vector2 {margin, 0 },
+                        Vector2 { -1, 0 },
+                        horizontalRayLength + margin);
+            }
+        } else {
+            for (i32 i = 0; i < horizontalRaysCount; ++i) {
+                rays.emplace_back(
+                        startPosition + offset * i - Vector2 {margin, 0 } + Vector2 { attachBody.boundingBox.width, 0 },
+                        Vector2 { 1, 0 },
+                        horizontalRayLength + margin);
+            }
+        }
+        return rays;
+    }
+
+    std::vector<Ray2D> UpdateVerticalRays() {
+        std::vector<Ray2D> rays;
+        const Vector2 startPosition { attachBody.pos + Vector2 { attachBody.boundingBox.x, attachBody.boundingBox.y } };
+        const Vector2 endPosition = startPosition + Vector2 { attachBody.boundingBox.width, 0 };
+        const Vector2 offset = (endPosition - startPosition) / static_cast<f32>(verticalRaysCount - 1);
+        if (currentVerticalDirection == Ray2DDirection::Down) {
+            for (i32 i = 0; i < verticalRaysCount; ++i) {
+                rays.emplace_back(
+                        startPosition + offset * i + Vector2 { 0, margin } + Vector2 { 0, attachBody.boundingBox.height },
+                        Vector2 { 0, 1 },
+                        verticalRayLength + margin);
+            }
+        } else {
+            for (i32 i = 0; i < verticalRaysCount; ++i) {
+                rays.emplace_back(
+                        startPosition + offset * i - Vector2 { 0, margin },
+                        Vector2 { 0, -1 },
+                        verticalRayLength + margin);
+            }
+        }
+        return rays;
+    }
+
+    void DrawRays() {
+        for (auto& vRay : verticalRays) {
+            render::DrawLine(vRay.origin, vRay.direction, vRay.length, RED);
+        }
+        for (auto& hRay : horizontalRays) {
+            render::DrawLine(hRay.origin, hRay.direction, hRay.length, RED);
+        }
+    }
 };
 
 // Utils
