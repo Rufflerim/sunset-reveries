@@ -33,10 +33,11 @@ public:
 
     void CreateTransform2DComponent(u32 entityId);
     void CreateSpriteComponent(u32 entityId, const str& texName);
-    void CreateRigidbody2DComponent(u32 entityId, const Vector2& pos, const Rectangle& box);
-    void CreateBodyRaycast2DComponent(u32 entityId, const Rigidbody2D& body,
+    void CreateRigidbody2DComponent(u32 entityId, const Vector2& pos, const Rectangle& box, bool doApplyGravity);
+    void CreateBodyRaycast2DComponent(u32 entityId, std::shared_ptr<ECSManager> ecs,
                                       i32 horizontalRaysCount, i32 verticalRaysCount,
-                                      f32 horizontalRayLength, f32 verticalRayLength, f32 margin);
+                                      f32 horizontalRayLength, f32 verticalRayLength, f32 margin
+                                      );
 
     template<class T>
     T& GetComponent(u32 entityId) {

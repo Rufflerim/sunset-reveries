@@ -40,17 +40,20 @@ void ECSManager::CreateSpriteComponent(u32 entityId, const str& texName) {
     UpdateEntityWithComponent(entityId, newComponentId, ComponentIndex::Sprite);
 }
 
-void ECSManager::CreateRigidbody2DComponent(u32 entityId, const Vector2& pos, const Rectangle& box) {
+void ECSManager::CreateRigidbody2DComponent(u32 entityId, const Vector2& pos,
+                                            const Rectangle& box, bool doApplyGravity) {
     i32 newComponentId = static_cast<i32>(bodies.size());
-    bodies.emplace_back(entityId, pos, box);
+    bodies.emplace_back(entityId, pos, box, doApplyGravity);
     UpdateEntityWithComponent(entityId, newComponentId, ComponentIndex::Rigidbody2D);
 }
 
-void ECSManager::CreateBodyRaycast2DComponent(u32 entityId, const Rigidbody2D& body, i32 horizontalRaysCount,
-                                              i32 verticalRaysCount, f32 horizontalRayLength, f32 verticalRayLength,
+void ECSManager::CreateBodyRaycast2DComponent(u32 entityId, std::shared_ptr<ECSManager> ecs,
+                                              i32 horizontalRaysCount, i32 verticalRaysCount,
+                                              f32 horizontalRayLength, f32 verticalRayLength,
                                               f32 margin) {
     i32 newComponentId = static_cast<i32>(bodyRays.size());
-    bodyRays.emplace_back(entityId, body, horizontalRaysCount, verticalRaysCount, horizontalRayLength, verticalRayLength, margin);
+    bodyRays.emplace_back(entityId, ecs, horizontalRaysCount, verticalRaysCount,
+                          horizontalRayLength, verticalRayLength, margin);
     UpdateEntityWithComponent(entityId, newComponentId, ComponentIndex::BodyRaycast2D);
 }
 
@@ -64,9 +67,12 @@ void ECSManager::SystemSpriteDraw() {
     for (auto& sprite : sprites) {
         render::DrawSprite(sprite.tex, sprite.srcRect, sprite.dstRect, WHITE);
     }
-    /// TODO remove after test
-    for (auto& raycast : bodyRays) {
-        raycast.DrawRays();
+    /// TODO remove after debug
+    for (auto& raycast2D : bodyRays) {
+        raycast2D.DrawRays();
+    }
+    for (auto& body : bodies) {
+        body.DrawDebug();
     }
 }
 
@@ -121,6 +127,7 @@ void ECSManager::SystemPhysicsUpdate(float dt) {
     positionChanges.reserve(transforms.size());
     collisionChanges.reserve(bodies.size());
     for (const auto& body : bodies) {
+        if (!body.doApplyGravity) return;
         // Apply velocity
         float deltaX = body.velocity.x * dt;
         float deltaY = body.velocity.y * dt;
@@ -134,14 +141,15 @@ void ECSManager::SystemPhysicsUpdate(float dt) {
         positionChange.velocityDelta.y = velocityDeltaY;
         positionChanges.emplace_back(positionChange);
 
+        /*
         // Collision test
-        Rectangle currentBox { body.pos.x + deltaX + body.boundingBox.x,
+        const Rectangle currentBox { body.pos.x + deltaX + body.boundingBox.x,
                                body.pos.y + deltaY + body.boundingBox.y,
                                body.boundingBox.width, body.boundingBox.height
         };
         for (const auto& other: bodies) {
             if (body.entityId == other.entityId) continue;
-            Rectangle otherBox { other.pos.x + other.boundingBox.x,
+            const Rectangle otherBox { other.pos.x + other.boundingBox.x,
                                  other.pos.y + other.boundingBox.y,
                                  other.boundingBox.width, other.boundingBox.height
             };
@@ -155,20 +163,7 @@ void ECSManager::SystemPhysicsUpdate(float dt) {
                 collisionChanges.emplace_back(collisionChange);
             }
         }
-    }
-    /// TODO remove after test
-    for (auto& raycast : bodyRays) {
-        if (raycast.attachBody.velocity.x > 0) {
-            raycast.SetRayDirection(Ray2DDirection::Right);
-        } else if (raycast.attachBody.velocity.x < 0) {
-            raycast.SetRayDirection(Ray2DDirection::Left);
-        }
-        if (raycast.attachBody.velocity.y > 0) {
-            raycast.SetRayDirection(Ray2DDirection::Down);
-        } else if (raycast.attachBody.velocity.y < 0) {
-            raycast.SetRayDirection(Ray2DDirection::Up);
-        }
-        raycast.Update();
+         */
     }
 }
 
@@ -227,9 +222,25 @@ WorldState ECSManager::UpdateWorld() {
         if (positionChange.isGrounded && !hasJumped) {
             body.velocity.y = 0.0f;
             body.pos.y = 600.0f - body.boundingBox.height;
+            transform.pos.y = body.pos.y;
         }
     }
+    // Raycast update
+    for (auto& raycast : bodyRays) {
+        if (raycast.attachBody.velocity.x > 0) {
+            raycast.SetRayDirection(Ray2DDirection::Right);
+        } else if (raycast.attachBody.velocity.x < 0) {
+            raycast.SetRayDirection(Ray2DDirection::Left);
+        }
+        if (raycast.attachBody.velocity.y > 0) {
+            raycast.SetRayDirection(Ray2DDirection::Down);
+        } else if (raycast.attachBody.velocity.y < 0) {
+            raycast.SetRayDirection(Ray2DDirection::Up);
+        }
+        raycast.Update();
+    }
     // Collisions
+    /*
     for (auto collisionChange: collisionChanges) {
         auto& transform = GetComponent<Transform2D>(collisionChange.entityId);
         auto& body = GetComponent<Rigidbody2D>(collisionChange.entityId);
@@ -237,6 +248,7 @@ WorldState ECSManager::UpdateWorld() {
         body.pos = transform.pos;
         body.velocity = collisionChange.newVelocity;
     }
+    // Bounces
     for (auto bounceChange: bounceChanges) {
         auto& transform = GetComponent<Transform2D>(bounceChange.entityId);
         auto& body = GetComponent<Rigidbody2D>(bounceChange.entityId);
@@ -244,6 +256,7 @@ WorldState ECSManager::UpdateWorld() {
         body.pos.y = transform.pos.y;
         body.velocity.y = bounceChange.newVerticalVelocity;
     }
+     */
 
     positionChanges.clear();
     collisionChanges.clear();

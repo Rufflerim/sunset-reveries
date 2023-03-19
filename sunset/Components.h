@@ -7,12 +7,15 @@
 
 #include <optional>
 #include <vector>
+#include <memory>
+
 #include "raylib.h"
 #include "Defines.h"
 #include "AssetsManager.h"
 #include "GMath.h"
 #include "Renderer.h"
 
+class ECSManager;
 using std::vector;
 
 enum class ComponentIndex {
@@ -48,16 +51,25 @@ struct Sprite {
 };
 
 struct Rigidbody2D {
-    explicit Rigidbody2D(u32 entityIdP, const Vector2& pos, const Rectangle& box) :
+    explicit Rigidbody2D(u32 entityIdP, const Vector2& pos, const Rectangle& box, bool doApplyGravityP) :
         entityId { entityIdP },
         pos { pos },
-        boundingBox { box }
+        boundingBox { box },
+        doApplyGravity { doApplyGravityP }
     {}
 
     u32 entityId;
     Vector2 pos { 0.0f, 0.0f };
     Rectangle boundingBox { 0, 0, 1, 1 };
-    Vector2 velocity { 0, 0 };
+    Vector2 velocity { 0.0f, 0.0f };
+    bool doApplyGravity { true };
+
+    void DrawDebug() {
+        const Rectangle box { pos.x + boundingBox.x,
+                              pos.y + boundingBox.y,
+                              boundingBox.width, boundingBox.height };
+        DrawRectangleLines(box.x, box.y, box.width, box.height, RED);
+    }
 };
 
 enum class Ray2DDirection {
@@ -65,28 +77,12 @@ enum class Ray2DDirection {
 };
 
 struct RigidbodyRaycast2D {
-    RigidbodyRaycast2D(u32 entityId, const Rigidbody2D& attachBody,
-                       i32 horizontalRaysCount, i32 verticalRaysCount,
-                       f32 horizontalRayLength, f32 verticalRayLength, f32 margin
-                       ):
-        entityId { entityId }, attachBody { attachBody },
-        verticalRaysCount { verticalRaysCount }, horizontalRaysCount { horizontalRaysCount },
-        horizontalRayLength {horizontalRayLength}, verticalRayLength { verticalRayLength }, margin { margin }
-    {
-        if (verticalRaysCount < 2) {
-            verticalRaysCount = 2;
-        }
-        if (horizontalRaysCount < 2) {
-            horizontalRaysCount = 2;
-        }
-        verticalRays.clear();
-        verticalRays = std::move(UpdateVerticalRays());
-        horizontalRays.clear();
-        horizontalRays = std::move(UpdateHorizontalRays());
-    }
+    RigidbodyRaycast2D(u32 entityId, std::shared_ptr<ECSManager> ecsP,
+                       i32 horizontalRaysCountP, i32 verticalRaysCountP,
+                       f32 horizontalRayLength, f32 verticalRayLength, f32 margin);
 
     u32 entityId;
-    const Rigidbody2D& attachBody;
+    Rigidbody2D attachBody { 0, Vector2  { 0, 0 }, Rectangle  { 0, 0, 1, 1 }, false };
     i32 horizontalRaysCount;
     i32 verticalRaysCount;
     f32 horizontalRayLength;
@@ -94,6 +90,7 @@ struct RigidbodyRaycast2D {
     f32 margin;
     Ray2DDirection currentVerticalDirection { Ray2DDirection::Down };
     Ray2DDirection currentHorizontalDirection { Ray2DDirection::Right };
+    std::shared_ptr<ECSManager> ecs;
 
     vector<Ray2D> verticalRays;
     vector<Ray2D> horizontalRays;
@@ -124,17 +121,23 @@ struct RigidbodyRaycast2D {
         const Vector2 startPosition { attachBody.pos + Vector2 { attachBody.boundingBox.x, attachBody.boundingBox.y } };
         const Vector2 endPosition = startPosition + Vector2 { 0, attachBody.boundingBox.height };
         const Vector2 offset = (endPosition - startPosition) / static_cast<f32>(horizontalRaysCount - 1);
+        const Vector2 indent {0, margin };
         if (currentHorizontalDirection == Ray2DDirection::Left) {
             for (i32 i = 0; i < horizontalRaysCount; ++i) {
                 rays.emplace_back(
-                        startPosition + offset * i + Vector2 {margin, 0 },
+                        startPosition + offset * i + Vector2 {margin, 0 }
+                                 + (i == 0 ? indent : Vector2 {0, 0})
+                                 + (i == horizontalRaysCount - 1 ? -1.0f * indent : Vector2 {0, 0}),
                         Vector2 { -1, 0 },
                         horizontalRayLength + margin);
             }
         } else {
             for (i32 i = 0; i < horizontalRaysCount; ++i) {
                 rays.emplace_back(
-                        startPosition + offset * i - Vector2 {margin, 0 } + Vector2 { attachBody.boundingBox.width, 0 },
+                        startPosition + offset * i - Vector2 {margin, 0 }
+                            + Vector2 { attachBody.boundingBox.width, 0 }
+                              + (i == 0 ? indent : Vector2 {0, 0})
+                              + (i == horizontalRaysCount - 1 ? -1.0f * indent : Vector2 {0, 0}),
                         Vector2 { 1, 0 },
                         horizontalRayLength + margin);
             }
@@ -147,17 +150,23 @@ struct RigidbodyRaycast2D {
         const Vector2 startPosition { attachBody.pos + Vector2 { attachBody.boundingBox.x, attachBody.boundingBox.y } };
         const Vector2 endPosition = startPosition + Vector2 { attachBody.boundingBox.width, 0 };
         const Vector2 offset = (endPosition - startPosition) / static_cast<f32>(verticalRaysCount - 1);
+        const Vector2 indent {margin, 0 };
         if (currentVerticalDirection == Ray2DDirection::Down) {
             for (i32 i = 0; i < verticalRaysCount; ++i) {
                 rays.emplace_back(
-                        startPosition + offset * i - Vector2 { 0, margin } + Vector2 { 0, attachBody.boundingBox.height },
+                        startPosition + offset * i - Vector2 { 0, margin }
+                            + Vector2 { 0, attachBody.boundingBox.height }
+                            + (i == 0 ? indent : Vector2 {0, 0})
+                            + (i == verticalRaysCount - 1 ? -1.0f * indent : Vector2 {0, 0}),
                         Vector2 { 0, 1 },
                         verticalRayLength + margin);
             }
         } else {
             for (i32 i = 0; i < verticalRaysCount; ++i) {
                 rays.emplace_back(
-                        startPosition + offset * i + Vector2 { 0, margin },
+                        startPosition + offset * i + Vector2 { 0, margin }
+                             + (i == 0 ? indent : Vector2 {0, 0})
+                             + (i == verticalRaysCount - 1 ? -1.0f * indent : Vector2 {0, 0}),
                         Vector2 { 0, -1 },
                         verticalRayLength + margin);
             }
@@ -165,22 +174,9 @@ struct RigidbodyRaycast2D {
         return rays;
     }
 
-    void Update() {
-        for (auto& vRay : verticalRays) {
-            verticalRays.clear();
-            verticalRays = std::move(UpdateVerticalRays());
-        }
-        for (auto& hRay : horizontalRays) {
-            horizontalRays.clear();
-            horizontalRays = std::move(UpdateHorizontalRays());
-        }
-    }
+    void Update();
 
     void DrawRays() {
-        const Rectangle box { attachBody.pos.x + attachBody.boundingBox.x,
-                        attachBody.pos.y + attachBody.boundingBox.y,
-                        attachBody.boundingBox.width, attachBody.boundingBox.height };
-        DrawRectangleLines(box.x, box.y, box.width, box.height, RED);
         for (auto& vRay : verticalRays) {
             render::DrawLine(vRay.origin, vRay.direction, vRay.length, RED);
         }
