@@ -7,6 +7,11 @@ add_library( ${PROJECT_NAME} ${gaemi_SOURCES} )
 target_include_directories( ${PROJECT_NAME} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR} )
 target_link_libraries( ${PROJECT_NAME} raylib )
 
+if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+    target_compile_definitions(gaemi PUBLIC DEBUG=1)
+else()
+    target_compile_definitions(gaemi PUBLIC DEBUG=0)
+endif()
 
 #if (WIN32)
 #    add_custom_command(

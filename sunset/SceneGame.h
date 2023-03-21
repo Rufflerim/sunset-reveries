@@ -34,8 +34,11 @@ private:
     shared_ptr<ECSManager> ecs;
     Texture2D texture;
     u32 playerId;
+    float jumpPressTime { 0 };
 
     u32 CreateRandomBouncingEntity();
+
+    const f32 JUMP_MAX_PRESS_TIME = 1.0f;
 };
 
 

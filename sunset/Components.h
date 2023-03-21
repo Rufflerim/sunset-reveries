@@ -63,12 +63,25 @@ struct Rigidbody2D {
     Rectangle boundingBox { 0, 0, 1, 1 };
     Vector2 velocity { 0.0f, 0.0f };
     bool doApplyGravity { true };
+    bool isGrounded { false };
+
+    Rectangle GetPositionedRectangle() const {
+        return Rectangle { pos.x + boundingBox.x, pos.y + boundingBox.y, boundingBox.width, boundingBox.height };
+    }
+
+    f32 GetRealX() const {
+        return pos.x + boundingBox.x;
+    }
+
+    f32 GetRealY() const {
+        return pos.y + boundingBox.y;
+    }
 
     void DrawDebug() {
         const Rectangle box { pos.x + boundingBox.x,
                               pos.y + boundingBox.y,
                               boundingBox.width, boundingBox.height };
-        DrawRectangleLines(box.x, box.y, box.width, box.height, RED);
+        DrawRectangleLines(box.x, box.y, box.width, box.height, BLUE);
     }
 };
 
@@ -176,14 +189,16 @@ struct RigidbodyRaycast2D {
 
     void Update();
 
-    void DrawRays() {
+#ifdef GDEBUG
+    void DrawDebug() {
         for (auto& vRay : verticalRays) {
-            render::DrawLine(vRay.origin, vRay.direction, vRay.length, RED);
+            render::DrawLine(vRay.origin, vRay.direction, vRay.length, BLUE);
         }
         for (auto& hRay : horizontalRays) {
-            render::DrawLine(hRay.origin, hRay.direction, hRay.length, RED);
+            render::DrawLine(hRay.origin, hRay.direction, hRay.length, BLUE);
         }
     }
+#endif
 };
 
 // Utils

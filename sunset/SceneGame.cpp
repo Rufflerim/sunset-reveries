@@ -58,14 +58,19 @@ void SceneGame::Update(f32 dt) {
     }
 
     // Jump
-    if (IsKeyDown(KEY_SPACE) && playerBody.pos.y == 600.0f - playerBody.boundingBox.height) {
-        acceleration.y += -25000.0f * dt;
+    if (IsKeyPressed(KEY_SPACE) && jumpPressTime < JUMP_MAX_PRESS_TIME) {
+        acceleration.y += -50000.0f * dt;
+        jumpPressTime += dt;
+    }
+    if (IsKeyReleased(KEY_SPACE)) {
+        jumpPressTime = 0;
     }
 
-    // Apply player changes
-    PlayerChange playerChange { playerId, acceleration };
-    game.PushPlayerChange(playerChange);
-
+    if ( acceleration.x != 0 || acceleration.y != 0 ) {
+        // Apply player changes
+        PlayerChange playerChange { playerId, acceleration };
+        game.PushPlayerChange(playerChange);
+    }
 
     // Time rewind
     if (IsKeyDown(KEY_LEFT)) {

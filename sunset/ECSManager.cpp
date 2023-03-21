@@ -67,13 +67,14 @@ void ECSManager::SystemSpriteDraw() {
     for (auto& sprite : sprites) {
         render::DrawSprite(sprite.tex, sprite.srcRect, sprite.dstRect, WHITE);
     }
-    /// TODO remove after debug
-    for (auto& raycast2D : bodyRays) {
-        raycast2D.DrawRays();
+#ifdef GDEBUG
+    for (auto& raycast : bodyRays) {
+        raycast.DrawDebug();
     }
     for (auto& body : bodies) {
         body.DrawDebug();
     }
+#endif
 }
 
 void ECSManager::RemoveEntity(u32 entityId) {
@@ -124,21 +125,59 @@ void ECSManager::SetWorldState(const WorldState &newWorldState) {
 }
 
 void ECSManager::SystemPhysicsUpdate(float dt) {
+    // Raycasting
+    for (const auto& raycast : bodyRays) {
+        for (const auto& body : bodies) {
+            if (body.entityId == raycast.entityId) continue;
+            for (const auto& ray : raycast.horizontalRays) {
+                const Rectangle bodyRect = body.GetPositionedRectangle();
+                Vector2 contactPoint;
+                Vector2 contactNormal;
+                float contactTime;
+                std::array<Vector2, 2> probableContactPoints {};
+                if (RayVsRect2D(ray.origin, ray.direction, bodyRect, contactPoint, contactNormal, contactTime, probableContactPoints)) {
+                    const Vector2 diff = contactPoint - ray.origin;
+                    raycastCollisions.emplace_back(raycast.entityId, body.entityId,
+                                                   contactPoint,raycast.attachBody, body,
+                                                   ray, diff.x * diff.x + diff.y * diff.y);
+                }
+            }
+            for (const auto& ray : raycast.verticalRays) {
+                const Rectangle bodyRect = body.GetPositionedRectangle();
+                Vector2 contactPoint;
+                Vector2 contactNormal;
+                float contactTime;
+                std::array<Vector2, 2> probableContactPoints {};
+                if (RayVsRect2D(ray.origin, ray.direction, bodyRect, contactPoint, contactNormal, contactTime, probableContactPoints)) {
+                    const Vector2 diff = contactPoint - ray.origin;
+                    raycastCollisions.emplace_back(raycast.entityId, body.entityId,
+                                                   contactPoint,raycast.attachBody, body,
+                                                   ray, diff.x * diff.x + diff.y * diff.y);
+                }
+            }
+        }
+    }
+
+    // Newtonian physics
     positionChanges.reserve(transforms.size());
     collisionChanges.reserve(bodies.size());
     for (const auto& body : bodies) {
-        if (!body.doApplyGravity) return;
+        if (!body.doApplyGravity) continue;
         // Apply velocity
         float deltaX = body.velocity.x * dt;
         float deltaY = body.velocity.y * dt;
         // Friction and gravity
+        f32 gravityEffect = body.isGrounded ? 0.0f : 2000.0f * dt;
         PositionChange positionChange { body.entityId, false,
                                         { deltaX, deltaY },
-                                        { body.velocity.x * -0.05f, 1000.0f * dt }
+                                        { body.velocity.x * -0.05f, gravityEffect }
         };
+        /*
         positionChange.isGrounded = body.pos.y + positionChange.positionDelta.y >= 600.f - body.boundingBox.height;
         f32 velocityDeltaY = positionChange.isGrounded ? 0.0f : 2000.0f * dt;
         positionChange.velocityDelta.y = velocityDeltaY;
+
+        */
         positionChanges.emplace_back(positionChange);
 
         /*
@@ -165,41 +204,34 @@ void ECSManager::SystemPhysicsUpdate(float dt) {
         }
          */
     }
-}
 
-void ECSManager::SystemScreenBounceUpdate() {
-    bounceChanges.reserve(bodies.size());
-    for (const auto& body : bodies) {
-        Rectangle currentBox { body.pos.x + body.boundingBox.x,
-                               body.pos.y + body.boundingBox.y,
-                               body.boundingBox.width, body.boundingBox.height
-        };
-        float blackRibbonHeight { 120.0f };
-        float screenWidth { 1280.0f };
-        float screenHeight { 720.0f };
-        // Horizontal exit
-        if (currentBox.x > screenWidth) {
-            RemoveEntity(body.entityId);
-        } else if (currentBox.x + currentBox.width < 0.0f) {
-            RemoveEntity(body.entityId);
-        }
-        // Vertical bounce
-        if (currentBox.y + currentBox.height > screenHeight - blackRibbonHeight) {
-            BounceChange bounceChange {
-                    body.entityId,
-                    screenHeight - blackRibbonHeight - currentBox.height,
-                    -body.velocity.y
-            };
-            bounceChanges.emplace_back(bounceChange);
-        } else if (currentBox.y < blackRibbonHeight) {
-            BounceChange bounceChange {
-                    body.entityId,
-                    blackRibbonHeight,
-                    -body.velocity.y
-            };
-            bounceChanges.emplace_back(bounceChange);
+    // Change position changes in function of collisions
+    for (const auto& raycastCollision : raycastCollisions) {
+        if (raycastCollision.lengthSquaredBeforeCollision <= 25.0f) { // This is margin TODO improve harcoded value
+            const f32 directionX = raycastCollision.ray.direction.x;
+            const f32 directionY = raycastCollision.ray.direction.y;
+            auto itr = std::find_if(positionChanges.begin(), positionChanges.end(),
+                                    [&](const PositionChange& positionChange) { return positionChange.entityId == raycastCollision.entityId; });
+
+            if (directionX > 0) {
+                itr->velocityDelta.x = 0;
+                itr->positionDelta.x = raycastCollision.otherBody.GetRealX() - (raycastCollision.emitterBody.GetRealX() + raycastCollision.emitterBody.boundingBox.width);
+            } else if (directionX < 0) {
+                itr->velocityDelta.x = 0;
+                itr->positionDelta.x = (raycastCollision.emitterBody.GetRealX() + raycastCollision.emitterBody.boundingBox.width) - raycastCollision.otherBody.GetRealX();
+            }
+            if (directionY > 0) {
+                //itr->velocityDelta.y = 0;
+                itr->isGrounded = true;
+                if (!raycastCollision.emitterBody.isGrounded) {
+                    itr->positionDelta.y = raycastCollision.otherBody.GetRealY() -
+                                           (raycastCollision.emitterBody.GetRealY() +
+                                            raycastCollision.emitterBody.boundingBox.height);
+                }
+            }
         }
     }
+    raycastCollisions.clear();
 }
 
 WorldState ECSManager::UpdateWorld() {
@@ -212,17 +244,29 @@ WorldState ECSManager::UpdateWorld() {
             hasJumped = true;
         }
     }
+
     // Position
     for (auto positionChange: positionChanges) {
-        auto& transform = GetComponent<Transform2D>(positionChange.entityId);
-        auto& body = GetComponent<Rigidbody2D>(positionChange.entityId);
+        auto &transform = GetComponent<Transform2D>(positionChange.entityId);
+        auto &body = GetComponent<Rigidbody2D>(positionChange.entityId);
+
+        if (positionChange.isGrounded) {
+            if (!hasJumped) {
+                body.isGrounded = true;
+            }
+        }
+
+        if (positionChange.isGrounded && positionChange.velocityDelta.y > 0) {
+            body.velocity.y = 0.0f;
+            positionChange.velocityDelta.y = 0.0f;
+        }
+
         transform.pos = transform.pos + positionChange.positionDelta;
         body.pos = transform.pos;
         body.velocity = body.velocity + positionChange.velocityDelta;
-        if (positionChange.isGrounded && !hasJumped) {
-            body.velocity.y = 0.0f;
-            body.pos.y = 600.0f - body.boundingBox.height;
-            transform.pos.y = body.pos.y;
+
+        if (body.velocity.y < 0) {
+            body.isGrounded = false;
         }
     }
     // Raycast update

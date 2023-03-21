@@ -68,6 +68,7 @@ private:
     vector<PositionChange> positionChanges;
     vector<BounceChange> bounceChanges;
     vector<PlayerChange> playerChanges;
+    vector<RaycastCollision> raycastCollisions;
 
     i32 FindEntityComponent(u32 entityId, ComponentIndex componentIndex);
     void UpdateEntityWithComponent(u32 entityId, i32 newComponentId, ComponentIndex componentIndex);

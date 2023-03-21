@@ -47,11 +47,6 @@ add_subdirectory( sunset )
 if (UNIX)
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -O0")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O0")
-    target_compile_definitions(gaemi PRIVATE
-            $<$<CONFIG:Debug>:
-            _DEBUG=1
-            >
-            )
 endif(UNIX)
 
 # Declaring our executable
