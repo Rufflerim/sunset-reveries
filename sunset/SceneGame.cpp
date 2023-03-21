@@ -45,31 +45,49 @@ void SceneGame::Load() {
     ecs->CreateRigidbody2DComponent(floorId, { 0, 600 },
                                    { 0, 0, 1280.0f, 120.0f},
                                    false);
+
+
+    auto platform2Id = ecs->CreateEntity();
+    ecs->CreateTransform2DComponent(platform2Id);
+    ecs->GetComponent<Transform2D>(platform2Id).pos = { 500, 400 };
+    ecs->CreateRigidbody2DComponent(platform2Id, { 500, 400 },
+                                    { 0, 0, 300.0f, 50.0f},
+                                    false);
+
+    auto platform3Id = ecs->CreateEntity();
+    ecs->CreateTransform2DComponent(platform3Id);
+    ecs->GetComponent<Transform2D>(platform3Id).pos = { 800, 500 };
+    ecs->CreateRigidbody2DComponent(platform3Id, { 800, 500 },
+                                    { 0, 0, 200.0f, 50.0f},
+                                    false);
 }
 
 void SceneGame::Update(f32 dt) {
     // Player movement
     auto& playerBody = ecs->GetComponent<Rigidbody2D>(playerId);
-    Vector2 acceleration { 0.0f, 0.0f };
     if (IsKeyDown(KEY_D)) {
-        acceleration.x += 3000.0f * dt;
+        moveAcceleration.x += 3000.0f * dt;
     } else if (IsKeyDown(KEY_A) || IsKeyDown(KEY_Q)) {
-        acceleration.x += -3000.0f * dt;
+        moveAcceleration.x += -3000.0f * dt;
     }
 
     // Jump
-    if (IsKeyPressed(KEY_SPACE) && jumpPressTime < JUMP_MAX_PRESS_TIME) {
-        acceleration.y += -50000.0f * dt;
+    if (IsKeyDown(KEY_SPACE) && jumpPressTime < JUMP_MAX_PRESS_TIME) {
+        moveAcceleration.y += -500.0f * dt;
         jumpPressTime += dt;
     }
-    if (IsKeyReleased(KEY_SPACE)) {
+    if (jumpPressTime >= JUMP_MAX_PRESS_TIME || IsKeyReleased(KEY_SPACE)) {
+        moveAcceleration.y = 0;
+    }
+    if (playerBody.isGrounded) {
         jumpPressTime = 0;
     }
 
-    if ( acceleration.x != 0 || acceleration.y != 0 ) {
+    if (moveAcceleration.x != 0 || moveAcceleration.y != 0 ) {
         // Apply player changes
-        PlayerChange playerChange { playerId, acceleration };
+        PlayerChange playerChange {playerId, moveAcceleration };
         game.PushPlayerChange(playerChange);
+        moveAcceleration.x = 0;
     }
 
     // Time rewind

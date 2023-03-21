@@ -160,14 +160,13 @@ void ECSManager::SystemPhysicsUpdate(float dt) {
 
     // Newtonian physics
     positionChanges.reserve(transforms.size());
-    collisionChanges.reserve(bodies.size());
     for (const auto& body : bodies) {
         if (!body.doApplyGravity) continue;
         // Apply velocity
         float deltaX = body.velocity.x * dt;
         float deltaY = body.velocity.y * dt;
         // Friction and gravity
-        f32 gravityEffect = body.isGrounded ? 0.0f : 2000.0f * dt;
+        f32 gravityEffect = 2000.0f * dt;
         PositionChange positionChange { body.entityId, false,
                                         { deltaX, deltaY },
                                         { body.velocity.x * -0.05f, gravityEffect }
@@ -177,26 +176,29 @@ void ECSManager::SystemPhysicsUpdate(float dt) {
 
     // Change position changes in function of collisions
     for (const auto& raycastCollision : raycastCollisions) {
-        if (raycastCollision.lengthSquaredBeforeCollision <= 25.0f) { // This is margin TODO improve harcoded value
+        f32 checkValue = std::max(25.0f, std::max(raycastCollision.emitterBody.velocity.x, raycastCollision.emitterBody.velocity.y));
+        if (raycastCollision.lengthSquaredBeforeCollision <= checkValue) { // This is margin TODO improve harcoded value
             const f32 directionX = raycastCollision.ray.direction.x;
             const f32 directionY = raycastCollision.ray.direction.y;
             auto itr = std::find_if(positionChanges.begin(), positionChanges.end(),
                                     [&](const PositionChange& positionChange) { return positionChange.entityId == raycastCollision.entityId; });
 
-            if (directionX > 0) {
+            if (directionX > 0 && raycastCollision.emitterBody.velocity.x > 0) {
                 itr->stopVelocityX = true;
-                itr->positionXFixAfterCollision = raycastCollision.otherBody.GetRealX() - (raycastCollision.emitterBody.GetRealX() + raycastCollision.emitterBody.boundingBox.width);
-            } else if (directionX < 0) {
+                itr->positionXFixAfterCollision = raycastCollision.otherBody.GetRealX() - raycastCollision.emitterBody.boundingBox.width;
+            } else if (directionX < 0 && raycastCollision.emitterBody.velocity.x < 0) {
                 itr->stopVelocityX = true;
-                itr->positionXFixAfterCollision = (raycastCollision.emitterBody.GetRealX() + raycastCollision.emitterBody.boundingBox.width) - raycastCollision.otherBody.GetRealX();
+                itr->positionXFixAfterCollision = raycastCollision.otherBody.GetRealX() + raycastCollision.otherBody.boundingBox.width;
             }
-            if (directionY > 0) {
+            if (directionY > 0 && raycastCollision.emitterBody.velocity.y > 0) {
                 itr->stopVelocityY = true;
                 itr->isGrounded = true;
-                if (!raycastCollision.emitterBody.isGrounded) {
-                    itr->positionYFixAfterCollision = raycastCollision.otherBody.GetRealY() -
-                                                      raycastCollision.emitterBody.boundingBox.height;
-                }
+                itr->positionYFixAfterCollision = raycastCollision.otherBody.GetRealY() -
+                                                  raycastCollision.emitterBody.boundingBox.height;
+             } else if (directionY < 0 && raycastCollision.emitterBody.velocity.y < 0) {
+                itr->stopVelocityY = true;
+                itr->positionYFixAfterCollision = raycastCollision.otherBody.GetRealY() +
+                                                  raycastCollision.otherBody.boundingBox.height;
             }
         }
     }
@@ -205,38 +207,27 @@ void ECSManager::SystemPhysicsUpdate(float dt) {
 
 WorldState ECSManager::UpdateWorld() {
     // Player
-    bool hasJumped = false;
     for (auto playerChange: playerChanges) {
         auto& body = GetComponent<Rigidbody2D>(playerChange.entityId);
         body.velocity = body.velocity + playerChange.velocityDelta;
-        if (playerChange.velocityDelta.y < 0) {
-            hasJumped = true;
-        }
     }
 
     // Position
     for (auto positionChange: positionChanges) {
         auto &transform = GetComponent<Transform2D>(positionChange.entityId);
         auto &body = GetComponent<Rigidbody2D>(positionChange.entityId);
+        body.isGrounded = positionChange.isGrounded;
 
-        /*
-        if (positionChange.isGrounded) {
-            if (!hasJumped) {
-                body.isGrounded = true;
-            }
-        }
-         */
-
-        if (positionChange.isGrounded && positionChange.velocityDelta.y > 0) {
-            body.velocity.y = 0.0f;
-            positionChange.velocityDelta.y = 0.0f;
+        bool hasJumped = false;
+        if (body.velocity.y < 0) {
+            hasJumped = true;
         }
 
         body.velocity = body.velocity + positionChange.velocityDelta;
         if (positionChange.stopVelocityX) {
             body.velocity.x = 0;
         }
-        if (positionChange.stopVelocityY) {
+        if (positionChange.stopVelocityY && body.isGrounded) {
             body.velocity.y = 0;
         }
 
@@ -248,13 +239,8 @@ WorldState ECSManager::UpdateWorld() {
             transform.pos.y = positionChange.positionYFixAfterCollision;
         }
         body.pos = transform.pos;
-
-        /*
-        if (body.velocity.y < 0) {
-            body.isGrounded = false;
-        }
-         */
     }
+
     // Raycast update
     for (auto& raycast : bodyRays) {
         if (raycast.attachBody.velocity.x > 0) {
@@ -269,28 +255,8 @@ WorldState ECSManager::UpdateWorld() {
         }
         raycast.Update();
     }
-    // Collisions
-    /*
-    for (auto collisionChange: collisionChanges) {
-        auto& transform = GetComponent<Transform2D>(collisionChange.entityId);
-        auto& body = GetComponent<Rigidbody2D>(collisionChange.entityId);
-        transform.pos = transform.pos + collisionChange.positionDelta;
-        body.pos = transform.pos;
-        body.velocity = collisionChange.newVelocity;
-    }
-    // Bounces
-    for (auto bounceChange: bounceChanges) {
-        auto& transform = GetComponent<Transform2D>(bounceChange.entityId);
-        auto& body = GetComponent<Rigidbody2D>(bounceChange.entityId);
-        transform.pos.y = bounceChange.newY;
-        body.pos.y = transform.pos.y;
-        body.velocity.y = bounceChange.newVerticalVelocity;
-    }
-     */
 
     positionChanges.clear();
-    collisionChanges.clear();
-    bounceChanges.clear();
 
     WorldState newWorldState {
         entityIds, entities, transforms, sprites, bodies

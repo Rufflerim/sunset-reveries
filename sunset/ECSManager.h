@@ -64,9 +64,7 @@ private:
 
     vector<u32> entitiesToRemove {};
 
-    vector<CollisionChange> collisionChanges;
     vector<PositionChange> positionChanges;
-    vector<BounceChange> bounceChanges;
     vector<PlayerChange> playerChanges;
     vector<RaycastCollision> raycastCollisions;
 
@@ -75,8 +73,6 @@ private:
     void CleanRemovedEntities();
 
     void SystemPhysicsUpdate(float dt);
-    void SystemScreenBounceUpdate();
-
     void SystemSpriteDraw();
 
     template<class T>

@@ -35,10 +35,11 @@ private:
     Texture2D texture;
     u32 playerId;
     float jumpPressTime { 0 };
+    Vector2 moveAcceleration {0.0f, 0.0f };
 
     u32 CreateRandomBouncingEntity();
 
-    const f32 JUMP_MAX_PRESS_TIME = 1.0f;
+    const f32 JUMP_MAX_PRESS_TIME = .2f;
 };
 
 
