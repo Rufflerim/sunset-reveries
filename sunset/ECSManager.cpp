@@ -227,7 +227,7 @@ WorldState ECSManager::UpdateWorld() {
         if (positionChange.stopVelocityX) {
             body.velocity.x = 0;
         }
-        if (positionChange.stopVelocityY && body.isGrounded) {
+        if (positionChange.stopVelocityY && ((body.isGrounded && body.velocity.y > 0) || body.velocity.y < 0)) {
             body.velocity.y = 0;
         }
 
