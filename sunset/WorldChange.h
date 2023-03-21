@@ -18,9 +18,13 @@ struct CollisionChange {
 
 struct PositionChange {
     u32 entityId;
-    bool isGrounded;
+    bool isGrounded { false };
     Vector2 positionDelta { 0.0f, 0.0f };
     Vector2 velocityDelta { 0.0f, 0.0f };
+    f32 positionXFixAfterCollision { -1.0f };
+    f32 positionYFixAfterCollision { -1.0f };
+    bool stopVelocityX { false };
+    bool stopVelocityY { false };
 };
 
 struct BounceChange {

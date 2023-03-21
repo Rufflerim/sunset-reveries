@@ -172,37 +172,7 @@ void ECSManager::SystemPhysicsUpdate(float dt) {
                                         { deltaX, deltaY },
                                         { body.velocity.x * -0.05f, gravityEffect }
         };
-        /*
-        positionChange.isGrounded = body.pos.y + positionChange.positionDelta.y >= 600.f - body.boundingBox.height;
-        f32 velocityDeltaY = positionChange.isGrounded ? 0.0f : 2000.0f * dt;
-        positionChange.velocityDelta.y = velocityDeltaY;
-
-        */
         positionChanges.emplace_back(positionChange);
-
-        /*
-        // Collision test
-        const Rectangle currentBox { body.pos.x + deltaX + body.boundingBox.x,
-                               body.pos.y + deltaY + body.boundingBox.y,
-                               body.boundingBox.width, body.boundingBox.height
-        };
-        for (const auto& other: bodies) {
-            if (body.entityId == other.entityId) continue;
-            const Rectangle otherBox { other.pos.x + other.boundingBox.x,
-                                 other.pos.y + other.boundingBox.y,
-                                 other.boundingBox.width, other.boundingBox.height
-            };
-            if (CheckCollisionRecs(currentBox, otherBox)) {
-                //collisions.emplace_back(body.entityId, currentBox, body.velocity, body.entityId, otherBox, body.velocity);
-                CollisionChange collisionChange {
-                        body.entityId,
-                        Vector2 { -body.velocity.x * dt, -body.velocity.y * dt },
-                        Vector2 { -body.velocity.x, -body.velocity.y }
-                };
-                collisionChanges.emplace_back(collisionChange);
-            }
-        }
-         */
     }
 
     // Change position changes in function of collisions
@@ -214,19 +184,18 @@ void ECSManager::SystemPhysicsUpdate(float dt) {
                                     [&](const PositionChange& positionChange) { return positionChange.entityId == raycastCollision.entityId; });
 
             if (directionX > 0) {
-                itr->velocityDelta.x = 0;
-                itr->positionDelta.x = raycastCollision.otherBody.GetRealX() - (raycastCollision.emitterBody.GetRealX() + raycastCollision.emitterBody.boundingBox.width);
+                itr->stopVelocityX = true;
+                itr->positionXFixAfterCollision = raycastCollision.otherBody.GetRealX() - (raycastCollision.emitterBody.GetRealX() + raycastCollision.emitterBody.boundingBox.width);
             } else if (directionX < 0) {
-                itr->velocityDelta.x = 0;
-                itr->positionDelta.x = (raycastCollision.emitterBody.GetRealX() + raycastCollision.emitterBody.boundingBox.width) - raycastCollision.otherBody.GetRealX();
+                itr->stopVelocityX = true;
+                itr->positionXFixAfterCollision = (raycastCollision.emitterBody.GetRealX() + raycastCollision.emitterBody.boundingBox.width) - raycastCollision.otherBody.GetRealX();
             }
             if (directionY > 0) {
-                //itr->velocityDelta.y = 0;
+                itr->stopVelocityY = true;
                 itr->isGrounded = true;
                 if (!raycastCollision.emitterBody.isGrounded) {
-                    itr->positionDelta.y = raycastCollision.otherBody.GetRealY() -
-                                           (raycastCollision.emitterBody.GetRealY() +
-                                            raycastCollision.emitterBody.boundingBox.height);
+                    itr->positionYFixAfterCollision = raycastCollision.otherBody.GetRealY() -
+                                                      raycastCollision.emitterBody.boundingBox.height;
                 }
             }
         }
@@ -250,24 +219,41 @@ WorldState ECSManager::UpdateWorld() {
         auto &transform = GetComponent<Transform2D>(positionChange.entityId);
         auto &body = GetComponent<Rigidbody2D>(positionChange.entityId);
 
+        /*
         if (positionChange.isGrounded) {
             if (!hasJumped) {
                 body.isGrounded = true;
             }
         }
+         */
 
         if (positionChange.isGrounded && positionChange.velocityDelta.y > 0) {
             body.velocity.y = 0.0f;
             positionChange.velocityDelta.y = 0.0f;
         }
 
-        transform.pos = transform.pos + positionChange.positionDelta;
-        body.pos = transform.pos;
         body.velocity = body.velocity + positionChange.velocityDelta;
+        if (positionChange.stopVelocityX) {
+            body.velocity.x = 0;
+        }
+        if (positionChange.stopVelocityY) {
+            body.velocity.y = 0;
+        }
 
+        transform.pos = transform.pos + positionChange.positionDelta;
+        if (positionChange.positionXFixAfterCollision != -1.0f) {
+            transform.pos.x = positionChange.positionXFixAfterCollision;
+        }
+        if (positionChange.positionYFixAfterCollision != -1.0f) {
+            transform.pos.y = positionChange.positionYFixAfterCollision;
+        }
+        body.pos = transform.pos;
+
+        /*
         if (body.velocity.y < 0) {
             body.isGrounded = false;
         }
+         */
     }
     // Raycast update
     for (auto& raycast : bodyRays) {
