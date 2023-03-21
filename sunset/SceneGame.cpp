@@ -46,6 +46,12 @@ void SceneGame::Load() {
                                    { 0, 0, 1280.0f, 120.0f},
                                    false);
 
+    auto platform1Id = ecs->CreateEntity();
+    ecs->CreateTransform2DComponent(platform1Id);
+    ecs->GetComponent<Transform2D>(platform1Id).pos = { 80, 500 };
+    ecs->CreateRigidbody2DComponent(platform1Id, { 80, 500 },
+                                    { 0, 0, 200.0f, 50.0f},
+                                    false);
 
     auto platform2Id = ecs->CreateEntity();
     ecs->CreateTransform2DComponent(platform2Id);
