@@ -11,7 +11,6 @@ u32 ECSManager::maxId { 0 };
 
 void ECSManager::UpdateScene(f32 dt) {
     SystemPhysicsUpdate(dt);
-    //SystemScreenBounceUpdate();
 }
 
 void ECSManager::DrawScene() {
@@ -51,9 +50,9 @@ void ECSManager::CreateBodyRaycast2DComponent(u32 entityId, std::shared_ptr<ECSM
                                               i32 horizontalRaysCount, i32 verticalRaysCount,
                                               f32 horizontalRayLength, f32 verticalRayLength,
                                               f32 margin) {
-    i32 newComponentId = static_cast<i32>(bodyRays.size());
-    bodyRays.emplace_back(entityId, ecs, horizontalRaysCount, verticalRaysCount,
-                          horizontalRayLength, verticalRayLength, margin);
+    i32 newComponentId = static_cast<i32>(bodyRaycasts.size());
+    bodyRaycasts.emplace_back(entityId, ecs, horizontalRaysCount, verticalRaysCount,
+                              horizontalRayLength, verticalRayLength, margin);
     UpdateEntityWithComponent(entityId, newComponentId, ComponentIndex::BodyRaycast2D);
 }
 
@@ -68,7 +67,7 @@ void ECSManager::SystemSpriteDraw() {
         render::DrawSprite(sprite.tex, sprite.srcRect, sprite.dstRect, WHITE);
     }
 #ifdef GDEBUG
-    for (auto& raycast : bodyRays) {
+    for (auto& raycast : bodyRaycasts) {
         raycast.DrawDebug();
     }
     for (auto& body : bodies) {
@@ -122,11 +121,12 @@ void ECSManager::SetWorldState(const WorldState &newWorldState) {
     transforms = newWorldState.transforms;
     sprites = newWorldState.sprites;
     bodies = newWorldState.bodies;
+    bodyRaycasts = newWorldState.bodyRaycasts;
 }
 
 void ECSManager::SystemPhysicsUpdate(float dt) {
     // Raycasting
-    for (const auto& raycast : bodyRays) {
+    for (const auto& raycast : bodyRaycasts) {
         for (const auto& body : bodies) {
             if (body.entityId == raycast.entityId) continue;
             for (const auto& ray : raycast.horizontalRays) {
@@ -218,11 +218,6 @@ WorldState ECSManager::UpdateWorld() {
         auto &body = GetComponent<Rigidbody2D>(positionChange.entityId);
         body.isGrounded = positionChange.isGrounded;
 
-        bool hasJumped = false;
-        if (body.velocity.y < 0) {
-            hasJumped = true;
-        }
-
         body.velocity = body.velocity + positionChange.velocityDelta;
         if (positionChange.stopVelocityX) {
             body.velocity.x = 0;
@@ -242,7 +237,7 @@ WorldState ECSManager::UpdateWorld() {
     }
 
     // Raycast update
-    for (auto& raycast : bodyRays) {
+    for (auto& raycast : bodyRaycasts) {
         if (raycast.attachBody.velocity.x > 0) {
             raycast.SetRayDirection(Ray2DDirection::Right);
         } else if (raycast.attachBody.velocity.x < 0) {
@@ -259,7 +254,7 @@ WorldState ECSManager::UpdateWorld() {
     positionChanges.clear();
 
     WorldState newWorldState {
-        entityIds, entities, transforms, sprites, bodies
+        entityIds, entities, transforms, sprites, bodies, bodyRaycasts
     };
     return newWorldState;
 

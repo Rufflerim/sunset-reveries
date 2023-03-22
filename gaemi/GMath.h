@@ -8,6 +8,7 @@
 #include "Defines.h"
 #include "raylib.h"
 #include <array>
+#include <cmath>
 
 Vector2 operator+(Vector2 lh, Vector2 rh);
 Vector2 operator-(Vector2 lh, Vector2 rh);
@@ -30,5 +31,7 @@ struct Ray2D
 };
 
 bool RayVsRect2D(const Vector2& ray_origin, const Vector2& ray_dir, const Rectangle& targetRect, Vector2& contact_point, Vector2& contact_normal, float& near_contact_time, std::array<Vector2, 2>& probableContactPoints);
+
+f32 easeOutExpo(f32 t);
 
 #endif //SUNSET_REVERIES_GMATH_H

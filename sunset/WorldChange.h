@@ -10,12 +10,6 @@ struct PlayerChange {
     Vector2 velocityDelta;
 };
 
-struct CollisionChange {
-    u32 entityId;
-    Vector2 positionDelta;
-    Vector2 newVelocity;
-};
-
 struct PositionChange {
     u32 entityId;
     bool isGrounded { false };
@@ -25,12 +19,6 @@ struct PositionChange {
     f32 positionYFixAfterCollision { -1.0f };
     bool stopVelocityX { false };
     bool stopVelocityY { false };
-};
-
-struct BounceChange {
-    u32 entityId;
-    f32 newY;
-    f32 newVerticalVelocity;
 };
 
 struct RaycastCollision {

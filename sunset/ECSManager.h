@@ -60,7 +60,7 @@ private:
     vector<Transform2D> transforms;
     vector<Sprite> sprites;
     vector<Rigidbody2D> bodies;
-    vector<RigidbodyRaycast2D> bodyRays;
+    vector<RigidbodyRaycast2D> bodyRaycasts;
 
     vector<u32> entitiesToRemove {};
 

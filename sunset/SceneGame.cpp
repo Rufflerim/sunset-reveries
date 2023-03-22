@@ -5,7 +5,6 @@
 #include "SceneGame.h"
 
 #include <utility>
-#include "../gaemi/Renderer.h"
 
 SceneGame::SceneGame(shared_ptr<ECSManager> ecsRef,
                      Game& game)
@@ -46,6 +45,7 @@ void SceneGame::Load() {
                                    { 0, 0, 1280.0f, 120.0f},
                                    false);
 
+    /*
     auto platform1Id = ecs->CreateEntity();
     ecs->CreateTransform2DComponent(platform1Id);
     ecs->GetComponent<Transform2D>(platform1Id).pos = { 80, 500 };
@@ -66,23 +66,25 @@ void SceneGame::Load() {
     ecs->CreateRigidbody2DComponent(platform3Id, { 800, 500 },
                                     { 0, 0, 200.0f, 50.0f},
                                     false);
+                                    */
 }
 
 void SceneGame::Update(f32 dt) {
     // Player movement
     auto& playerBody = ecs->GetComponent<Rigidbody2D>(playerId);
     if (IsKeyDown(KEY_D)) {
-        moveAcceleration.x += 3000.0f * dt;
+        moveAcceleration.x += PLAYER_HORIZONTAL_ACCELERATION * dt;
     } else if (IsKeyDown(KEY_A) || IsKeyDown(KEY_Q)) {
-        moveAcceleration.x += -3000.0f * dt;
+        moveAcceleration.x += -PLAYER_HORIZONTAL_ACCELERATION * dt;
     }
 
     // Jump
-    if (IsKeyDown(KEY_SPACE) && jumpPressTime < JUMP_MAX_PRESS_TIME) {
-        moveAcceleration.y += -500.0f * dt;
+    if (IsKeyDown(KEY_SPACE) && jumpPressTime < PLAYER_JUMP_MAX_PRESS_TIME) {
+        f32 t = jumpPressTime / PLAYER_JUMP_MAX_PRESS_TIME;
+        moveAcceleration.y += (1.0f - easeOutExpo(t)) * PLAYER_JUMP_ACCELERATION * dt;
         jumpPressTime += dt;
     }
-    if (jumpPressTime >= JUMP_MAX_PRESS_TIME || IsKeyReleased(KEY_SPACE)) {
+    if (jumpPressTime >= PLAYER_JUMP_MAX_PRESS_TIME || IsKeyReleased(KEY_SPACE)) {
         moveAcceleration.y = 0;
     }
     if (playerBody.isGrounded) {

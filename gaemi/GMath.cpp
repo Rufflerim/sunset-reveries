@@ -127,3 +127,7 @@ bool RayVsRect2D(const Vector2& ray_origin, const Vector2& ray_dir, const Rectan
     // Since the contact has definitely occured return true
     return true;
 }
+
+f32 easeOutExpo(f32 t) {
+    return t == 1.0f ? 1.0f : 1.0f - std::pow(2.0f, -10.0f * t);
+}

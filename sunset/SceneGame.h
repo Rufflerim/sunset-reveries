@@ -39,7 +39,9 @@ private:
 
     u32 CreateRandomBouncingEntity();
 
-    const f32 JUMP_MAX_PRESS_TIME = .2f;
+    const f32 PLAYER_JUMP_MAX_PRESS_TIME = .085f;
+    const f32 PLAYER_HORIZONTAL_ACCELERATION = 3000.0f;
+    const f32 PLAYER_JUMP_ACCELERATION = -4000.0f;
 };
 
 
