@@ -2,10 +2,10 @@
 // Created by gaetz on 11/11/2022.
 //
 
-#include "ECSManager.h"
-#include "Renderer.h"
-#include "WorldChange.h"
-#include "GMath.h"
+#include "ECSManager.hpp"
+#include "Renderer.hpp"
+#include "WorldChange.hpp"
+#include "GMath.hpp"
 
 u32 ECSManager::maxId { 0 };
 
@@ -46,7 +46,7 @@ void ECSManager::CreateRigidbody2DComponent(u32 entityId, const Vector2& pos,
     UpdateEntityWithComponent(entityId, newComponentId, ComponentIndex::Rigidbody2D);
 }
 
-void ECSManager::CreateBodyRaycast2DComponent(u32 entityId, std::shared_ptr<ECSManager> ecs,
+void ECSManager::CreateBodyRaycast2DComponent(u32 entityId, const std::shared_ptr<ECSManager>& ecs,
                                               i32 horizontalRaysCount, i32 verticalRaysCount,
                                               f32 horizontalRayLength, f32 verticalRayLength,
                                               f32 margin) {
@@ -125,7 +125,7 @@ void ECSManager::SetWorldState(const WorldState &newWorldState) {
 }
 
 void ECSManager::SystemPhysicsUpdate(float dt) {
-    // Raycasting
+    // Ray casting
     for (const auto& raycast : bodyRaycasts) {
         for (const auto& body : bodies) {
             if (body.entityId == raycast.entityId) continue;
@@ -176,8 +176,8 @@ void ECSManager::SystemPhysicsUpdate(float dt) {
 
     // Change position changes in function of collisions
     for (const auto& raycastCollision : raycastCollisions) {
-        f32 checkValue = std::max(25.0f, std::max(raycastCollision.emitterBody.velocity.x, raycastCollision.emitterBody.velocity.y));
-        if (raycastCollision.lengthSquaredBeforeCollision <= checkValue) { // This is margin TODO improve harcoded value
+        f32 checkValue = std::max(25.0f, std::max(raycastCollision.emitterBody.velocity.x, raycastCollision.emitterBody.velocity.y)); // This is margin TODO improve hardcoded value
+        if (raycastCollision.lengthSquaredBeforeCollision <= checkValue) {
             const f32 directionX = raycastCollision.ray.direction.x;
             const f32 directionY = raycastCollision.ray.direction.y;
             auto itr = std::find_if(positionChanges.begin(), positionChanges.end(),

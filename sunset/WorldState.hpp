@@ -2,11 +2,11 @@
 // Created by gaetz on 07/03/23.
 //
 
-#ifndef SUNSET_REVERIES_WORLDSTATE_H
-#define SUNSET_REVERIES_WORLDSTATE_H
+#ifndef SUNSET_REVERIES_WORLD_STATE_HPP
+#define SUNSET_REVERIES_WORLD_STATE_HPP
 
-#include "Components.h"
-#include "Entity.h"
+#include "Components.hpp"
+#include "Entity.hpp"
 
 #include <vector>
 using std::vector;
@@ -20,4 +20,4 @@ struct WorldState {
     vector<RigidbodyRaycast2D> bodyRaycasts;
 };
 
-#endif //SUNSET_REVERIES_WORLDSTATE_H
+#endif //SUNSET_REVERIES_WORLD_STATE_HPP

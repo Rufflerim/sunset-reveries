@@ -2,12 +2,12 @@
 // Created by gaetz on 05/11/2022.
 //
 
-#ifndef SUNSET_REVERIES_GAME_H
-#define SUNSET_REVERIES_GAME_H
+#ifndef SUNSET_REVERIES_GAME_HPP
+#define SUNSET_REVERIES_GAME_HPP
 
-#include "../gaemi/IGame.h"
-#include "IScene.h"
-#include "ECSManager.h"
+#include "../gaemi/IGame.hpp"
+#include "IScene.hpp"
+#include "ECSManager.hpp"
 #include "WorldStateManager.hpp"
 
 #include <vector>
@@ -43,4 +43,4 @@ private:
 };
 
 
-#endif //SUNSET_REVERIES_GAME_H
+#endif //SUNSET_REVERIES_GAME_HPP

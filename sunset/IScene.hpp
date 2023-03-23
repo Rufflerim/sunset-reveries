@@ -2,12 +2,10 @@
 // Created by gaetz on 06/11/2022.
 //
 
-#ifndef SUNSET_REVERIES_ISCENE_H
-#define SUNSET_REVERIES_ISCENE_H
+#ifndef SUNSET_REVERIES_I_SCENE_HPP
+#define SUNSET_REVERIES_I_SCENE_HPP
 
-#include "Defines.h"
-
-class Renderer;
+#include "Defines.hpp"
 
 enum class SceneName {
     SceneGame = 0
@@ -22,14 +20,14 @@ public:
     virtual void Draw() = 0;
     virtual void Unload() = 0;
 
-    bool GetLocking() const { return isLocking; }
-    bool GetTransparent() const { return isTransparent; }
+    [[nodiscard]] bool GetLocking() const { return isLocking; }
+    [[nodiscard]] bool GetTransparent() const { return isTransparent; }
 
-    i32 ToSceneId(SceneName sceneName) { return static_cast<i32>(sceneName); }
+    static i32 ToSceneId(SceneName sceneName) { return static_cast<i32>(sceneName); }
 
 protected:
     bool isLocking { true };
     bool isTransparent { false };
 };
 
-#endif //SUNSET_REVERIES_ISCENE_H
+#endif //SUNSET_REVERIES_I_SCENE_HPP

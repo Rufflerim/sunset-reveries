@@ -2,15 +2,15 @@
 // Created by gaetz on 05/11/2022.
 //
 
-#ifndef GAEMI_LOG_H
-#define GAEMI_LOG_H
+#ifndef GAEMI_LOG_HPP
+#define GAEMI_LOG_HPP
 
-#include "Defines.h"
+#include "Defines.hpp"
 #include "raylib.h"
 #include <sstream>
 #include <fstream>
 #include <array>
-#include "LogLevel.h"
+#include "LogLevel.hpp"
 
 
 class Log {
@@ -30,8 +30,8 @@ private:
     static std::ofstream file;
     LogLevel logLevel { LogLevel::Trace };
 
-    str GetLabel(LogLevel level);
-    std::array<char, 19> GetDate();
+    static str GetLabel(LogLevel level);
+    static std::array<char, 19> GetDate();
 };
 
 #ifdef GDEBUG
@@ -47,4 +47,4 @@ private:
         Log().Get(level)
 
 
-#endif //GAEMI_LOG_H
+#endif //GAEMI_LOG_HPP

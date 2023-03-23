@@ -2,8 +2,8 @@
 // Created by gaetz on 05/11/2022.
 //
 
-#include "Game.h"
-#include "SceneGame.h"
+#include "Game.hpp"
+#include "SceneGame.hpp"
 #include <ranges>
 
 void Game::Load() {

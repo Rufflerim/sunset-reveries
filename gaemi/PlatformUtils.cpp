@@ -2,9 +2,8 @@
 // Created by gaetz on 06/11/2022.
 //
 
-#include "PlatformUtils.h"
-#include "LogLevel.h"
-#include <iostream>
+#include "PlatformUtils.hpp"
+#include "LogLevel.hpp"
 
 #ifdef GPLATFORM_WINDOWS
 #include <array>

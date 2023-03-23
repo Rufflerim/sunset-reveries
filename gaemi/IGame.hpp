@@ -2,10 +2,10 @@
 // Created by gaetz on 05/11/2022.
 //
 
-#ifndef GAEMI_IGAME_H
-#define GAEMI_IGAME_H
+#ifndef GAEMI_I_GAME_HPP
+#define GAEMI_I_GAME_HPP
 
-#include "Defines.h"
+#include "Defines.hpp"
 
 class IGame {
 public:
@@ -17,4 +17,4 @@ public:
     virtual void Unload() = 0;
 };
 
-#endif //GAEMI_IGAME_H
+#endif //GAEMI_I_GAME_HPP

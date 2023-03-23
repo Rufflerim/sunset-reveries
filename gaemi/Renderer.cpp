@@ -3,9 +3,9 @@
 //
 
 #include <cmath>
-#include "Renderer.h"
+#include "Renderer.hpp"
 #include "raylib.h"
-#include "GMath.h"
+#include "GMath.hpp"
 
 namespace render {
     void BeginDraw() {
@@ -32,5 +32,10 @@ namespace render {
         const Vector2 end = (origin + (direction * length));
         ::DrawLine(static_cast<i32>(std::round(origin.x)), static_cast<i32>(std::round(origin.y)),
                    static_cast<i32>(std::round(end.x)), static_cast<i32>(std::round(end.y)), color);
+    }
+
+    void DrawRectangleLines(const Rectangle& rect, Color color) {
+        ::DrawRectangleLines(static_cast<i32>(rect.x), static_cast<i32>(rect.y),
+                             static_cast<i32>(rect.width), static_cast<i32>(rect.height), color);
     }
 }

@@ -1,8 +1,8 @@
 //
 // Created by gaetz on 05/11/2022.
 //
-#ifndef GAEMI_DEFINES_H
-#define GAEMI_DEFINES_H
+#ifndef GAEMI_DEFINES_HPP
+#define GAEMI_DEFINES_HPP
 
 #include <string>
 
@@ -51,4 +51,4 @@ using str = std::string;
     #define GDEBUG 1
 #endif
 
-#endif //GAEMI_DEFINES_H
+#endif //GAEMI_DEFINES_HPP

@@ -2,11 +2,11 @@
 // Created by gaetz on 07/03/23.
 //
 
-#ifndef SUNSET_REVERIES_WORLDSTATEMANAGER_HPP
-#define SUNSET_REVERIES_WORLDSTATEMANAGER_HPP
+#ifndef SUNSET_REVERIES_WORLD_STATE_MANAGER_HPP
+#define SUNSET_REVERIES_WORLD_STATE_MANAGER_HPP
 
-#include "WorldState.h"
-#include "ECSManager.h"
+#include "WorldState.hpp"
+#include "ECSManager.hpp"
 
 
 class WorldStateManager {
@@ -23,7 +23,7 @@ public:
     void Resume();
 
     RecordingStatus recordingStatus { RecordingStatus::Recording };
-    bool IsRecording() const { return recordingStatus == RecordingStatus::Recording; };
+    [[nodiscard]] bool IsRecording() const { return recordingStatus == RecordingStatus::Recording; };
 
 private:
     shared_ptr<ECSManager> ecs;
@@ -35,4 +35,4 @@ private:
 };
 
 
-#endif //SUNSET_REVERIES_WORLDSTATEMANAGER_HPP
+#endif //SUNSET_REVERIES_WORLD_STATE_MANAGER_HPP

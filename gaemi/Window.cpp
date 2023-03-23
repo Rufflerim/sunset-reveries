@@ -2,13 +2,13 @@
 // Created by gaetz on 05/11/2022.
 //
 
-#include "Window.h"
+#include "Window.hpp"
 #include "raylib.h"
 
 
-Window::Window(i32 width, i32 height, str titleP):
-    width { width },
-    height { height },
+Window::Window(i32 widthP, i32 heightP, str titleP):
+    width { widthP },
+    height { heightP },
     title { std::move(titleP) }
 {
     InitWindow(width, height, title.c_str());

@@ -2,14 +2,14 @@
 // Created by gaetz on 11/11/2022.
 //
 
-#ifndef SUNSET_REVERIES_ECSMANAGER_H
-#define SUNSET_REVERIES_ECSMANAGER_H
+#ifndef SUNSET_REVERIES_ECS_MANAGER_HPP
+#define SUNSET_REVERIES_ECS_MANAGER_HPP
 
-#include "Defines.h"
-#include "Entity.h"
-#include "Components.h"
-#include "WorldChange.h"
-#include "WorldState.h"
+#include "Defines.hpp"
+#include "Entity.hpp"
+#include "Components.hpp"
+#include "WorldChange.hpp"
+#include "WorldState.hpp"
 #include <vector>
 #include <variant>
 #include <memory>
@@ -34,7 +34,7 @@ public:
     void CreateTransform2DComponent(u32 entityId);
     void CreateSpriteComponent(u32 entityId, const str& texName);
     void CreateRigidbody2DComponent(u32 entityId, const Vector2& pos, const Rectangle& box, bool doApplyGravity);
-    void CreateBodyRaycast2DComponent(u32 entityId, std::shared_ptr<ECSManager> ecs,
+    void CreateBodyRaycast2DComponent(u32 entityId, const std::shared_ptr<ECSManager>& ecs,
                                       i32 horizontalRaysCount, i32 verticalRaysCount,
                                       f32 horizontalRayLength, f32 verticalRayLength, f32 margin
                                       );
@@ -102,4 +102,4 @@ private:
 };
 
 
-#endif //SUNSET_REVERIES_ECSMANAGER_H
+#endif //SUNSET_REVERIES_ECS_MANAGER_HPP

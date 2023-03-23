@@ -2,13 +2,13 @@
 // Created by gaetz on 05/11/2022.
 //
 
-#ifndef GAEMI_ENGINE_H
-#define GAEMI_ENGINE_H
+#ifndef GAEMI_ENGINE_HPP
+#define GAEMI_ENGINE_HPP
 
 #include <string>
 #include <memory>
-#include "Renderer.h"
-#include "Defines.h"
+#include "Renderer.hpp"
+#include "Defines.hpp"
 
 using std::unique_ptr;
 
@@ -24,4 +24,4 @@ public:
 };
 
 
-#endif //GAEMI_ENGINE_H
+#endif //GAEMI_ENGINE_HPP

@@ -2,9 +2,9 @@
 // Created by gaetz on 05/11/2022.
 //
 
-#include "Log.h"
+#include "Log.hpp"
 #include <iostream>
-#include "PlatformUtils.h"
+#include "PlatformUtils.hpp"
 
 const str Log::GAME_LOG_FILE = "Reveries.log";
 std::ofstream Log::file;

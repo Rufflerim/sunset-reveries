@@ -2,7 +2,7 @@
 // Created by gaetz on 06/11/2022.
 //
 
-#include "AssetsManager.h"
+#include "AssetsManager.hpp"
 
 unordered_map<str, Texture> AssetsManager::textures {};
 unordered_map<i32, str> AssetsManager::sceneLoadedTextures {};
@@ -13,7 +13,7 @@ void AssetsManager::LoadTexture(const str& name, const str& path, i32 sceneId) {
     sceneLoadedTextures.emplace(sceneId, name);
 }
 
-const Texture AssetsManager::GetTexture(const str& name) {
+Texture AssetsManager::GetTexture(const str& name) {
     return textures.at(name);
 }
 

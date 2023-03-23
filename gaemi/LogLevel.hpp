@@ -2,8 +2,8 @@
 // Created by gaetz on 06/11/2022.
 //
 
-#ifndef GAEMI_LOGLEVEL_H
-#define GAEMI_LOGLEVEL_H
+#ifndef GAEMI_LOGLEVEL_HPP
+#define GAEMI_LOGLEVEL_HPP
 
 enum class LogLevel {
     Fatal = 0,
@@ -14,4 +14,4 @@ enum class LogLevel {
     Trace = 5
 };
 
-#endif //GAEMI_LOGLEVEL_H
+#endif //GAEMI_LOGLEVEL_HPP

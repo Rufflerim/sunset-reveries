@@ -2,9 +2,9 @@
 // Created by gaetz on 05/11/2022.
 //
 
-#include "../gaemi/Engine.h"
-#include "Game.h"
-#include "Log.h"
+#include "../gaemi/Engine.hpp"
+#include "Game.hpp"
+#include "Log.hpp"
 
 int main()
 {

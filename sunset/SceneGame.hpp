@@ -2,14 +2,14 @@
 // Created by gaetz on 06/11/2022.
 //
 
-#ifndef SUNSET_REVERIES_SCENEGAME_H
-#define SUNSET_REVERIES_SCENEGAME_H
+#ifndef SUNSET_REVERIES_SCENE_GAME_HPP
+#define SUNSET_REVERIES_SCENE_GAME_HPP
 
-#include "IScene.h"
+#include "IScene.hpp"
 #include "raylib.h"
-#include "ECSManager.h"
+#include "ECSManager.hpp"
 #include "WorldStateManager.hpp"
-#include "Game.h"
+#include "Game.hpp"
 
 #include <vector>
 #include <array>
@@ -32,8 +32,8 @@ public:
 private:
     Game& game;
     shared_ptr<ECSManager> ecs;
-    Texture2D texture;
-    u32 playerId;
+    Texture2D texture {};
+    u32 playerId { 0 };
     float jumpPressTime { 0 };
     Vector2 moveAcceleration {0.0f, 0.0f };
 
@@ -45,4 +45,4 @@ private:
 };
 
 
-#endif //SUNSET_REVERIES_SCENEGAME_H
+#endif //SUNSET_REVERIES_SCENE_GAME_HPP

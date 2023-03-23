@@ -2,10 +2,10 @@
 // Created by gaetz on 07/03/23.
 //
 
-#ifndef SUNSET_REVERIES_GMATH_H
-#define SUNSET_REVERIES_GMATH_H
+#ifndef SUNSET_REVERIES_GMATH_HPP
+#define SUNSET_REVERIES_GMATH_HPP
 
-#include "Defines.h"
+#include "Defines.hpp"
 #include "raylib.h"
 #include <array>
 #include <cmath>
@@ -30,8 +30,8 @@ struct Ray2D
     f32 length { -1 };
 };
 
-bool RayVsRect2D(const Vector2& ray_origin, const Vector2& rayDir, const Rectangle& targetRect, Vector2& contactPoint, Vector2& contactNormal, float& near_contact_time, std::array<Vector2, 2>& probableContactPoints);
+bool RayVsRect2D(const Vector2& rayOrigin, const Vector2& rayDir, const Rectangle& targetRect, Vector2& contactPoint, Vector2& contactNormal, float& nearContactTime, std::array<Vector2, 2>& probableContactPoints);
 
-f32 easeOutExpo(f32 t);
+f32 EaseOutExpo(f32 t);
 
-#endif //SUNSET_REVERIES_GMATH_H
+#endif //SUNSET_REVERIES_GMATH_HPP

@@ -4,11 +4,11 @@
 
 #include <algorithm>
 
-#include "Engine.h"
+#include "Engine.hpp"
 #include "raylib.h"
-#include "Window.h"
-#include "IGame.h"
-#include "Log.h"
+#include "Window.hpp"
+#include "IGame.hpp"
+#include "Log.hpp"
 
 void Engine::Start(i32 windowWidth, i32 windowHeight, const str& gameNameP,
                    unique_ptr<IGame>&& gameP) noexcept
@@ -23,7 +23,7 @@ void Engine::Start(i32 windowWidth, i32 windowHeight, const str& gameNameP,
     game->Load();
     LOG(LogLevel::Info) << "Game loaded";
 
-    while (!window.ShouldClose())
+    while (!Window::ShouldClose())
     {
 #ifdef GDEBUG
         f32 dt = std::min(GetFrameTime(), 0.0166f);

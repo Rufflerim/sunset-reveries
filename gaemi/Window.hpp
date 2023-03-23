@@ -2,25 +2,24 @@
 // Created by gaetz on 05/11/2022.
 //
 
-#ifndef GAEMI_WINDOW_H
-#define GAEMI_WINDOW_H
+#ifndef GAEMI_WINDOW_HPP
+#define GAEMI_WINDOW_HPP
 
 #include <string>
-#include "Defines.h"
+#include "Defines.hpp"
 
 class Window {
 public:
     Window(i32 width, i32 height, str title);
     ~Window();
 
-    bool ShouldClose();
+    static bool ShouldClose();
 
 private:
     i32 width;
     i32 height;
     str title;
-
 };
 
 
-#endif //GAEMI_WINDOW_H
+#endif //GAEMI_WINDOW_HPP
