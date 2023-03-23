@@ -30,7 +30,7 @@ struct Ray2D
     f32 length { -1 };
 };
 
-bool RayVsRect2D(const Vector2& ray_origin, const Vector2& ray_dir, const Rectangle& targetRect, Vector2& contact_point, Vector2& contact_normal, float& near_contact_time, std::array<Vector2, 2>& probableContactPoints);
+bool RayVsRect2D(const Vector2& ray_origin, const Vector2& rayDir, const Rectangle& targetRect, Vector2& contactPoint, Vector2& contactNormal, float& near_contact_time, std::array<Vector2, 2>& probableContactPoints);
 
 f32 easeOutExpo(f32 t);
 
