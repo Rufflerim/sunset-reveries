@@ -4,6 +4,7 @@
 
 #include "PlatformUtils.hpp"
 #include "LogLevel.hpp"
+#include <iostream>
 
 #ifdef GPLATFORM_WINDOWS
 #include <array>

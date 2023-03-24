@@ -2,6 +2,7 @@
 // Created by gaetz on 11/11/2022.
 //
 
+#include <algorithm>
 #include "ECSManager.hpp"
 #include "Renderer.hpp"
 #include "WorldChange.hpp"

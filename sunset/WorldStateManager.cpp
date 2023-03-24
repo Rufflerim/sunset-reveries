@@ -28,12 +28,27 @@ void WorldStateManager::SetFrame(u64 targetFrame) {
 }
 
 void WorldStateManager::Rewind(u64 rewindSpeed) {
+    if (startRewindFrame == 0) {
+        startRewindFrame = currentFrame;
+    }
     recordingStatus = RecordingStatus::Stop;
-    u64 targetFrame = currentFrame - rewindSpeed;
+    u32 targetFrame = currentFrame - rewindSpeed;
     if (rewindSpeed > currentFrame) targetFrame = 0;
     SetFrame(targetFrame);
 }
 
 void WorldStateManager::Resume() {
+    // Save player ghost as a new entity
+    //u32 newPlayerGhostId = ecs->CreateEntity();
+    // Add a recording component on this new entity, which contains recorded data fo each frame
+    for (auto itr = worldStates.begin() + currentFrame; itr != worldStates.begin() + startRewindFrame; ++itr) {
+        // Fill the recording component with all data for transform, rigidbody and sprite
+    }
+    // Remove rewinded frames
+    size_t length = worldStates.size();
+    for (int i = 0; i < length - currentFrame; ++i) {
+        worldStates.pop_back();
+    }
+
     recordingStatus = RecordingStatus::Recording;
 }

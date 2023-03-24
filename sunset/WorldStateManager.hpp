@@ -29,7 +29,8 @@ private:
     shared_ptr<ECSManager> ecs;
 
     vector<WorldState> worldStates;
-    u64 currentFrame { 0 };
+    u32 currentFrame { 0 };
+    u32 startRewindFrame { 0 };
 
     void SetFrame(u64 targetFrame);
 };
