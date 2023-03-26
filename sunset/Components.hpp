@@ -22,7 +22,8 @@ enum class ComponentIndex {
     Transform2D = 0,
     Sprite = 1,
     Rigidbody2D = 2,
-    BodyRaycast2D = 3
+    BodyRaycast2D = 3,
+    Replay = 4
 };
 
 struct Transform2D {
@@ -51,11 +52,13 @@ struct Sprite {
 };
 
 struct Rigidbody2D {
-    explicit Rigidbody2D(u32 entityIdP, const Vector2& pos, const Rectangle& box, bool doApplyGravityP) :
+    explicit Rigidbody2D(u32 entityIdP, const Vector2& pos, const Rectangle& box,
+                         bool doApplyGravityP, bool isGhostP) :
         entityId { entityIdP },
         pos { pos },
         boundingBox { box },
-        doApplyGravity { doApplyGravityP }
+        doApplyGravity { doApplyGravityP },
+        isGhost { isGhostP }
     {}
 
     u32 entityId;
@@ -63,6 +66,7 @@ struct Rigidbody2D {
     Rectangle boundingBox { 0, 0, 1, 1 };
     Vector2 velocity { 0.0f, 0.0f };
     bool doApplyGravity { true };
+    bool isGhost { false };
     bool isGrounded { false };
 
     [[nodiscard]] Rectangle GetPositionedRectangle() const {
@@ -95,7 +99,7 @@ struct RigidbodyRaycast2D {
                        f32 horizontalRayLength, f32 verticalRayLength, f32 margin);
 
     u32 entityId;
-    Rigidbody2D attachBody { 0, Vector2  { 0, 0 }, Rectangle  { 0, 0, 1, 1 }, false };
+    Rigidbody2D attachBody { 0, Vector2  { 0, 0 }, Rectangle  { 0, 0, 1, 1 }, false, false };
     i32 horizontalRaysCount;
     i32 verticalRaysCount;
     f32 horizontalRayLength;
@@ -123,6 +127,22 @@ struct RigidbodyRaycast2D {
         }
     }
 #endif
+};
+
+struct Replay {
+    Replay(u32 entityIdP, u32 originalEntityIdP, u32 replayStartFrameP, u32 replayEndFrameP)
+        : entityId { entityIdP }, originalEntityId { originalEntityIdP },
+        replayStartFrame { replayStartFrameP }, replayEndFrame { replayEndFrameP }
+    {}
+
+    u32 entityId;
+    u32 originalEntityId { 0 };
+    u32 replayStartFrame { 0 };
+    u32 replayEndFrame { 0 };
+    u32 currentFrame { 0 };
+    vector<Transform2D> transforms;
+    vector<Sprite> sprites;
+    vector<Rigidbody2D> bodies;
 };
 
 // Utils

@@ -26,6 +26,7 @@ public:
     WorldState UpdateWorld();
     void SetWorldState(const WorldState& newWorldState);
     void PrepareDraw();
+    void SetCurrentFrame(u32 currentFrameP) { currentFrame = currentFrameP; }
 
     u32 CreateEntity();
     void RemoveEntity(u32 entityId);
@@ -33,11 +34,13 @@ public:
 
     void CreateTransform2DComponent(u32 entityId);
     void CreateSpriteComponent(u32 entityId, const str& texName);
-    void CreateRigidbody2DComponent(u32 entityId, const Vector2& pos, const Rectangle& box, bool doApplyGravity);
+    void CreateRigidbody2DComponent(u32 entityId, const Vector2& pos, const Rectangle& box,
+                                    bool doApplyGravity, bool isGhost);
     void CreateBodyRaycast2DComponent(u32 entityId, const std::shared_ptr<ECSManager>& ecs,
                                       i32 horizontalRaysCount, i32 verticalRaysCount,
                                       f32 horizontalRayLength, f32 verticalRayLength, f32 margin
                                       );
+    void CreateReplayComponent(u32 entityId, u32 formerEntityId, u32 startFrame, u32 endFrame);
 
     template<class T>
     T& GetComponent(u32 entityId) {
@@ -48,22 +51,28 @@ public:
         } else if constexpr (std::is_same_v<T, Rigidbody2D>) {
             return bodies.at(FindEntityComponent(entityId, ComponentIndex::Rigidbody2D));
         } else if constexpr (std::is_same_v<T, RigidbodyRaycast2D>) {
-            return bodies.at(FindEntityComponent(entityId, ComponentIndex::BodyRaycast2D));
+            return bodyRaycasts.at(FindEntityComponent(entityId, ComponentIndex::BodyRaycast2D));
+        } else if constexpr (std::is_same_v<T, Replay>) {
+            return replays.at(FindEntityComponent(entityId, ComponentIndex::Replay));
         }
     }
 
 private:
     static u32 maxId;
 
+    // Entities and components
     vector<u32> entityIds;
     vector<Entity> entities;
+    vector<u32> entitiesToRemove {};
+
     vector<Transform2D> transforms;
     vector<Sprite> sprites;
     vector<Rigidbody2D> bodies;
     vector<RigidbodyRaycast2D> bodyRaycasts;
+    vector<Replay> replays;
 
-    vector<u32> entitiesToRemove {};
-
+    // World updates
+    u32 currentFrame { 0 };
     vector<PositionChange> positionChanges;
     vector<PlayerChange> playerChanges;
     vector<RaycastCollision> raycastCollisions;
@@ -72,7 +81,8 @@ private:
     void UpdateEntityWithComponent(u32 entityId, i32 newComponentId, ComponentIndex componentIndex);
     void CleanRemovedEntities();
 
-    void SystemPhysicsUpdate(float dt);
+    void SystemPhysicsUpdate(f32 dt);
+    void SystemReplayUpdate();
     void SystemSpriteDraw();
 
     template<class T>
@@ -97,6 +107,10 @@ private:
             RemoveComponent<Sprite>(sprites, removedEntity, ComponentIndex::Sprite);
         } else if constexpr (std::is_same_v<T, Rigidbody2D>) {
             RemoveComponent<Rigidbody2D>(bodies, removedEntity, ComponentIndex::Rigidbody2D);
+        } else if constexpr (std::is_same_v<T, RigidbodyRaycast2D>) {
+            RemoveComponent<RigidbodyRaycast2D>(bodyRaycasts, removedEntity, ComponentIndex::BodyRaycast2D);
+        } else if constexpr (std::is_same_v<T, Replay>) {
+            RemoveComponent<Replay>(replays, removedEntity, ComponentIndex::Replay);
         }
     }
 };

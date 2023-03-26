@@ -17,13 +17,12 @@ void SceneGame::Load() {
     AssetsManager::LoadTexture("bg_sunset", "assets/bg_sunset.png", ToSceneId(SceneName::SceneGame));
     texture = AssetsManager::GetTexture("bg_sunset");
     AssetsManager::LoadTexture("player", "assets/player.png", ToSceneId(SceneName::SceneGame));
-
-
+    AssetsManager::LoadTexture("ghost", "assets/ghost.png", ToSceneId(SceneName::SceneGame));
 
     // Player
     playerId = ecs->CreateEntity();
     const f32 playerX { 400 };
-    const f32 playerY { 400 };
+    const f32 playerY { 200 };
     ecs->CreateTransform2DComponent(playerId);
     ecs->GetComponent<Transform2D>(playerId).pos = { playerX, playerY };
 
@@ -32,7 +31,7 @@ void SceneGame::Load() {
 
     ecs->CreateRigidbody2DComponent(playerId, { playerX, playerY },
                                     { 0, 0, static_cast<float>(playerTexture.width), static_cast<float>(playerTexture.height)},
-                                    true);
+                                    true, false);
 
     ecs->CreateBodyRaycast2DComponent(playerId, ecs, 4, 3,
                                       100.0f, 100.0f, 5.0f);
@@ -43,7 +42,7 @@ void SceneGame::Load() {
     ecs->GetComponent<Transform2D>(floorId).pos = { 0, 600 };
     ecs->CreateRigidbody2DComponent(floorId, { 0, 600 },
                                    { 0, 0, 1280.0f, 120.0f},
-                                   false);
+                                   false, false);
 
     /*
     auto platform1Id = ecs->CreateEntity();
@@ -98,14 +97,24 @@ void SceneGame::Update(f32 dt) {
         moveAcceleration.x = 0;
     }
 
-    // Time rewind
-    if (IsKeyDown(KEY_LEFT)) {
-        game.Rewind(2);
-    }
-
+    // Time manipulation
     if (IsKeyReleased(KEY_LEFT)) {
         game.Resume();
     }
+
+    if (IsKeyDown(KEY_LEFT)) {
+        const u32 frameSpeed = 2; // TODO Place this constant somewhere else
+        game.Rewind(frameSpeed);
+        if (currentFrame + frameSpeed > frameSpeed + 1) {
+            currentFrame = currentFrame - frameSpeed;
+        } else {
+            currentFrame = 1;
+        }
+        return;
+    }
+
+    ++currentFrame;
+    ecs->SetCurrentFrame(currentFrame);
 }
 
 void SceneGame::Draw() {
@@ -130,7 +139,7 @@ u32 SceneGame::CreateRandomBouncingEntity() {
     const auto& playerTexture = AssetsManager::GetTexture("player");
     ecs->CreateRigidbody2DComponent(newId, { x, y },
                                     { 0, 0, static_cast<float>(playerTexture.width), static_cast<float>(playerTexture.height)},
-                                    true);
+                                    true, false);
     ecs->GetComponent<Rigidbody2D>(newId).velocity.x = static_cast<float>(GetRandomValue(0, 600));
     ecs->GetComponent<Rigidbody2D>(newId).velocity.y = static_cast<float>(GetRandomValue(0, 600));
 

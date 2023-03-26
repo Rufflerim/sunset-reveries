@@ -12,6 +12,7 @@ u32 ECSManager::maxId { 0 };
 
 void ECSManager::UpdateScene(f32 dt) {
     SystemPhysicsUpdate(dt);
+    SystemReplayUpdate();
 }
 
 void ECSManager::DrawScene() {
@@ -41,9 +42,9 @@ void ECSManager::CreateSpriteComponent(u32 entityId, const str& texName) {
 }
 
 void ECSManager::CreateRigidbody2DComponent(u32 entityId, const Vector2& pos,
-                                            const Rectangle& box, bool doApplyGravity) {
+                                            const Rectangle& box, bool doApplyGravity, bool isGhost) {
     i32 newComponentId = static_cast<i32>(bodies.size());
-    bodies.emplace_back(entityId, pos, box, doApplyGravity);
+    bodies.emplace_back(entityId, pos, box, doApplyGravity, isGhost);
     UpdateEntityWithComponent(entityId, newComponentId, ComponentIndex::Rigidbody2D);
 }
 
@@ -56,6 +57,13 @@ void ECSManager::CreateBodyRaycast2DComponent(u32 entityId, const std::shared_pt
                               horizontalRayLength, verticalRayLength, margin);
     UpdateEntityWithComponent(entityId, newComponentId, ComponentIndex::BodyRaycast2D);
 }
+
+void ECSManager::CreateReplayComponent(u32 entityId, u32 formerEntityId, u32 startFrame, u32 endFrame) {
+    i32 newComponentId = static_cast<i32>(replays.size());
+    replays.emplace_back(entityId, formerEntityId, startFrame, endFrame);
+    UpdateEntityWithComponent(entityId, newComponentId, ComponentIndex::Replay);
+}
+
 
 
 void ECSManager::UpdateEntityWithComponent(u32 entityId, i32 newComponentId, ComponentIndex componentIndex) {
@@ -89,6 +97,10 @@ void ECSManager::CleanRemovedEntities() {
         RemoveEntityComponent<Sprite>(entityId);
         // Rigidbodies
         RemoveEntityComponent<Rigidbody2D>(entityId);
+        // Raycasts
+        RemoveEntityComponent<RigidbodyRaycast2D>(entityId);
+        // Replay
+        RemoveEntityComponent<Replay>(entityId);
 
         std::erase(entityIds, entityId);
         std::erase_if(entities, [=](Entity entity) {
@@ -122,7 +134,7 @@ void ECSManager::SetWorldState(const WorldState &newWorldState) {
     transforms = newWorldState.transforms;
     sprites = newWorldState.sprites;
     bodies = newWorldState.bodies;
-    bodyRaycasts = newWorldState.bodyRaycasts;
+    replays = newWorldState.replays;
 }
 
 void ECSManager::SystemPhysicsUpdate(float dt) {
@@ -130,6 +142,7 @@ void ECSManager::SystemPhysicsUpdate(float dt) {
     for (const auto& raycast : bodyRaycasts) {
         for (const auto& body : bodies) {
             if (body.entityId == raycast.entityId) continue;
+            if (body.isGhost) continue;
             for (const auto& ray : raycast.horizontalRays) {
                 const Rectangle bodyRect = body.GetPositionedRectangle();
                 Vector2 contactPoint;
@@ -206,6 +219,20 @@ void ECSManager::SystemPhysicsUpdate(float dt) {
     raycastCollisions.clear();
 }
 
+void ECSManager::SystemReplayUpdate() {
+    for (const auto &replay: replays) {
+        if (currentFrame >= replay.replayEndFrame) {
+            if (currentFrame >= replay.replayEndFrame + 60) { /// TODO Constant to erase entity
+                RemoveEntity(replay.entityId);
+            }
+            continue;
+        }
+        GetComponent<Transform2D>(replay.entityId) = replay.transforms.at(currentFrame - replay.replayStartFrame);
+        GetComponent<Sprite>(replay.entityId) = replay.sprites.at(currentFrame - replay.replayStartFrame);
+        GetComponent<Rigidbody2D>(replay.entityId) = replay.bodies.at(currentFrame - replay.replayStartFrame);
+    };
+}
+
 WorldState ECSManager::UpdateWorld() {
     // Player
     for (auto playerChange: playerChanges) {
@@ -255,7 +282,8 @@ WorldState ECSManager::UpdateWorld() {
     positionChanges.clear();
 
     WorldState newWorldState {
-        entityIds, entities, transforms, sprites, bodies, bodyRaycasts
+        0,
+        entityIds, entities, transforms, sprites, bodies, replays
     };
     return newWorldState;
 
