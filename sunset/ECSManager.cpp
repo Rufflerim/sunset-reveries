@@ -245,7 +245,7 @@ void ECSManager::SystemReplayUpdate() {
         }
         GetComponent<Transform2D>(replay.entityId) = replay.transforms.at(currentFrame - replay.replayStartFrame);
         GetComponent<Rigidbody2D>(replay.entityId) = replay.bodies.at(currentFrame - replay.replayStartFrame);
-    };
+    }
 }
 
 WorldState ECSManager::UpdateWorld() {

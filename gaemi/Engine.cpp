@@ -32,8 +32,6 @@ void Engine::Start(i32 windowWidth, i32 windowHeight, const str& gameNameP,
 #else
         f32 dt = GetFrameTime();
 #endif
-        dt = GetFrameTime();
-
         game->Update(dt);
 
         render::BeginDraw();
