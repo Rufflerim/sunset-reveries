@@ -141,7 +141,6 @@ struct Replay {
     u32 replayEndFrame { 0 };
     u32 currentFrame { 0 };
     vector<Transform2D> transforms;
-    vector<Sprite> sprites;
     vector<Rigidbody2D> bodies;
 };
 

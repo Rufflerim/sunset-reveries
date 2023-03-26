@@ -33,7 +33,7 @@ void SceneGame::Load() {
                                     { 0, 0, static_cast<float>(playerTexture.width), static_cast<float>(playerTexture.height)},
                                     true, false);
 
-    ecs->CreateBodyRaycast2DComponent(playerId, ecs, 4, 3,
+    ecs->CreateBodyRaycast2DComponent(playerId, ecs, 4, 5,
                                       100.0f, 100.0f, 5.0f);
 
 

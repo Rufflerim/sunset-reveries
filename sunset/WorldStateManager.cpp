@@ -5,7 +5,8 @@
 #include "WorldStateManager.hpp"
 
 WorldStateManager::WorldStateManager(shared_ptr<ECSManager> ecs) :
-    ecs { std::move(ecs) } {
+    ecs { std::move(ecs) }
+{
     // TODO: Reserve for more than 5 minutes. Or implement a level maximum time?
     worldStates.reserve(3600 * 5);
 }
@@ -50,18 +51,17 @@ void WorldStateManager::Resume() {
                                     false, true);
     u32 formerEntityId = 0; // TODO Check player id
     ecs->CreateReplayComponent(newPlayerGhostId, formerEntityId, currentFrame, startRewindFrame);
-    Replay& replay = ecs->GetComponent<Replay>(newPlayerGhostId);
+    auto& replay = ecs->GetComponent<Replay>(newPlayerGhostId);
 
-    // Fill the recording component with all data for transform, rigidbody and sprite
+    // Fill the recording component with all data for transform and rigidbody
+    // Sprite do not need to be saved, for it is automatically moved with transform
     for (auto itr = worldStates.begin() + currentFrame; itr != worldStates.begin() + startRewindFrame; ++itr) {
         replay.transforms.push_back(itr->GetWorldStateComponent<Transform2D>(formerEntityId));
-        replay.sprites.push_back(itr->GetWorldStateComponent<Sprite>(formerEntityId));
         replay.bodies.push_back(itr->GetWorldStateComponent<Rigidbody2D>(formerEntityId));
+        // Must update former world state
         replay.transforms.back().entityId = newPlayerGhostId;
-        replay.sprites.back().entityId = newPlayerGhostId;
-        replay.sprites.back().texName = "ghost";
-        replay.sprites.back().tex = ghostTexture;
         replay.bodies.back().entityId = newPlayerGhostId;
+        replay.bodies.back().isGhost = true;
     }
 
     // Remove rewinded frames
@@ -70,7 +70,7 @@ void WorldStateManager::Resume() {
         worldStates.pop_back();
     }
 
-    // Reset and return
+    // Reset and return to game play
     startRewindFrame = 0;
     recordingStatus = RecordingStatus::Recording;
 }

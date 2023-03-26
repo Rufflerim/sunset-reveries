@@ -142,8 +142,9 @@ void ECSManager::SystemPhysicsUpdate(float dt) {
     for (const auto& raycast : bodyRaycasts) {
         for (const auto& body : bodies) {
             if (body.entityId == raycast.entityId) continue;
-            if (body.isGhost) continue;
             for (const auto& ray : raycast.horizontalRays) {
+                // No horizontal collisions with ghosts
+                if (body.isGhost) continue;
                 const Rectangle bodyRect = body.GetPositionedRectangle();
                 Vector2 contactPoint;
                 Vector2 contactNormal;
@@ -176,6 +177,7 @@ void ECSManager::SystemPhysicsUpdate(float dt) {
     positionChanges.reserve(transforms.size());
     for (const auto& body : bodies) {
         if (!body.doApplyGravity) continue;
+        if (body.isGhost) continue;
         // Apply velocity
         float deltaX = body.velocity.x * dt;
         float deltaY = body.velocity.y * dt;
@@ -190,29 +192,29 @@ void ECSManager::SystemPhysicsUpdate(float dt) {
 
     // Change position changes in function of collisions
     for (const auto& raycastCollision : raycastCollisions) {
-        f32 checkValue = std::max(25.0f, std::max(raycastCollision.emitterBody.velocity.x, raycastCollision.emitterBody.velocity.y)); // This is margin TODO improve hardcoded value
+        const Rigidbody2D& emitterBody = raycastCollision.emitterBody;
+        const Rigidbody2D& otherBody = raycastCollision.otherBody;
+        f32 checkValue = std::max(25.0f, std::max(emitterBody.velocity.x, emitterBody.velocity.y)); // This is margin TODO improve hardcoded value
         if (raycastCollision.lengthSquaredBeforeCollision <= checkValue) {
             const f32 directionX = raycastCollision.ray.direction.x;
             const f32 directionY = raycastCollision.ray.direction.y;
             auto itr = std::find_if(positionChanges.begin(), positionChanges.end(),
                                     [&](const PositionChange& positionChange) { return positionChange.entityId == raycastCollision.entityId; });
 
-            if (directionX > 0 && raycastCollision.emitterBody.velocity.x > 0) {
+            if (directionX > 0 && emitterBody.velocity.x > 0) {
                 itr->stopVelocityX = true;
-                itr->positionXFixAfterCollision = raycastCollision.otherBody.GetRealX() - raycastCollision.emitterBody.boundingBox.width;
-            } else if (directionX < 0 && raycastCollision.emitterBody.velocity.x < 0) {
+                itr->positionXFixAfterCollision = otherBody.GetRealX() - emitterBody.boundingBox.width;
+            } else if (directionX < 0 && emitterBody.velocity.x < 0) {
                 itr->stopVelocityX = true;
-                itr->positionXFixAfterCollision = raycastCollision.otherBody.GetRealX() + raycastCollision.otherBody.boundingBox.width;
+                itr->positionXFixAfterCollision = otherBody.GetRealX() + otherBody.boundingBox.width;
             }
-            if (directionY > 0 && raycastCollision.emitterBody.velocity.y > 0) {
+            if (directionY > 0 && emitterBody.velocity.y > 0) {
                 itr->stopVelocityY = true;
                 itr->isGrounded = true;
-                itr->positionYFixAfterCollision = raycastCollision.otherBody.GetRealY() -
-                                                  raycastCollision.emitterBody.boundingBox.height;
-             } else if (directionY < 0 && raycastCollision.emitterBody.velocity.y < 0) {
+                itr->positionYFixAfterCollision = otherBody.GetRealY() - emitterBody.boundingBox.height;
+             } else if (directionY < 0 && emitterBody.velocity.y < 0 && !otherBody.isGhost) {
                 itr->stopVelocityY = true;
-                itr->positionYFixAfterCollision = raycastCollision.otherBody.GetRealY() +
-                                                  raycastCollision.otherBody.boundingBox.height;
+                itr->positionYFixAfterCollision = otherBody.GetRealY() + otherBody.boundingBox.height;
             }
         }
     }
@@ -228,7 +230,7 @@ void ECSManager::SystemReplayUpdate() {
             continue;
         }
         GetComponent<Transform2D>(replay.entityId) = replay.transforms.at(currentFrame - replay.replayStartFrame);
-        GetComponent<Sprite>(replay.entityId) = replay.sprites.at(currentFrame - replay.replayStartFrame);
+        //GetComponent<Sprite>(replay.entityId) = replay.sprites.at(currentFrame - replay.replayStartFrame);
         GetComponent<Rigidbody2D>(replay.entityId) = replay.bodies.at(currentFrame - replay.replayStartFrame);
     };
 }
@@ -281,6 +283,8 @@ WorldState ECSManager::UpdateWorld() {
 
     positionChanges.clear();
 
+    /// TODO Problem: I store all replay frames each frame
+    /// Maybe replays should be stored in the world manager and data fetched from there
     WorldState newWorldState {
         0,
         entityIds, entities, transforms, sprites, bodies, replays

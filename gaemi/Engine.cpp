@@ -35,6 +35,7 @@ void Engine::Start(i32 windowWidth, i32 windowHeight, const str& gameNameP,
         render::BeginDraw();
         render::ClearScreen();
         game->Draw();
+        DrawFPS(50, 50);
         render::EndDraw();
     }
 
