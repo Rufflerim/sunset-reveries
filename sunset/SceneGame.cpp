@@ -8,16 +8,20 @@
 
 SceneGame::SceneGame(shared_ptr<ECSManager> ecsRef,
                      Game& game)
-: ecs {std::move( ecsRef )}, game { game }
+: ecs {std::move( ecsRef )}, game { game },
+  PLAYER_JUMP_MAX_PRESS_TIME { AssetsManager::GetData("PLAYER_JUMP_MAX_PRESS_TIME") },
+  PLAYER_HORIZONTAL_ACCELERATION { AssetsManager::GetData("PLAYER_HORIZONTAL_ACCELERATION") },
+  PLAYER_JUMP_ACCELERATION { AssetsManager::GetData("PLAYER_JUMP_ACCELERATION") },
+  PHYSICS_FRAME_REWIND_SPEED { static_cast<i32>(AssetsManager::GetData("PHYSICS_FRAME_REWIND_SPEED")) }
 {
 
 }
 
 void SceneGame::Load() {
-    AssetsManager::LoadTexture("bg_sunset", "assets/bg_sunset.png", ToSceneId(SceneName::SceneGame));
+    AssetsManager::LoadTexture("bg_sunset", "assets/images/bg_sunset.png", ToSceneId(SceneName::SceneGame));
     texture = AssetsManager::GetTexture("bg_sunset");
-    AssetsManager::LoadTexture("player", "assets/player.png", ToSceneId(SceneName::SceneGame));
-    AssetsManager::LoadTexture("ghost", "assets/ghost.png", ToSceneId(SceneName::SceneGame));
+    AssetsManager::LoadTexture("player", "assets/images/player.png", ToSceneId(SceneName::SceneGame));
+    AssetsManager::LoadTexture("ghost", "assets/images/ghost.png", ToSceneId(SceneName::SceneGame));
 
     // Player
     playerId = ecs->CreateEntity();
@@ -103,12 +107,11 @@ void SceneGame::Update(f32 dt) {
     }
 
     if (IsKeyDown(KEY_LEFT)) {
-        const u32 frameSpeed = 2; // TODO Place this constant somewhere else
-        game.Rewind(frameSpeed);
-        if (currentFrame + frameSpeed > frameSpeed + 1) {
-            currentFrame = currentFrame - frameSpeed;
+        game.Rewind(PHYSICS_FRAME_REWIND_SPEED);
+        if (currentFrame > PHYSICS_FRAME_REWIND_SPEED - 1) {
+            currentFrame = currentFrame - PHYSICS_FRAME_REWIND_SPEED;
         } else {
-            currentFrame = 1;
+            currentFrame = PHYSICS_FRAME_REWIND_SPEED - 1;
         }
         return;
     }

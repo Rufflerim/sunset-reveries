@@ -19,6 +19,8 @@ using std::shared_ptr;
 
 class ECSManager {
 public:
+    ECSManager();
+
     void UpdateScene(f32 dt);
     void DrawScene();
 
@@ -59,6 +61,10 @@ public:
 
 private:
     static u32 maxId;
+    const i32 PLAYER_GHOST_FADE_TIME;
+    const f32 PHYSICS_RAYCAST_MARGIN;
+    const f32 PHYSICS_GRAVITY_ACCELERATION;
+    const f32 PHYSICS_FRICTION_RATE;
 
     // Entities and components
     vector<u32> entityIds;

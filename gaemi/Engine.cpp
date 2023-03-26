@@ -9,6 +9,7 @@
 #include "Window.hpp"
 #include "IGame.hpp"
 #include "Log.hpp"
+#include "AssetsManager.hpp"
 
 void Engine::Start(i32 windowWidth, i32 windowHeight, const str& gameNameP,
                    unique_ptr<IGame>&& gameP) noexcept
@@ -17,9 +18,10 @@ void Engine::Start(i32 windowWidth, i32 windowHeight, const str& gameNameP,
     game = std::move(gameP);
 
     Window window { windowWidth, windowHeight, gameName };
+    SetTargetFPS(60);
     LOG(LogLevel::Info) << "Window initialized";
 
-    SetTargetFPS(60);
+    AssetsManager::LoadData();
     game->Load();
     LOG(LogLevel::Info) << "Game loaded";
 
@@ -30,6 +32,8 @@ void Engine::Start(i32 windowWidth, i32 windowHeight, const str& gameNameP,
 #else
         f32 dt = GetFrameTime();
 #endif
+        dt = GetFrameTime();
+
         game->Update(dt);
 
         render::BeginDraw();

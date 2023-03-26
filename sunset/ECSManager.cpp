@@ -10,6 +10,16 @@
 
 u32 ECSManager::maxId { 0 };
 
+ECSManager::ECSManager() :
+    PLAYER_GHOST_FADE_TIME { static_cast<i32>(AssetsManager::GetData("PLAYER_GHOST_FADE_TIME")) },
+    PHYSICS_RAYCAST_MARGIN { AssetsManager::GetData("PHYSICS_RAYCAST_MARGIN") },
+    PHYSICS_GRAVITY_ACCELERATION { AssetsManager::GetData("PHYSICS_GRAVITY_ACCELERATION") },
+    PHYSICS_FRICTION_RATE { AssetsManager::GetData("PHYSICS_FRICTION_RATE") }
+{
+
+}
+
+
 void ECSManager::UpdateScene(f32 dt) {
     SystemPhysicsUpdate(dt);
     SystemReplayUpdate();
@@ -73,7 +83,8 @@ void ECSManager::UpdateEntityWithComponent(u32 entityId, i32 newComponentId, Com
 
 void ECSManager::SystemSpriteDraw() {
     for (auto& sprite : sprites) {
-        render::DrawSprite(sprite.tex, sprite.srcRect, sprite.dstRect, WHITE);
+        Color colorAlpha { 255, 255, 255, sprite.opacity };
+        render::DrawSprite(sprite.tex, sprite.srcRect, sprite.dstRect, colorAlpha);
     }
 #ifdef GDEBUG
     for (auto& raycast : bodyRaycasts) {
@@ -182,10 +193,10 @@ void ECSManager::SystemPhysicsUpdate(float dt) {
         float deltaX = body.velocity.x * dt;
         float deltaY = body.velocity.y * dt;
         // Friction and gravity
-        f32 gravityEffect = 2000.0f * dt;
+        f32 gravityEffect = PHYSICS_GRAVITY_ACCELERATION * dt;
         PositionChange positionChange { body.entityId, false,
                                         { deltaX, deltaY },
-                                        { body.velocity.x * -0.05f, gravityEffect }
+                                        { -body.velocity.x * PHYSICS_FRICTION_RATE, gravityEffect }
         };
         positionChanges.emplace_back(positionChange);
     }
@@ -194,7 +205,8 @@ void ECSManager::SystemPhysicsUpdate(float dt) {
     for (const auto& raycastCollision : raycastCollisions) {
         const Rigidbody2D& emitterBody = raycastCollision.emitterBody;
         const Rigidbody2D& otherBody = raycastCollision.otherBody;
-        f32 checkValue = std::max(25.0f, std::max(emitterBody.velocity.x, emitterBody.velocity.y)); // This is margin TODO improve hardcoded value
+        const f32 raycastMarginSquared = PHYSICS_RAYCAST_MARGIN * PHYSICS_RAYCAST_MARGIN;
+        const f32 checkValue = std::max(raycastMarginSquared, std::max(emitterBody.velocity.x, emitterBody.velocity.y));
         if (raycastCollision.lengthSquaredBeforeCollision <= checkValue) {
             const f32 directionX = raycastCollision.ray.direction.x;
             const f32 directionY = raycastCollision.ray.direction.y;
@@ -224,13 +236,14 @@ void ECSManager::SystemPhysicsUpdate(float dt) {
 void ECSManager::SystemReplayUpdate() {
     for (const auto &replay: replays) {
         if (currentFrame >= replay.replayEndFrame) {
-            if (currentFrame >= replay.replayEndFrame + 60) { /// TODO Constant to erase entity
+            // Ghost fades after lifetime
+            GetComponent<Sprite>(replay.entityId).opacity = static_cast<u8>(static_cast<f32>(replay.replayEndFrame + PLAYER_GHOST_FADE_TIME - currentFrame) / static_cast<f32>(PLAYER_GHOST_FADE_TIME) * 255.0f);
+            if (currentFrame >= replay.replayEndFrame + PLAYER_GHOST_FADE_TIME) {
                 RemoveEntity(replay.entityId);
             }
             continue;
         }
         GetComponent<Transform2D>(replay.entityId) = replay.transforms.at(currentFrame - replay.replayStartFrame);
-        //GetComponent<Sprite>(replay.entityId) = replay.sprites.at(currentFrame - replay.replayStartFrame);
         GetComponent<Rigidbody2D>(replay.entityId) = replay.bodies.at(currentFrame - replay.replayStartFrame);
     };
 }
@@ -292,3 +305,4 @@ WorldState ECSManager::UpdateWorld() {
     return newWorldState;
 
 }
+

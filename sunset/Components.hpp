@@ -45,6 +45,7 @@ struct Sprite {
     {}
 
     u32 entityId;
+    u8 opacity { 255 };
     Rectangle srcRect { 0, 0, 1, 1 };
     Rectangle dstRect { 0, 0, 1, 1 };
     str texName;
