@@ -54,22 +54,23 @@ void SceneGame::Load() {
     ecs->GetComponent<Transform2D>(platform1Id).pos = { 80, 500 };
     ecs->CreateRigidbody2DComponent(platform1Id, { 80, 500 },
                                     { 0, 0, 200.0f, 50.0f},
-                                    false);
+                                    false, false);
 
     auto platform2Id = ecs->CreateEntity();
     ecs->CreateTransform2DComponent(platform2Id);
     ecs->GetComponent<Transform2D>(platform2Id).pos = { 500, 400 };
     ecs->CreateRigidbody2DComponent(platform2Id, { 500, 400 },
                                     { 0, 0, 300.0f, 50.0f},
-                                    false);
+                                    false, false);
 
     auto platform3Id = ecs->CreateEntity();
     ecs->CreateTransform2DComponent(platform3Id);
     ecs->GetComponent<Transform2D>(platform3Id).pos = { 800, 500 };
     ecs->CreateRigidbody2DComponent(platform3Id, { 800, 500 },
                                     { 0, 0, 200.0f, 50.0f},
-                                    false);
-                                    */
+                                    false, false);
+    */
+
 }
 
 void SceneGame::Update(f32 dt) {

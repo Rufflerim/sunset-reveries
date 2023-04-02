@@ -14,6 +14,7 @@
 #include "AssetsManager.hpp"
 #include "GMath.hpp"
 #include "Renderer.hpp"
+#include "WorldChange.hpp"
 
 class ECSManager;
 using std::vector;
@@ -66,6 +67,8 @@ struct Rigidbody2D {
     Vector2 pos { 0.0f, 0.0f };
     Rectangle boundingBox { 0, 0, 1, 1 };
     Vector2 velocity { 0.0f, 0.0f };
+    Vector2 playerAcceleration {0.0f, 0.0f };
+    Vector2 groundVelocity {0.0f, 0.0f };
     bool doApplyGravity { true };
     bool isGhost { false };
     bool isGrounded { false };
@@ -82,12 +85,14 @@ struct Rigidbody2D {
         return pos.y + boundingBox.y;
     }
 
+#ifdef GDEBUG
     void DrawDebug() {
         const Rectangle box { pos.x + boundingBox.x,
                               pos.y + boundingBox.y,
                               boundingBox.width, boundingBox.height };
         render::DrawRectangleLines(box, BLUE);
     }
+#endif
 };
 
 enum class Ray2DDirection {

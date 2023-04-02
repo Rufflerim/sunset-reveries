@@ -15,12 +15,16 @@ struct PositionChange {
     bool isGrounded { false };
     Vector2 positionDelta { 0.0f, 0.0f };
     Vector2 velocityDelta { 0.0f, 0.0f };
+    f32 dt { 0.0f };
+
+    Vector2 groundVelocity {0.0f, 0.0f };
     f32 positionXFixAfterCollision { -1.0f };
     f32 positionYFixAfterCollision { -1.0f };
     bool stopVelocityX { false };
     bool stopVelocityY { false };
 };
 
+struct Rigidbody2D;
 struct RaycastCollision {
     RaycastCollision(u32 entityIdP, u32 otherIdP, const Vector2& contactPointP,
                      const Rigidbody2D& emitterBodyP, const Rigidbody2D& otherBodyP, const Ray2D& rayP,
