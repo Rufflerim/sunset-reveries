@@ -4,6 +4,7 @@
 
 #include "Log.hpp"
 #include <iostream>
+#include <ctime>
 #include "PlatformUtils.hpp"
 
 const str Log::GAME_LOG_FILE = "Reveries.log";
@@ -69,6 +70,9 @@ std::array<char, 19> Log::GetDate() {
     strftime(date.data(), date.size(), "%y-%m-%d %H:%M:%S", &timeInfo);
 #else
     std::array <char, 19> date {};
+    std::time_t t = std::time(nullptr);
+    std::tm tm = *std::localtime(&t);
+    std::strftime(date.data(), sizeof(date), "%y-%m-%d %H:%M:%S", &tm);
 #endif
     return date;
 }
