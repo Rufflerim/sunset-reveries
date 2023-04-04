@@ -19,8 +19,10 @@ class WorldStateManager {
 public:
     explicit WorldStateManager(shared_ptr<ECSManager> ecs);
     void StoreNewState(WorldState newState);
-    void Rewind(u64 rewindSpeed);
+    void Rewind(u32 speed);
+    void Forward(u32 speed);
     void Resume();
+    void CloneAndResume();
 
     RecordingStatus recordingStatus { RecordingStatus::Recording };
     [[nodiscard]] bool IsRecording() const { return recordingStatus == RecordingStatus::Recording; };
@@ -33,6 +35,8 @@ private:
     u32 startRewindFrame { 0 };
 
     void SetFrame(u64 targetFrame);
+    void CreateClone();
+    void DeleteFutureAndBackToGameplay();
 };
 
 

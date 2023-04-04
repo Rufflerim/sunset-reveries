@@ -28,7 +28,9 @@ public:
     WorldState UpdateWorld();
     void SetWorldState(const WorldState& newWorldState);
     void PrepareDraw();
-    void SetCurrentFrame(u32 currentFrameP) { currentFrame = currentFrameP; }
+    void SetCurrentFrame(u32 currentFrameP) {
+        currentFrame = currentFrameP;
+    }
 
     u32 CreateEntity();
     void RemoveEntity(u32 entityId);

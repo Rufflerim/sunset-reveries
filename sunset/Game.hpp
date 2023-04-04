@@ -29,7 +29,8 @@ public:
     void SwitchScene(unique_ptr<IScene> newScene);
 
     void Rewind(u64 frameSpeed);
-    void Resume();
+    void Forward(u64 frameSpeed);
+    void Resume(bool doCreateClone);
 
     void PushPlayerChange(PlayerChange playerChange);
     void ConsumePlayerChanges();

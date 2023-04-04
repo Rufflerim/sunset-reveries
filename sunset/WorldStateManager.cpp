@@ -27,20 +27,41 @@ void WorldStateManager::SetFrame(u64 targetFrame) {
     currentFrame = targetFrame;
 }
 
-void WorldStateManager::Rewind(u64 rewindSpeed) {
+void WorldStateManager::Rewind(u32 speed) {
     if (startRewindFrame == 0) {
         // Beware, this value has to be reset to start a new recording
         startRewindFrame = currentFrame;
     }
     recordingStatus = RecordingStatus::Stop;
-    u32 targetFrame = currentFrame - rewindSpeed;
-    if (rewindSpeed > currentFrame) targetFrame = 0;
+    u32 targetFrame = currentFrame - speed;
+    if (speed > currentFrame) targetFrame = 0;
     SetFrame(targetFrame);
 }
 
+void WorldStateManager::Forward(u32 speed) {
+    u32 targetFrame = currentFrame + speed;
+    if (targetFrame > startRewindFrame) {
+        targetFrame = startRewindFrame;
+    }
+    SetFrame(targetFrame);
+}
+
+void WorldStateManager::CloneAndResume() {
+    CreateClone();
+    DeleteFutureAndBackToGameplay();
+}
+
 void WorldStateManager::Resume() {
+    DeleteFutureAndBackToGameplay();
+}
+
+void WorldStateManager::CreateClone() {
+    if (currentFrame == startRewindFrame) {
+        return;
+    }
+
     // Save player ghost as a new entity
-    u32 newPlayerGhostId = ecs->CreateEntity();
+    const u32 newPlayerGhostId = ecs->CreateEntity();
 
     // Add a recording component on this new entity, which contains recorded data fo each frame
     ecs->CreateTransform2DComponent(newPlayerGhostId);
@@ -49,7 +70,7 @@ void WorldStateManager::Resume() {
     ecs->CreateRigidbody2DComponent(newPlayerGhostId, { 0, 0 },
                                     {0, 0, static_cast<float>(ghostTexture.width), static_cast<float>(ghostTexture.height)},
                                     false, true);
-    u32 formerEntityId = 0; // TODO Check player id
+    const u32 formerEntityId = 0; // TODO Check player id
     ecs->CreateReplayComponent(newPlayerGhostId, formerEntityId, currentFrame, startRewindFrame);
     auto& replay = ecs->GetComponent<Replay>(newPlayerGhostId);
 
@@ -63,7 +84,13 @@ void WorldStateManager::Resume() {
         replay.bodies.back().entityId = newPlayerGhostId;
         replay.bodies.back().isGhost = true;
     }
+    // First position won't be updated because we are not recording, so let's do it here
+    const Vector2 pos = replay.transforms.at(0).pos;
+    ecs->GetComponent<Transform2D>(newPlayerGhostId).pos = pos;
+    ecs->GetComponent<Rigidbody2D>(newPlayerGhostId).pos = pos;
+}
 
+void WorldStateManager::DeleteFutureAndBackToGameplay() {
     // Remove rewinded frames
     size_t length = worldStates.size();
     for (int i = 0; i < length - currentFrame; ++i) {

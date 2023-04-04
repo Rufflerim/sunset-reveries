@@ -60,8 +60,16 @@ void Game::Rewind(u64 frameSpeed) {
     worldStateManager->Rewind(frameSpeed);
 }
 
-void Game::Resume() {
-    worldStateManager->Resume();
+void Game::Forward(u64 frameSpeed) {
+    worldStateManager->Forward(frameSpeed);
+}
+
+void Game::Resume(bool doCreateClone) {
+    if (doCreateClone) {
+        worldStateManager->CloneAndResume();
+    } else {
+        worldStateManager->Resume();
+    }
 }
 
 void Game::PushPlayerChange(PlayerChange playerChange) {

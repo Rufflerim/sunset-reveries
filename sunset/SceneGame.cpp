@@ -12,7 +12,7 @@ SceneGame::SceneGame(shared_ptr<ECSManager> ecsRef,
   PLAYER_JUMP_MAX_PRESS_TIME { AssetsManager::GetData("PLAYER_JUMP_MAX_PRESS_TIME") },
   PLAYER_HORIZONTAL_ACCELERATION { AssetsManager::GetData("PLAYER_HORIZONTAL_ACCELERATION") },
   PLAYER_JUMP_ACCELERATION { AssetsManager::GetData("PLAYER_JUMP_ACCELERATION") },
-  PHYSICS_FRAME_REWIND_SPEED { static_cast<i32>(AssetsManager::GetData("PHYSICS_FRAME_REWIND_SPEED")) }
+  PHYSICS_FRAME_REWIND_SPEED { static_cast<u32>(AssetsManager::GetData("PHYSICS_FRAME_REWIND_SPEED")) }
 {
 
 }
@@ -74,6 +74,23 @@ void SceneGame::Load() {
 }
 
 void SceneGame::Update(f32 dt) {
+    switch (timeStatus) {
+        case TimeStatus::Normal:
+            UpdateNormal(dt);
+            break;
+        case TimeStatus::Rewinding:
+            UpdateRewind(dt);
+            break;
+        case TimeStatus::Pause:
+            UpdatePause(dt);
+            break;
+        case TimeStatus::Forward:
+            UpdateForward(dt);
+            break;
+    }
+}
+
+void SceneGame::UpdateNormal(f32 dt) {
     // Player movement
     auto& playerBody = ecs->GetComponent<Rigidbody2D>(playerId);
     if (IsKeyDown(KEY_D)) {
@@ -102,23 +119,59 @@ void SceneGame::Update(f32 dt) {
         moveAcceleration.x = 0;
     }
 
-    // Time manipulation
-    if (IsKeyReleased(KEY_LEFT)) {
-        game.Resume();
-    }
-
     if (IsKeyDown(KEY_LEFT)) {
-        game.Rewind(PHYSICS_FRAME_REWIND_SPEED);
-        if (currentFrame > PHYSICS_FRAME_REWIND_SPEED - 1) {
-            currentFrame = currentFrame - PHYSICS_FRAME_REWIND_SPEED;
-        } else {
-            currentFrame = PHYSICS_FRAME_REWIND_SPEED - 1;
-        }
-        return;
+        maxCurrentFrame = currentFrame;
+        timeStatus = TimeStatus::Rewinding;
+        // Will have to check if we should return to skip a frame
     }
 
     ++currentFrame;
     ecs->SetCurrentFrame(currentFrame);
+}
+
+void SceneGame::UpdateRewind(f32 dt) {
+    if (IsKeyDown(KEY_LEFT)) {
+        game.Rewind(PHYSICS_FRAME_REWIND_SPEED);
+        if (currentFrame > PHYSICS_FRAME_REWIND_SPEED) {
+            currentFrame -= PHYSICS_FRAME_REWIND_SPEED;
+        } else {
+            currentFrame = PHYSICS_FRAME_REWIND_SPEED;
+        }
+    }
+    else {
+        timeStatus = TimeStatus::Pause;
+    }
+}
+
+void SceneGame::UpdatePause(f32 dt) {
+    // Clone
+    if (IsKeyPressed(KEY_UP)) {
+        game.Resume(true);
+        timeStatus = TimeStatus::Normal;
+    }
+    // Get back to normal time
+    else if (IsKeyPressed(KEY_DOWN)) {
+        game.Resume(false);
+        timeStatus = TimeStatus::Normal;
+    }
+    else if (IsKeyPressed(KEY_LEFT)) {
+        timeStatus = TimeStatus::Rewinding;
+    }
+    else if (IsKeyPressed(KEY_RIGHT)) {
+        timeStatus = TimeStatus::Forward;
+    }
+}
+
+void SceneGame::UpdateForward(f32 dt) {
+    if (IsKeyDown(KEY_RIGHT)) {
+        game.Forward(PHYSICS_FRAME_REWIND_SPEED);
+        currentFrame += PHYSICS_FRAME_REWIND_SPEED;
+        if (currentFrame > maxCurrentFrame) {
+            currentFrame = maxCurrentFrame;
+        }
+    } else {
+        timeStatus = TimeStatus::Pause;
+    }
 }
 
 void SceneGame::Draw() {
