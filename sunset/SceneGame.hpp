@@ -40,7 +40,7 @@ private:
     Game& game;
     shared_ptr<ECSManager> ecs;
     Texture2D texture {};
-    u32 playerId { 0 };
+    u64 playerId { 0 };
     float jumpPressTime { 0 };
     Vector2 moveAcceleration {0.0f, 0.0f };
     u32 currentFrame { 0 };
@@ -55,7 +55,7 @@ private:
     void UpdateForward(f32 dt);
     void DrawInterface();
 
-    u32 CreateRandomBouncingEntity();
+    u64 CreateRandomBouncingEntity();
 
     const f32 PLAYER_JUMP_MAX_PRESS_TIME;
     const f32 PLAYER_HORIZONTAL_ACCELERATION;

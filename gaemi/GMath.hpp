@@ -25,8 +25,8 @@ struct Ray2D
         origin{origin}, direction{direction}, length{length}
     {}
 
-    Vector2 origin{};
-    Vector2 direction{};
+    Vector2 origin {};
+    Vector2 direction {};
     f32 length { -1 };
 };
 

@@ -6,12 +6,12 @@
 #define SUNSET_REVERIES_WORLD_CHANGE_HPP
 
 struct PlayerChange {
-    u32 entityId { 0 };
+    u64 entityId { 0 };
     Vector2 velocityDelta { 0, 0 };
 };
 
 struct PositionChange {
-    u32 entityId { 0 };
+    u64 entityId { 0 };
     bool isGrounded { false };
     Vector2 positionDelta { 0.0f, 0.0f };
     Vector2 velocityDelta { 0.0f, 0.0f };
@@ -26,7 +26,7 @@ struct PositionChange {
 
 struct Rigidbody2D;
 struct RaycastCollision {
-    RaycastCollision(u32 entityIdP, u32 otherIdP, const Vector2& contactPointP,
+    RaycastCollision(u64 entityIdP, u64 otherIdP, const Vector2& contactPointP,
                      const Rigidbody2D& emitterBodyP, const Rigidbody2D& otherBodyP, const Ray2D& rayP,
                     f32 lengthSquaredBeforeCollisionP)
     : entityId {entityIdP }, otherId { otherIdP }, contactPoint {contactPointP },
@@ -34,8 +34,8 @@ struct RaycastCollision {
       lengthSquaredBeforeCollision { lengthSquaredBeforeCollisionP }
     {}
 
-    u32 entityId { 0 };
-    u32 otherId { 0 };
+    u64 entityId { 0 };
+    u64 otherId { 0 };
     Vector2 contactPoint { 0, 0 };
     const Rigidbody2D& emitterBody;
     const Rigidbody2D& otherBody;

@@ -8,7 +8,7 @@
 #include "WorldChange.hpp"
 #include "GMath.hpp"
 
-u32 ECSManager::maxId { 0 };
+u64 ECSManager::maxId { 0 };
 
 ECSManager::ECSManager() :
     PLAYER_GHOST_FADE_TIME { static_cast<i32>(AssetsManager::GetData("PLAYER_GHOST_FADE_TIME")) },
@@ -31,34 +31,34 @@ void ECSManager::DrawScene() {
     CleanRemovedEntities();
 }
 
-u32 ECSManager::CreateEntity() {
-    u32 newId = maxId++;
+u64 ECSManager::CreateEntity() {
+    u64 newId = maxId++;
     entityIds.emplace_back(newId);
     entities.emplace_back(newId);
     return newId;
 }
 
-void ECSManager::CreateTransform2DComponent(u32 entityId) {
+void ECSManager::CreateTransform2DComponent(u64 entityId) {
     i32 newComponentId = static_cast<i32>(transforms.size());
     transforms.emplace_back(entityId);
     UpdateEntityWithComponent(entityId, newComponentId, ComponentIndex::Transform2D);
 }
 
-void ECSManager::CreateSpriteComponent(u32 entityId, const str& texName) {
+void ECSManager::CreateSpriteComponent(u64 entityId, const str& texName) {
     i32 newComponentId = static_cast<i32>(sprites.size());
     const Texture& tex = AssetsManager::GetTexture(texName);
     sprites.emplace_back(entityId, texName, static_cast<float>(tex.width), static_cast<float>(tex.height));
     UpdateEntityWithComponent(entityId, newComponentId, ComponentIndex::Sprite);
 }
 
-void ECSManager::CreateRigidbody2DComponent(u32 entityId, const Vector2& pos,
+void ECSManager::CreateRigidbody2DComponent(u64 entityId, const Vector2& pos,
                                             const Rectangle& box, bool doApplyGravity, bool isGhost) {
     i32 newComponentId = static_cast<i32>(bodies.size());
     bodies.emplace_back(entityId, pos, box, doApplyGravity, isGhost);
     UpdateEntityWithComponent(entityId, newComponentId, ComponentIndex::Rigidbody2D);
 }
 
-void ECSManager::CreateBodyRaycast2DComponent(u32 entityId, const std::shared_ptr<ECSManager>& ecs,
+void ECSManager::CreateBodyRaycast2DComponent(u64 entityId, const std::shared_ptr<ECSManager>& ecs,
                                               i32 horizontalRaysCount, i32 verticalRaysCount,
                                               f32 horizontalRayLength, f32 verticalRayLength,
                                               f32 margin) {
@@ -68,7 +68,7 @@ void ECSManager::CreateBodyRaycast2DComponent(u32 entityId, const std::shared_pt
     UpdateEntityWithComponent(entityId, newComponentId, ComponentIndex::BodyRaycast2D);
 }
 
-void ECSManager::CreateReplayComponent(u32 entityId, u32 formerEntityId, u32 startFrame, u32 endFrame) {
+void ECSManager::CreateReplayComponent(u64 entityId, u64 formerEntityId, u32 startFrame, u32 endFrame) {
     i32 newComponentId = static_cast<i32>(replays.size());
     replays.emplace_back(entityId, formerEntityId, startFrame, endFrame);
     UpdateEntityWithComponent(entityId, newComponentId, ComponentIndex::Replay);
@@ -76,7 +76,7 @@ void ECSManager::CreateReplayComponent(u32 entityId, u32 formerEntityId, u32 sta
 
 
 
-void ECSManager::UpdateEntityWithComponent(u32 entityId, i32 newComponentId, ComponentIndex componentIndex) {
+void ECSManager::UpdateEntityWithComponent(u64 entityId, i32 newComponentId, ComponentIndex componentIndex) {
     i32 iComponentIndex = static_cast<i32>(componentIndex);
     FindEntity(entityId).components[iComponentIndex] = newComponentId;
 }
@@ -96,7 +96,7 @@ void ECSManager::SystemSpriteDraw() {
 #endif
 }
 
-void ECSManager::RemoveEntity(u32 entityId) {
+void ECSManager::RemoveEntity(u64 entityId) {
     entitiesToRemove.push_back(entityId);
 }
 
@@ -121,12 +121,12 @@ void ECSManager::CleanRemovedEntities() {
     entitiesToRemove.clear();
 }
 
-Entity& ECSManager::FindEntity(u32 entityId) {
+Entity& ECSManager::FindEntity(u64 entityId) {
     auto itr = std::lower_bound(entityIds.begin(), entityIds.end(), entityId);
     return entities.at(std::distance(entityIds.begin(), itr));
 }
 
-i32 ECSManager::FindEntityComponent(u32 entityId, ComponentIndex componentIndex) {
+i32 ECSManager::FindEntityComponent(u64 entityId, ComponentIndex componentIndex) {
     return FindEntity(entityId).components.at(static_cast<i32>(componentIndex));
 }
 
@@ -246,6 +246,7 @@ void ECSManager::SystemPhysicsUpdate(float dt) {
 void ECSManager::SystemReplayUpdate() {
     for (const auto &replay: replays) {
         if (currentFrame >= replay.replayEndFrame) {
+            /// TODO If by rewind / forward we go back to a time when a ghost is disappearing, it may disappear immediatly because replayEndFrame has changed
             // Ghost fades after lifetime
             GetComponent<Sprite>(replay.entityId).opacity = static_cast<u8>(static_cast<f32>(replay.replayEndFrame + PLAYER_GHOST_FADE_TIME - currentFrame) / static_cast<f32>(PLAYER_GHOST_FADE_TIME) * 255.0f);
             GetComponent<Rigidbody2D>(replay.entityId).velocity = { 0, 0 };

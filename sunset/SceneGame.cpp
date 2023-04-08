@@ -225,8 +225,8 @@ void SceneGame::Unload() {
     AssetsManager::UnloadSceneTextures(ToSceneId(SceneName::SceneGame));
 }
 
-u32 SceneGame::CreateRandomBouncingEntity() {
-    u32 newId = ecs->CreateEntity();
+u64 SceneGame::CreateRandomBouncingEntity() {
+    u64 newId = ecs->CreateEntity();
 
     const f32 x = static_cast<f32>(GetRandomValue(100, 1100));
     const f32 y = static_cast<f32>(GetRandomValue(150, 550));

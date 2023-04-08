@@ -32,22 +32,22 @@ public:
         currentFrame = currentFrameP;
     }
 
-    u32 CreateEntity();
-    void RemoveEntity(u32 entityId);
-    Entity& FindEntity(u32 entityId);
+    u64 CreateEntity();
+    void RemoveEntity(u64 entityId);
+    Entity& FindEntity(u64 entityId);
 
-    void CreateTransform2DComponent(u32 entityId);
-    void CreateSpriteComponent(u32 entityId, const str& texName);
-    void CreateRigidbody2DComponent(u32 entityId, const Vector2& pos, const Rectangle& box,
+    void CreateTransform2DComponent(u64 entityId);
+    void CreateSpriteComponent(u64 entityId, const str& texName);
+    void CreateRigidbody2DComponent(u64 entityId, const Vector2& pos, const Rectangle& box,
                                     bool doApplyGravity, bool isGhost);
-    void CreateBodyRaycast2DComponent(u32 entityId, const std::shared_ptr<ECSManager>& ecs,
+    void CreateBodyRaycast2DComponent(u64 entityId, const std::shared_ptr<ECSManager>& ecs,
                                       i32 horizontalRaysCount, i32 verticalRaysCount,
                                       f32 horizontalRayLength, f32 verticalRayLength, f32 margin
                                       );
-    void CreateReplayComponent(u32 entityId, u32 formerEntityId, u32 startFrame, u32 endFrame);
+    void CreateReplayComponent(u64 entityId, u64 formerEntityId, u32 startFrame, u32 endFrame);
 
     template<class T>
-    T& GetComponent(u32 entityId) {
+    T& GetComponent(u64 entityId) {
         if constexpr (std::is_same_v<T, Transform2D>) {
             return transforms.at(FindEntityComponent(entityId, ComponentIndex::Transform2D));
         } else if constexpr (std::is_same_v<T, Sprite>) {
@@ -62,16 +62,16 @@ public:
     }
 
 private:
-    static u32 maxId;
+    static u64 maxId;
     const i32 PLAYER_GHOST_FADE_TIME;
     const f32 PHYSICS_RAYCAST_MARGIN;
     const f32 PHYSICS_GRAVITY_ACCELERATION;
     const f32 PHYSICS_FRICTION_RATE;
 
     // Entities and components
-    vector<u32> entityIds;
+    vector<u64> entityIds;
     vector<Entity> entities;
-    vector<u32> entitiesToRemove {};
+    vector<u64> entitiesToRemove {};
 
     vector<Transform2D> transforms;
     vector<Sprite> sprites;
@@ -85,8 +85,8 @@ private:
     vector<PlayerChange> playerChanges;
     vector<RaycastCollision> raycastCollisions;
 
-    i32 FindEntityComponent(u32 entityId, ComponentIndex componentIndex);
-    void UpdateEntityWithComponent(u32 entityId, i32 newComponentId, ComponentIndex componentIndex);
+    i32 FindEntityComponent(u64 entityId, ComponentIndex componentIndex);
+    void UpdateEntityWithComponent(u64 entityId, i32 newComponentId, ComponentIndex componentIndex);
     void CleanRemovedEntities();
 
     void SystemPhysicsUpdate(f32 dt);
@@ -107,7 +107,7 @@ private:
     }
 
     template<class T>
-    void RemoveEntityComponent(u32 entityId) {
+    void RemoveEntityComponent(u64 entityId) {
         auto& removedEntity = FindEntity(entityId);
         if constexpr (std::is_same_v<T, Transform2D>) {
             RemoveComponent<Transform2D>(transforms, removedEntity, ComponentIndex::Transform2D);

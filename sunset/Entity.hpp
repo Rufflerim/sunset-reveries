@@ -12,9 +12,9 @@
 constexpr i32 MAX_COMPONENTS = 5;
 
 struct Entity {
-    explicit Entity(u32 idP): id {idP} {}
+    explicit Entity(u64 idP): id {idP} {}
 
-    u32 id;
+    u64 id;
     std::array<i32, MAX_COMPONENTS> components { -1, -1, -1, -1, -1 };
 
 #ifdef GDEBUG

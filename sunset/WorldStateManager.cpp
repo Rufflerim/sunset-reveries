@@ -70,7 +70,7 @@ void WorldStateManager::CreateClone() {
     ecs->CreateRigidbody2DComponent(newPlayerGhostId, { 0, 0 },
                                     {0, 0, static_cast<float>(ghostTexture.width), static_cast<float>(ghostTexture.height)},
                                     false, true);
-    const u32 formerEntityId = 0; // TODO Check player id
+    const u64 formerEntityId = 0; // TODO Check player id
     ecs->CreateReplayComponent(newPlayerGhostId, formerEntityId, currentFrame, startRewindFrame);
     auto& replay = ecs->GetComponent<Replay>(newPlayerGhostId);
 

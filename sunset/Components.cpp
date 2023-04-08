@@ -7,7 +7,7 @@
 #include <utility>
 #include "ECSManager.hpp"
 
-RigidbodyRaycast2D::RigidbodyRaycast2D(u32 entityId, std::shared_ptr<ECSManager> ecsP,
+RigidbodyRaycast2D::RigidbodyRaycast2D(u64 entityId, std::shared_ptr<ECSManager> ecsP,
                                        i32 horizontalRaysCountP, i32 verticalRaysCountP,
                                        f32 horizontalRayLength, f32 verticalRayLength,
                                        f32 margin) :

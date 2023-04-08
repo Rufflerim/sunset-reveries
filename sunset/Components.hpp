@@ -28,16 +28,16 @@ enum class ComponentIndex {
 };
 
 struct Transform2D {
-    explicit Transform2D(u32 entityIdP) : entityId { entityIdP } {}
+    explicit Transform2D(u64 entityIdP) : entityId { entityIdP } {}
 
-    u32 entityId;
+    u64 entityId;
     Vector2 pos { 0.0f, 0.0f };
     float rotation { 0.0f };
     Vector2 scale { 0.0f, 0.0f };
 };
 
 struct Sprite {
-    explicit Sprite(u32 entityIdP, const str& textNameP, float width, float height) :
+    explicit Sprite(u64 entityIdP, const str& textNameP, float width, float height) :
         entityId { entityIdP },
         srcRect { 0, 0, width, height },
         dstRect { 0, 0, width, height },
@@ -45,7 +45,7 @@ struct Sprite {
         tex { AssetsManager::GetTexture(textNameP) }
     {}
 
-    u32 entityId;
+    u64 entityId;
     u8 opacity { 255 };
     Rectangle srcRect { 0, 0, 1, 1 };
     Rectangle dstRect { 0, 0, 1, 1 };
@@ -54,7 +54,7 @@ struct Sprite {
 };
 
 struct Rigidbody2D {
-    explicit Rigidbody2D(u32 entityIdP, const Vector2& pos, const Rectangle& box,
+    explicit Rigidbody2D(u64 entityIdP, const Vector2& pos, const Rectangle& box,
                          bool doApplyGravityP, bool isGhostP) :
         entityId { entityIdP },
         pos { pos },
@@ -63,7 +63,7 @@ struct Rigidbody2D {
         isGhost { isGhostP }
     {}
 
-    u32 entityId;
+    u64 entityId;
     Vector2 pos { 0.0f, 0.0f };
     Rectangle boundingBox { 0, 0, 1, 1 };
     Vector2 velocity { 0.0f, 0.0f };
@@ -100,11 +100,11 @@ enum class Ray2DDirection {
 };
 
 struct RigidbodyRaycast2D {
-    RigidbodyRaycast2D(u32 entityId, std::shared_ptr<ECSManager> ecsP,
+    RigidbodyRaycast2D(u64 entityId, std::shared_ptr<ECSManager> ecsP,
                        i32 horizontalRaysCountP, i32 verticalRaysCountP,
                        f32 horizontalRayLength, f32 verticalRayLength, f32 margin);
 
-    u32 entityId;
+    u64 entityId;
     Rigidbody2D attachBody { 0, Vector2  { 0, 0 }, Rectangle  { 0, 0, 1, 1 }, false, false };
     i32 horizontalRaysCount;
     i32 verticalRaysCount;
@@ -136,13 +136,13 @@ struct RigidbodyRaycast2D {
 };
 
 struct Replay {
-    Replay(u32 entityIdP, u32 originalEntityIdP, u32 replayStartFrameP, u32 replayEndFrameP)
+    Replay(u64 entityIdP, u64 originalEntityIdP, u32 replayStartFrameP, u32 replayEndFrameP)
         : entityId { entityIdP }, originalEntityId { originalEntityIdP },
         replayStartFrame { replayStartFrameP }, replayEndFrame { replayEndFrameP }
     {}
 
-    u32 entityId;
-    u32 originalEntityId { 0 };
+    u64 entityId;
+    u64 originalEntityId { 0 };
     u32 replayStartFrame { 0 };
     u32 replayEndFrame { 0 };
     u32 currentFrame { 0 };
@@ -153,16 +153,16 @@ struct Replay {
 // Utils
 
 struct Collision2D {
-    Collision2D(u32 entityId, Rectangle currentBox, Vector2 velocity,
-                u32 otherId, Rectangle otherCurrentBox, Vector2 otherVelocity):
+    Collision2D(u64 entityId, Rectangle currentBox, Vector2 velocity,
+                u64 otherId, Rectangle otherCurrentBox, Vector2 otherVelocity):
             entityId { entityId}, currentBox { currentBox }, velocity { velocity },
             otherId { otherId }, otherCurrentBox { otherCurrentBox }, otherVelocity { otherVelocity }
     {}
 
-    u32 entityId;
+    u64 entityId;
     Rectangle currentBox;
     Vector2 velocity;
-    u32 otherId;
+    u64 otherId;
     Rectangle otherCurrentBox;
     Vector2 otherVelocity;
 };

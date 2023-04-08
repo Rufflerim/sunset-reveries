@@ -36,6 +36,36 @@ if (NOT raylib_FOUND) # If there's none, fetch and build raylib
         add_subdirectory(${raylib_SOURCE_DIR} ${raylib_BINARY_DIR})
     endif()
 endif()
+## -- Raylib GUI
+set(RAYLIB_GUI_VERSION 3.2)
+find_package(raylib_gui ${RAYLIB_GUI_VERSION} QUIET) # QUIET or REQUIRED
+if (NOT raylib_gui_FOUND) # If there's none, fetch and build raylib
+    include(FetchContent)
+    if (UNIX)
+        FetchContent_Declare(
+                raylib_gui
+                URL https://github.com/raysan5/raygui/archive/refs/tags/${RAYLIB_GUI_VERSION}.tar.gz
+        )
+    elseif (WIN32)
+        FetchContent_Declare(
+                raylib_gui
+                URL https://github.com/raysan5/raygui/archive/refs/tags/${RAYLIB_GUI_VERSION}.zip
+        )
+    endif()
+    FetchContent_GetProperties(raylib_gui)
+    if (NOT raylib_gui_POPULATED) # Have we downloaded raylib gui yet?
+        set(FETCHCONTENT_QUIET NO)
+        FetchContent_Populate(raylib_gui)
+        set(BUILD_EXAMPLES OFF CACHE BOOL "" FORCE) # don't build the supplied examples
+        file(COPY ${raylib_gui_SOURCE_DIR}/projects/CMake/CMakeLists.txt
+                DESTINATION ${raylib_gui_SOURCE_DIR})
+        add_subdirectory(${raylib_gui_SOURCE_DIR} ${raylib_gui_BINARY_DIR})
+        file(COPY ${raylib_gui_SOURCE_DIR}/src/raygui.h
+                DESTINATION ${CMAKE_SOURCE_DIR}/gaemi/_Libs/raygui)
+        file(COPY ${raylib_gui_SOURCE_DIR}/src/icons/raygui_icons.h
+                DESTINATION ${CMAKE_SOURCE_DIR}/gaemi/_Libs/raygui/icons)
+    endif()
+endif()
 
 # Add code
 add_subdirectory( gaemi )
