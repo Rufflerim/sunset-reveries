@@ -3,8 +3,9 @@
 //
 
 #include "SceneGame.hpp"
-
 #include <utility>
+#include <iomanip>
+#include "ImRenderer.h"
 
 SceneGame::SceneGame(shared_ptr<ECSManager> ecsRef,
                      Game& game)
@@ -12,7 +13,8 @@ SceneGame::SceneGame(shared_ptr<ECSManager> ecsRef,
   PLAYER_JUMP_MAX_PRESS_TIME { AssetsManager::GetData("PLAYER_JUMP_MAX_PRESS_TIME") },
   PLAYER_HORIZONTAL_ACCELERATION { AssetsManager::GetData("PLAYER_HORIZONTAL_ACCELERATION") },
   PLAYER_JUMP_ACCELERATION { AssetsManager::GetData("PLAYER_JUMP_ACCELERATION") },
-  PHYSICS_FRAME_REWIND_SPEED { static_cast<u32>(AssetsManager::GetData("PHYSICS_FRAME_REWIND_SPEED")) }
+  PHYSICS_FRAME_REWIND_SPEED { static_cast<u32>(AssetsManager::GetData("PHYSICS_FRAME_REWIND_SPEED")) },
+  PHYSICS_FRAME_FORWARD_SPEED { static_cast<u32>(AssetsManager::GetData("PHYSICS_FRAME_FORWARD_SPEED")) }
 {
 
 }
@@ -164,8 +166,8 @@ void SceneGame::UpdatePause(f32 dt) {
 
 void SceneGame::UpdateForward(f32 dt) {
     if (IsKeyDown(KEY_RIGHT)) {
-        game.Forward(PHYSICS_FRAME_REWIND_SPEED);
-        currentFrame += PHYSICS_FRAME_REWIND_SPEED;
+        game.Forward(PHYSICS_FRAME_FORWARD_SPEED);
+        currentFrame += PHYSICS_FRAME_FORWARD_SPEED;
         if (currentFrame > maxCurrentFrame) {
             currentFrame = maxCurrentFrame;
         }
@@ -176,6 +178,47 @@ void SceneGame::UpdateForward(f32 dt) {
 
 void SceneGame::Draw() {
     render::DrawTexture(texture, 0, 120, WHITE);
+    DrawInterface();
+}
+
+void SceneGame::DrawInterface() {
+
+    const u8 blinkSpeed { 10 };
+    textAlpha = textBlinkUp ? textAlpha + blinkSpeed : textAlpha - blinkSpeed;
+    if (textAlpha < blinkSpeed) {
+        textAlpha = 0;
+        textBlinkUp = !textBlinkUp;
+    } else if (textAlpha > 255 - blinkSpeed) {
+        textAlpha = 255;
+        textBlinkUp = !textBlinkUp;
+    }
+    const Color blinkTextColor { 130, 130, 130, textAlpha };
+
+    f32 sliderValue = static_cast<f32>(currentFrame) / static_cast<f32>(maxCurrentFrame) * 100.0f;
+    std::stringstream p;
+    p << std::fixed <<  std::setprecision(1) << sliderValue;
+    switch (timeStatus) {
+        case TimeStatus::Normal:
+            render::DrawDefaultText("[LEFT] Rewind", Vector2 { 700, 610 }, 20, GRAY);
+            break;
+        case TimeStatus::Rewinding:
+            render::im::GuiSlider( Rectangle { 700, 690, 500, 20 }, "Time", p.str() + "%", sliderValue, 0, 100);
+            render::DrawDefaultText("[LEFT] Rewind", Vector2 { 700, 610 }, 20, blinkTextColor);
+            render::DrawDefaultText("[release] Pause", Vector2 { 700, 650 }, 20, GRAY);
+            break;
+        case TimeStatus::Pause:
+            render::im::GuiSlider( Rectangle { 700, 690, 500, 20 }, "Time", p.str() + "%", sliderValue, 0, 100);
+            render::DrawDefaultText("[LEFT] Rewind", Vector2 { 700, 610 }, 20, GRAY);
+            render::DrawDefaultText("[RIGHT] Forward", Vector2 { 1000, 610 }, 20, GRAY);
+            render::DrawDefaultText("[DOWN] Resume", Vector2 { 700, 650 }, 20, GRAY);
+            render::DrawDefaultText("[UP] Clone", Vector2 { 1000, 650 }, 20, blinkTextColor);
+            break;
+        case TimeStatus::Forward:
+            render::im::GuiSlider( Rectangle { 700, 690, 500, 20 }, "Time", p.str() + "%", sliderValue, 0, 100);
+            render::DrawDefaultText("[RIGHT] Forward", Vector2 { 700, 610 }, 20, blinkTextColor);
+            render::DrawDefaultText("[release] Pause", Vector2 { 700, 650 }, 20, GRAY);
+            break;
+    }
 }
 
 void SceneGame::Unload() {
@@ -202,6 +245,8 @@ u32 SceneGame::CreateRandomBouncingEntity() {
 
     return newId;
 }
+
+
 
 
 

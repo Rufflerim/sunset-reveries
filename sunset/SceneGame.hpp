@@ -46,11 +46,14 @@ private:
     u32 currentFrame { 0 };
     u32 maxCurrentFrame { 0 };
     TimeStatus timeStatus { TimeStatus::Normal };
+    u8 textAlpha { 255 };
+    bool textBlinkUp { false };
 
     void UpdateNormal(f32 dt);
     void UpdateRewind(f32 dt);
     void UpdatePause(f32 dt);
     void UpdateForward(f32 dt);
+    void DrawInterface();
 
     u32 CreateRandomBouncingEntity();
 
@@ -59,6 +62,7 @@ private:
     const f32 PLAYER_JUMP_ACCELERATION;
 
     const u32 PHYSICS_FRAME_REWIND_SPEED;
+    const u32 PHYSICS_FRAME_FORWARD_SPEED;
 };
 
 

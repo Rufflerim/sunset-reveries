@@ -38,4 +38,9 @@ namespace render {
         ::DrawRectangleLines(static_cast<i32>(rect.x), static_cast<i32>(rect.y),
                              static_cast<i32>(rect.width), static_cast<i32>(rect.height), color);
     }
+
+    void DrawDefaultText(const str& text, const Vector2& pos, i32 fontSize, Color color) {
+        ::DrawText(text.c_str(), static_cast<i32>(pos.x), static_cast<i32>(pos.y), fontSize, color);
+    }
+
 }
