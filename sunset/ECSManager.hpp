@@ -36,15 +36,16 @@ public:
     void RemoveEntity(u64 entityId);
     Entity& FindEntity(u64 entityId);
 
-    void CreateTransform2DComponent(u64 entityId);
-    void CreateSpriteComponent(u64 entityId, const str& texName);
-    void CreateRigidbody2DComponent(u64 entityId, const Vector2& pos, const Rectangle& box,
+    Transform2D& CreateTransform2DComponent(u64 entityId);
+    Sprite& CreateSpriteComponent(u64 entityId, const str& texName);
+    Rigidbody2D& CreateRigidbody2DComponent(u64 entityId, const Vector2& pos, const Rectangle& box,
                                     bool doApplyGravity, bool isGhost);
-    void CreateBodyRaycast2DComponent(u64 entityId, const std::shared_ptr<ECSManager>& ecs,
+    RigidbodyRaycast2D& CreateBodyRaycast2DComponent(u64 entityId, const std::shared_ptr<ECSManager>& ecs,
                                       i32 horizontalRaysCount, i32 verticalRaysCount,
                                       f32 horizontalRayLength, f32 verticalRayLength, f32 margin
                                       );
-    void CreateReplayComponent(u64 entityId, u64 formerEntityId, u32 startFrame, u32 endFrame);
+    Replay& CreateReplayComponent(u64 entityId, u64 formerEntityId, u32 startFrame, u32 endFrame);
+    Weapon& CreateWeaponComponent(u64 entityId, shared_ptr<ECSManager> ecs);
 
     template<class T>
     T& GetComponent(u64 entityId) {
@@ -58,6 +59,8 @@ public:
             return bodyRaycasts.at(FindEntityComponent(entityId, ComponentIndex::BodyRaycast2D));
         } else if constexpr (std::is_same_v<T, Replay>) {
             return replays.at(FindEntityComponent(entityId, ComponentIndex::Replay));
+        } else if constexpr (std::is_same_v<T, Weapon>) {
+            return weapons.at(FindEntityComponent(entityId, ComponentIndex::Weapon));
         }
     }
 
@@ -78,6 +81,7 @@ private:
     vector<Rigidbody2D> bodies;
     vector<RigidbodyRaycast2D> bodyRaycasts;
     vector<Replay> replays;
+    vector<Weapon> weapons;
 
     // World updates
     u32 currentFrame { 0 };
@@ -91,6 +95,7 @@ private:
 
     void SystemPhysicsUpdate(f32 dt);
     void SystemReplayUpdate();
+    void SystemWeaponUpdate(f32 dt);
     void SystemSpriteDraw();
 
     template<class T>
@@ -119,6 +124,8 @@ private:
             RemoveComponent<RigidbodyRaycast2D>(bodyRaycasts, removedEntity, ComponentIndex::BodyRaycast2D);
         } else if constexpr (std::is_same_v<T, Replay>) {
             RemoveComponent<Replay>(replays, removedEntity, ComponentIndex::Replay);
+        } else if constexpr (std::is_same_v<T, Weapon>) {
+            RemoveComponent<Weapon>(weapons, removedEntity, ComponentIndex::Weapon);
         }
     }
 };

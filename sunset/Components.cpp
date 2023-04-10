@@ -111,3 +111,48 @@ std::vector<Ray2D> RigidbodyRaycast2D::UpdateVerticalRays() {
     }
     return rays;
 }
+
+void Weapon::Update(f32 dt) {
+    cooldownTimer += dt;
+}
+
+void Weapon::Shoot() {
+    if (cooldownTimer >= cooldown) {
+        cooldownTimer = 0;
+        for (i32 i = 0; i < projectilePerShoot; ++i) {
+            ShootOnce();
+        }
+    }
+}
+
+void Weapon::ShootOnce() const {
+    f32 shootAngle { 0.0f };
+    shootAngle += angle;
+    switch (currentOrientation) {
+        case CharacterOrientation::Right:
+            shootAngle += static_cast<f32>(GetRandomValue(-angularSpreadDegree, angularSpreadDegree));
+            break;
+        case CharacterOrientation::Left:
+            shootAngle = 180.0f;
+            shootAngle += static_cast<f32>(GetRandomValue(-angularSpreadDegree, angularSpreadDegree));
+            break;
+        case CharacterOrientation::Top:
+            shootAngle = 90.0f;
+            shootAngle += static_cast<f32>(GetRandomValue(-angularSpreadDegree, angularSpreadDegree));
+            break;
+        case CharacterOrientation::Bottom:
+            shootAngle = 270.0f;
+            shootAngle += static_cast<f32>(GetRandomValue(-angularSpreadDegree, angularSpreadDegree));
+            break;
+    }
+    const f32 radianShootAngle = shootAngle * PI / 360.0f;
+
+    u64 projectileId = ecs->CreateEntity();
+    auto& projectileTransform = ecs->CreateTransform2DComponent(projectileId);
+    const Sprite& projectileSprite = ecs->CreateSpriteComponent(projectileId, "projectile");
+    auto& projectileBody = ecs->CreateRigidbody2DComponent(projectileId, Vector2 { 0, 0 },
+                                    Rectangle { 0, 0, projectileSprite.srcRect.width, projectileSprite.srcRect.height },
+                                    true, false);
+    projectileTransform.pos = ecs->GetComponent<Transform2D>(entityId).pos + Vector2 { 32.f, 32.f };
+    projectileBody.velocity = Vector2 { cos(radianShootAngle) * 5000.0f, sin(radianShootAngle) * 5000.0f };
+}

@@ -6,6 +6,7 @@
 #define SUNSET_REVERIES_COMPONENTS_HPP
 
 #include <optional>
+#include <utility>
 #include <vector>
 #include <memory>
 
@@ -24,7 +25,8 @@ enum class ComponentIndex {
     Sprite = 1,
     Rigidbody2D = 2,
     BodyRaycast2D = 3,
-    Replay = 4
+    Replay = 4,
+    Weapon = 5
 };
 
 struct Transform2D {
@@ -150,8 +152,35 @@ struct Replay {
     vector<Rigidbody2D> bodies;
 };
 
-// Utils
+enum class CharacterOrientation {
+    Right, Left, Top, Bottom
+};
 
+struct Weapon {
+    Weapon(u64 entityIdP, std::shared_ptr<ECSManager> ecsP)
+    : entityId { entityIdP }, ecs { std::move(ecsP) } {
+
+    }
+
+    u64 entityId;
+    Vector2 projectileOriginOffset { 20.0f, 0.0f};
+    i32 projectilePerShoot { 1 };
+    f32 angle { 0.0f };
+    i32 angularSpreadDegree { 10 };
+    f32 cooldown { 0.05f };
+    bool isOneShot { false };
+    bool doesGravityAffectProjectile { false };
+    CharacterOrientation currentOrientation { CharacterOrientation::Right };
+    std::shared_ptr<ECSManager> ecs;
+
+    void Update(f32 dt);
+    void Shoot();
+    void ShootOnce() const;
+
+    f32 cooldownTimer { 0.0f };
+};
+
+// Utils
 struct Collision2D {
     Collision2D(u64 entityId, Rectangle currentBox, Vector2 velocity,
                 u64 otherId, Rectangle otherCurrentBox, Vector2 otherVelocity):

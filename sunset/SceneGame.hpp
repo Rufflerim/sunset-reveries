@@ -39,13 +39,17 @@ public:
 private:
     Game& game;
     shared_ptr<ECSManager> ecs;
-    Texture2D texture {};
+    Texture2D backgroundTexture {};
     u64 playerId { 0 };
+    Weapon* playerWeapon { nullptr };
+
     float jumpPressTime { 0 };
     Vector2 moveAcceleration {0.0f, 0.0f };
+
     u32 currentFrame { 0 };
     u32 maxCurrentFrame { 0 };
     TimeStatus timeStatus { TimeStatus::Normal };
+
     u8 textAlpha { 255 };
     bool textBlinkUp { false };
 

@@ -21,16 +21,17 @@ SceneGame::SceneGame(shared_ptr<ECSManager> ecsRef,
 
 void SceneGame::Load() {
     AssetsManager::LoadTexture("bg_sunset", "assets/images/bg_sunset.png", ToSceneId(SceneName::SceneGame));
-    texture = AssetsManager::GetTexture("bg_sunset");
+    backgroundTexture = AssetsManager::GetTexture("bg_sunset");
     AssetsManager::LoadTexture("player", "assets/images/player.png", ToSceneId(SceneName::SceneGame));
     AssetsManager::LoadTexture("ghost", "assets/images/ghost.png", ToSceneId(SceneName::SceneGame));
+    AssetsManager::LoadTexture("projectile", "assets/images/projectile.png", ToSceneId(SceneName::SceneGame));
 
     // Player
     playerId = ecs->CreateEntity();
     const f32 playerX { 400 };
     const f32 playerY { 200 };
-    ecs->CreateTransform2DComponent(playerId);
-    ecs->GetComponent<Transform2D>(playerId).pos = { playerX, playerY };
+    auto& playerTransform = ecs->CreateTransform2DComponent(playerId);
+    playerTransform.pos = { playerX, playerY };
 
     ecs->CreateSpriteComponent(playerId, "player");
     const auto& playerTexture = AssetsManager::GetTexture("player");
@@ -38,14 +39,15 @@ void SceneGame::Load() {
     ecs->CreateRigidbody2DComponent(playerId, { playerX, playerY },
                                     { 0, 0, static_cast<float>(playerTexture.width), static_cast<float>(playerTexture.height)},
                                     true, false);
-
     ecs->CreateBodyRaycast2DComponent(playerId, ecs, 4, 5,
                                       100.0f, 100.0f, 5.0f);
+    playerWeapon = &ecs->CreateWeaponComponent(playerId, ecs);
+
 
 
     auto floorId = ecs->CreateEntity();
-    ecs->CreateTransform2DComponent(floorId);
-    ecs->GetComponent<Transform2D>(floorId).pos = { 0, 600 };
+    auto& floorTransform = ecs->CreateTransform2DComponent(floorId);
+    floorTransform.pos = { 0, 600 };
     ecs->CreateRigidbody2DComponent(floorId, { 0, 600 },
                                    { 0, 0, 1280.0f, 120.0f},
                                    false, false);
@@ -121,6 +123,12 @@ void SceneGame::UpdateNormal(f32 dt) {
         moveAcceleration.x = 0;
     }
 
+    // Shoot
+    if (IsKeyDown(KEY_LEFT_CONTROL)) {
+        playerWeapon->Shoot();
+    }
+
+    // Time control
     if (IsKeyDown(KEY_LEFT)) {
         maxCurrentFrame = currentFrame;
         timeStatus = TimeStatus::Rewinding;
@@ -177,12 +185,11 @@ void SceneGame::UpdateForward(f32 dt) {
 }
 
 void SceneGame::Draw() {
-    render::DrawTexture(texture, 0, 120, WHITE);
+    render::DrawTexture(backgroundTexture, 0, 120, WHITE);
     DrawInterface();
 }
 
 void SceneGame::DrawInterface() {
-
     const u8 blinkSpeed { 10 };
     textAlpha = textBlinkUp ? textAlpha + blinkSpeed : textAlpha - blinkSpeed;
     if (textAlpha < blinkSpeed) {
@@ -231,17 +238,17 @@ u64 SceneGame::CreateRandomBouncingEntity() {
     const f32 x = static_cast<f32>(GetRandomValue(100, 1100));
     const f32 y = static_cast<f32>(GetRandomValue(150, 550));
 
-    ecs->CreateTransform2DComponent(newId);
-    ecs->GetComponent<Transform2D>(newId).pos = { x, y };
+    auto& transform = ecs->CreateTransform2DComponent(newId);
+    transform.pos = { x, y };
 
     ecs->CreateSpriteComponent(newId, "player");
-
     const auto& playerTexture = AssetsManager::GetTexture("player");
-    ecs->CreateRigidbody2DComponent(newId, { x, y },
+
+    auto& body = ecs->CreateRigidbody2DComponent(newId, { x, y },
                                     { 0, 0, static_cast<float>(playerTexture.width), static_cast<float>(playerTexture.height)},
                                     true, false);
-    ecs->GetComponent<Rigidbody2D>(newId).velocity.x = static_cast<float>(GetRandomValue(0, 600));
-    ecs->GetComponent<Rigidbody2D>(newId).velocity.y = static_cast<float>(GetRandomValue(0, 600));
+    body.velocity.x = static_cast<float>(GetRandomValue(0, 600));
+    body.velocity.y = static_cast<float>(GetRandomValue(0, 600));
 
     return newId;
 }

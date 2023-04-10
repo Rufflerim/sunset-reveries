@@ -19,6 +19,7 @@ struct WorldState {
     vector<Sprite> sprites;
     vector<Rigidbody2D> bodies;
     vector<Replay> replays;
+    vector<Weapon> weapons;
 
     template<class T>
     T& GetWorldStateComponent(u64 entityId) {
@@ -30,6 +31,8 @@ struct WorldState {
             return bodies.at(FindWorldStateEntityComponent(entityId, ComponentIndex::Rigidbody2D));
         } else if constexpr (std::is_same_v<T, Replay>) {
             return replays.at(FindWorldStateEntityComponent(entityId, ComponentIndex::Replay));
+        } else if constexpr (std::is_same_v<T, Weapon>) {
+            return weapons.at(FindWorldStateEntityComponent(entityId, ComponentIndex::Weapon));
         }
     }
 

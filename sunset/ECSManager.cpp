@@ -22,6 +22,7 @@ ECSManager::ECSManager() :
 
 void ECSManager::UpdateScene(f32 dt) {
     SystemReplayUpdate();
+    SystemWeaponUpdate(dt);
     SystemPhysicsUpdate(dt);
 }
 
@@ -38,27 +39,30 @@ u64 ECSManager::CreateEntity() {
     return newId;
 }
 
-void ECSManager::CreateTransform2DComponent(u64 entityId) {
+Transform2D& ECSManager::CreateTransform2DComponent(u64 entityId) {
     i32 newComponentId = static_cast<i32>(transforms.size());
     transforms.emplace_back(entityId);
     UpdateEntityWithComponent(entityId, newComponentId, ComponentIndex::Transform2D);
+    return transforms.back();
 }
 
-void ECSManager::CreateSpriteComponent(u64 entityId, const str& texName) {
+Sprite& ECSManager::CreateSpriteComponent(u64 entityId, const str& texName) {
     i32 newComponentId = static_cast<i32>(sprites.size());
     const Texture& tex = AssetsManager::GetTexture(texName);
     sprites.emplace_back(entityId, texName, static_cast<float>(tex.width), static_cast<float>(tex.height));
     UpdateEntityWithComponent(entityId, newComponentId, ComponentIndex::Sprite);
+    return sprites.back();
 }
 
-void ECSManager::CreateRigidbody2DComponent(u64 entityId, const Vector2& pos,
+Rigidbody2D& ECSManager::CreateRigidbody2DComponent(u64 entityId, const Vector2& pos,
                                             const Rectangle& box, bool doApplyGravity, bool isGhost) {
     i32 newComponentId = static_cast<i32>(bodies.size());
     bodies.emplace_back(entityId, pos, box, doApplyGravity, isGhost);
     UpdateEntityWithComponent(entityId, newComponentId, ComponentIndex::Rigidbody2D);
+    return bodies.back();
 }
 
-void ECSManager::CreateBodyRaycast2DComponent(u64 entityId, const std::shared_ptr<ECSManager>& ecs,
+RigidbodyRaycast2D& ECSManager::CreateBodyRaycast2DComponent(u64 entityId, const std::shared_ptr<ECSManager>& ecs,
                                               i32 horizontalRaysCount, i32 verticalRaysCount,
                                               f32 horizontalRayLength, f32 verticalRayLength,
                                               f32 margin) {
@@ -66,12 +70,21 @@ void ECSManager::CreateBodyRaycast2DComponent(u64 entityId, const std::shared_pt
     bodyRaycasts.emplace_back(entityId, ecs, horizontalRaysCount, verticalRaysCount,
                               horizontalRayLength, verticalRayLength, margin);
     UpdateEntityWithComponent(entityId, newComponentId, ComponentIndex::BodyRaycast2D);
+    return bodyRaycasts.back();
 }
 
-void ECSManager::CreateReplayComponent(u64 entityId, u64 formerEntityId, u32 startFrame, u32 endFrame) {
+Replay& ECSManager::CreateReplayComponent(u64 entityId, u64 formerEntityId, u32 startFrame, u32 endFrame) {
     i32 newComponentId = static_cast<i32>(replays.size());
     replays.emplace_back(entityId, formerEntityId, startFrame, endFrame);
     UpdateEntityWithComponent(entityId, newComponentId, ComponentIndex::Replay);
+    return replays.back();
+}
+
+Weapon& ECSManager::CreateWeaponComponent(u64 entityId, shared_ptr<ECSManager> ecs) {
+    i32 newComponentId = static_cast<i32>(weapons.size());
+    weapons.emplace_back(entityId, std::move(ecs));
+    UpdateEntityWithComponent(entityId, newComponentId, ComponentIndex::Weapon);
+    return weapons.back();
 }
 
 
@@ -189,7 +202,7 @@ void ECSManager::SystemPhysicsUpdate(float dt) {
     for (const auto& body : bodies) {
         if (!body.doApplyGravity) continue;
         if (body.isGhost) continue;
-        // Apply velocity
+        // Apply velocity /// TODO is this still in use?
         float deltaX = body.velocity.x * dt;
         float deltaY = body.velocity.y * dt;
         // Friction and gravity
@@ -260,6 +273,13 @@ void ECSManager::SystemReplayUpdate() {
     }
 }
 
+void ECSManager::SystemWeaponUpdate(f32 dt) {
+    for (auto& weapon : weapons) {
+        weapon.Update(dt);
+    }
+}
+
+
 WorldState ECSManager::UpdateWorld() {
     // Player
     for (auto playerChange: playerChanges) {
@@ -328,4 +348,5 @@ WorldState ECSManager::UpdateWorld() {
     return newWorldState;
 
 }
+
 
