@@ -106,7 +106,7 @@ void SceneGame::UpdateNormal(f32 dt) {
     // Jump
     if (IsKeyDown(KEY_SPACE) && jumpPressTime < PLAYER_JUMP_MAX_PRESS_TIME) {
         f32 t = jumpPressTime / PLAYER_JUMP_MAX_PRESS_TIME;
-        moveAcceleration.y += (1.0f - EaseOutExpo(t)) * PLAYER_JUMP_ACCELERATION * dt;
+        moveAcceleration.y += (1.0f - gmath::EaseOutExpo(t)) * PLAYER_JUMP_ACCELERATION * dt;
         jumpPressTime += dt;
     }
     if (jumpPressTime >= PLAYER_JUMP_MAX_PRESS_TIME || IsKeyReleased(KEY_SPACE)) {

@@ -3,6 +3,8 @@
 //
 
 #include <algorithm>
+#include <limits>
+
 #include "ECSManager.hpp"
 #include "Renderer.hpp"
 #include "WorldChange.hpp"
@@ -174,7 +176,7 @@ void ECSManager::SystemPhysicsUpdate(float dt) {
                 Vector2 contactNormal;
                 float contactTime;
                 std::array<Vector2, 2> probableContactPoints {};
-                if (RayVsRect2D(ray.origin, ray.direction, bodyRect, contactPoint, contactNormal, contactTime, probableContactPoints)) {
+                if (gmath::RayVsRect2D(ray.origin, ray.direction, bodyRect, contactPoint, contactNormal, contactTime, probableContactPoints)) {
                     const Vector2 diff = contactPoint - ray.origin;
                     raycastCollisions.emplace_back(raycast.entityId, body.entityId,
                                                    contactPoint,raycast.attachBody, body,
@@ -187,7 +189,7 @@ void ECSManager::SystemPhysicsUpdate(float dt) {
                 Vector2 contactNormal;
                 float contactTime;
                 std::array<Vector2, 2> probableContactPoints {};
-                if (RayVsRect2D(ray.origin, ray.direction, bodyRect, contactPoint, contactNormal, contactTime, probableContactPoints)) {
+                if (gmath::RayVsRect2D(ray.origin, ray.direction, bodyRect, contactPoint, contactNormal, contactTime, probableContactPoints)) {
                     const Vector2 diff = contactPoint - ray.origin;
                     raycastCollisions.emplace_back(raycast.entityId, body.entityId,
                                                    contactPoint,raycast.attachBody, body,

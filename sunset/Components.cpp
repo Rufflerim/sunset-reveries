@@ -6,6 +6,7 @@
 
 #include <utility>
 #include "ECSManager.hpp"
+#include <cmath>
 
 RigidbodyRaycast2D::RigidbodyRaycast2D(u64 entityId, std::shared_ptr<ECSManager> ecsP,
                                        i32 horizontalRaysCountP, i32 verticalRaysCountP,
@@ -154,5 +155,6 @@ void Weapon::ShootOnce() const {
                                     Rectangle { 0, 0, projectileSprite.srcRect.width, projectileSprite.srcRect.height },
                                     true, false);
     projectileTransform.pos = ecs->GetComponent<Transform2D>(entityId).pos + Vector2 { 32.f, 32.f };
-    projectileBody.velocity = Vector2 { cos(radianShootAngle) * 5000.0f, sin(radianShootAngle) * 5000.0f };
+    projectileBody.velocity = Vector2 { static_cast<float>(cos(radianShootAngle) * 5000.0f),
+                                        static_cast<float>(sin(radianShootAngle) * 5000.0f) };
 }

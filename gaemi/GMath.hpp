@@ -8,7 +8,8 @@
 #include "Defines.hpp"
 #include "raylib.h"
 #include <array>
-#include <cmath>
+
+using std::array;
 
 Vector2 operator+(Vector2 lh, Vector2 rh);
 Vector2 operator-(Vector2 lh, Vector2 rh);
@@ -30,8 +31,29 @@ struct Ray2D
     f32 length { -1 };
 };
 
-bool RayVsRect2D(const Vector2& rayOrigin, const Vector2& rayDir, const Rectangle& targetRect, Vector2& contactPoint, Vector2& contactNormal, float& nearContactTime, std::array<Vector2, 2>& probableContactPoints);
+namespace gmath {
 
-f32 EaseOutExpo(f32 t);
+    /***
+     * Check if a 2d ray collides a rectangle
+     * @param rayOrigin
+     * @param rayDir
+     * @param targetRect
+     * @param contactPoint
+     * @param contactNormal
+     * @param nearContactTime
+     * @param probableContactPoints
+     * @return True if the intersection exists. Details are computed in contactPoint, contactNormal and nearContactTime.
+     */
+    bool RayVsRect2D(const Vector2 &rayOrigin, const Vector2 &rayDir, const Rectangle &targetRect, Vector2 &contactPoint,
+                Vector2 &contactNormal, float &nearContactTime, array<Vector2, 2> &probableContactPoints);
+
+    /***
+     * Easing function. Grow quick then reach limit slowly.
+     * @param t From 0 to 1
+     * @return Eased value from 0 to 1.
+     */
+    f32 EaseOutExpo(f32 t);
+
+}
 
 #endif //SUNSET_REVERIES_GMATH_HPP
