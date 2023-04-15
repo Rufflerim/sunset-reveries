@@ -13,7 +13,6 @@ struct PlayerChange {
 struct PositionChange {
     u64 entityId { 0 };
     bool isGrounded { false };
-    Vector2 positionDelta { 0.0f, 0.0f };
     Vector2 velocityDelta { 0.0f, 0.0f };
     f32 dt { 0.0f };
 

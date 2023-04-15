@@ -204,13 +204,9 @@ void ECSManager::SystemPhysicsUpdate(float dt) {
     for (const auto& body : bodies) {
         if (!body.doApplyGravity) continue;
         if (body.isGhost) continue;
-        // Apply velocity /// TODO is this still in use?
-        float deltaX = body.velocity.x * dt;
-        float deltaY = body.velocity.y * dt;
         // Friction and gravity
         f32 gravityEffect = PHYSICS_GRAVITY_ACCELERATION * dt;
         PositionChange positionChange { body.entityId, false,
-                                        { deltaX, deltaY },
                                         { -body.velocity.x * PHYSICS_FRICTION_RATE, gravityEffect },
                                         dt
         };
