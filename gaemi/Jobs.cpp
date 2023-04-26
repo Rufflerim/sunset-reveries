@@ -7,9 +7,6 @@
 #include <algorithm>
 #include <atomic>
 #include <thread>
-#include <condition_variable>
-
-
 
 namespace jobs
 {

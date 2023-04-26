@@ -7,8 +7,6 @@
 
 #include "Defines.hpp"
 #include <functional>
-#include <atomic>
-#include <thread>
 #include <condition_variable>
 
 namespace jobs {
