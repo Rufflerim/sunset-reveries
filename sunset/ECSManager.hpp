@@ -130,5 +130,4 @@ private:
     }
 };
 
-
 #endif //SUNSET_REVERIES_ECS_MANAGER_HPP

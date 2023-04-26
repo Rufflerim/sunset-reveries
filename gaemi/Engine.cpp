@@ -10,6 +10,7 @@
 #include "IGame.hpp"
 #include "Log.hpp"
 #include "AssetsManager.hpp"
+#include "Jobs.hpp"
 
 void Engine::Start(i32 windowWidth, i32 windowHeight, const str& gameNameP,
                    unique_ptr<IGame>&& gameP) noexcept
@@ -20,6 +21,8 @@ void Engine::Start(i32 windowWidth, i32 windowHeight, const str& gameNameP,
     Window window { windowWidth, windowHeight, gameName };
     SetTargetFPS(60);
     LOG(LogLevel::Info) << "Window initialized";
+
+    jobs::Initialize();
 
     AssetsManager::LoadData();
     game->Load();

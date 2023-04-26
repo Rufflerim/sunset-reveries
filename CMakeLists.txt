@@ -10,8 +10,8 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 ## -- OpenGL
 if (UNIX)
     set(OpenGL_GL_PREFERENCE LEGACY)
-    cmake_policy(SET CMP0135 NEW)
 endif(UNIX)
+cmake_policy(SET CMP0135 NEW)
 ## -- Raylib
 set(RAYLIB_VERSION 4.5.0)
 find_package(raylib ${RAYLIB_VERSION} QUIET) # QUIET or REQUIRED

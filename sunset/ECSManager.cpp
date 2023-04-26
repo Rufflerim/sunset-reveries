@@ -9,6 +9,7 @@
 #include "Renderer.hpp"
 #include "WorldChange.hpp"
 #include "GMath.hpp"
+#include "Jobs.hpp"
 
 u64 ECSManager::maxId { 0 };
 
@@ -24,8 +25,9 @@ ECSManager::ECSManager() :
 
 void ECSManager::UpdateScene(f32 dt) {
     SystemReplayUpdate();
-    SystemWeaponUpdate(dt);
-    SystemPhysicsUpdate(dt);
+    jobs::Execute([this, dt] { SystemWeaponUpdate(dt); });
+    jobs::Execute([this, dt] { SystemPhysicsUpdate(dt); });
+    jobs::Wait();
 }
 
 void ECSManager::DrawScene() {
