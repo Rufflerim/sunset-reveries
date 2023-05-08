@@ -3,7 +3,6 @@
 //
 
 #include "Jobs.hpp"
-
 #include <algorithm>
 #include <atomic>
 #include <thread>
@@ -39,6 +38,16 @@ namespace jobs
     /** Track the state of execution across background worker threads */
     std::atomic<uint64_t> finishedLabel;
 
+    /**
+     * Store workers to join them all at the end
+     */
+    std::vector<std::thread> workers;
+
+    /**
+     * Condition for threads to exit
+     */
+    std::atomic<bool> isRunning { true };
+
     void Initialize() {
         // Initialize the worker execution state to 0:
         finishedLabel.store(0);
@@ -47,15 +56,15 @@ namespace jobs
         auto numCores = std::thread::hardware_concurrency();
 
         // Calculate the actual number of worker threads we want:
-        numThreads = std::max(1u, numCores);
+        numThreads = std::max(1u, numCores - 1);
 
         // Create all our worker threads while immediately starting them:
         for (uint32_t threadID = 0; threadID < numThreads; ++threadID) {
-            std::thread worker([] {
+            workers.emplace_back([] {
                 std::function<void()> job; // the current job for the thread, it's empty at start.
 
                 // This is the infinite loop that a worker thread will do
-                while (true) {
+                while (isRunning.load()) {
                     // Try to grab a job from the jobPool queue
                     if (jobPool.pop_front(job)) {
                         // It found a job, execute it:
@@ -70,8 +79,9 @@ namespace jobs
                 }
             });
 
-            worker.detach(); // forget about this thread, let it do its job in the infinite loop that we created above
+            //workers.back().detach(); // forget about this thread, let it do its job in the infinite loop that we created above
         }
+
     }
 
     /**
@@ -104,6 +114,14 @@ namespace jobs
 
     void Wait() {
         while (IsBusy()) { Poll(); }
+    }
+
+    void Close() {
+        isRunning = false;
+        wakeCondition.notify_all();
+        for (auto& w : workers) {
+            w.join();
+        }
     }
 
     void Dispatch(uint32_t jobCount, uint32_t groupSize, const std::function<void(JobDispatchArgs)>& job) {

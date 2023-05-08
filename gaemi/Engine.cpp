@@ -17,12 +17,11 @@ void Engine::Start(i32 windowWidth, i32 windowHeight, const str& gameNameP,
 {
     gameName = gameNameP;
     game = std::move(gameP);
+    jobs::Initialize();
 
     Window window { windowWidth, windowHeight, gameName };
     SetTargetFPS(60);
     LOG(LogLevel::Info) << "Window initialized";
-
-    jobs::Initialize();
 
     AssetsManager::LoadData();
     game->Load();
@@ -45,5 +44,7 @@ void Engine::Start(i32 windowWidth, i32 windowHeight, const str& gameNameP,
     }
 
     game->Unload();
+    jobs::Close();
+
     LOG(LogLevel::Info) << "Bye :)";
 }

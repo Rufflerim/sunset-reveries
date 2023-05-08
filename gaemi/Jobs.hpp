@@ -73,6 +73,11 @@ namespace jobs {
     void Initialize();
 
     /**
+     * Set job run condition to false and join all jobs
+     */
+    void Close();
+
+    /**
      * Add a job to execute asynchronously. Any idle thread will execute this job.
      * @param job
      */
@@ -95,7 +100,6 @@ namespace jobs {
      * Wait until all threads become idle
      */
     GAPI void Wait();
-
 };
 
 
