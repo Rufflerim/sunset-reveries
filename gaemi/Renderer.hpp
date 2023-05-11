@@ -6,11 +6,11 @@
 #define GAEMI_RENDERER_HPP
 
 #include "Defines.hpp"
-#include "raylib.h"
 
 struct Texture;
 struct Color;
 struct Rectangle;
+struct Vector2;
 
 namespace render {
 
