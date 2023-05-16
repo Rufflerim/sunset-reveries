@@ -5,7 +5,7 @@
 #include "Calendar.hpp"
 #include <ctime>
 
-namespace gplatforms {
+namespace gplatform {
 
     array<char, 19> GetDate() {
         array <char, 19> date {};
