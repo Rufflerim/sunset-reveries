@@ -55,8 +55,8 @@ void RigidbodyRaycast2D::SetRayDirection(Ray2DDirection direction) {
     }
 }
 
-std::vector<Ray2D> RigidbodyRaycast2D::UpdateHorizontalRays() {
-    std::vector<Ray2D> rays;
+vector<Ray2D> RigidbodyRaycast2D::UpdateHorizontalRays() {
+    vector<Ray2D> rays;
     const Vector2 startPosition { attachBody.pos + Vector2 { attachBody.boundingBox.x, attachBody.boundingBox.y } };
     const Vector2 endPosition = startPosition + Vector2 { 0, attachBody.boundingBox.height };
     const Vector2 offset = (endPosition - startPosition) / static_cast<f32>(horizontalRaysCount - 1);
@@ -84,8 +84,8 @@ std::vector<Ray2D> RigidbodyRaycast2D::UpdateHorizontalRays() {
     return rays;
 }
 
-std::vector<Ray2D> RigidbodyRaycast2D::UpdateVerticalRays() {
-    std::vector<Ray2D> rays;
+vector<Ray2D> RigidbodyRaycast2D::UpdateVerticalRays() {
+    vector<Ray2D> rays;
     const Vector2 startPosition { attachBody.pos + Vector2 { attachBody.boundingBox.x, attachBody.boundingBox.y } };
     const Vector2 endPosition = startPosition + Vector2 { attachBody.boundingBox.width, 0 };
     const Vector2 offset = (endPosition - startPosition) / static_cast<f32>(verticalRaysCount - 1);

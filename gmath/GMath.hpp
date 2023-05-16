@@ -5,10 +5,10 @@
 #ifndef SUNSET_REVERIES_GMATH_HPP
 #define SUNSET_REVERIES_GMATH_HPP
 
-#include "Defines.hpp"
 #include "raylib.h"
 #include <array>
 
+using f32 = float;
 using std::array;
 
 Vector2 operator+(Vector2 lh, Vector2 rh);

@@ -9,7 +9,6 @@
 #include "raylib.h"
 #include <sstream>
 #include <fstream>
-#include <array>
 #include "LogLevel.hpp"
 
 
@@ -31,7 +30,6 @@ private:
     LogLevel logLevel { LogLevel::Trace };
 
     static str GetLabel(LogLevel level);
-    static std::array<char, 19> GetDate();
 };
 
 #ifdef GDEBUG

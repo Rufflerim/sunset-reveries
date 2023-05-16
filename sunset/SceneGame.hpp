@@ -11,12 +11,8 @@
 #include "WorldStateManager.hpp"
 #include "Game.hpp"
 
-#include <vector>
-#include <array>
 #include <memory>
 
-using std::vector;
-using std::array;
 using std::unique_ptr;
 using std::shared_ptr;
 

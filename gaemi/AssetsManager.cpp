@@ -5,7 +5,6 @@
 #include "AssetsManager.hpp"
 #include <fstream>
 #include <sstream>
-#include <vector>
 
 unordered_map<str, Texture> AssetsManager::textures {};
 unordered_map<i32, str> AssetsManager::sceneLoadedTextures {};
@@ -44,7 +43,7 @@ f32 AssetsManager::GetData(const str &name) {
 unordered_map<str, f32> AssetsManager::ReadFile(const str &path) {
     unordered_map<str, f32> fileData;
     std::ifstream file { path };
-    std::vector<str> lines {};
+    vector<str> lines {};
     str fileLine;
     while (std::getline(file, fileLine)) {
         lines.push_back(fileLine);
@@ -53,7 +52,7 @@ unordered_map<str, f32> AssetsManager::ReadFile(const str &path) {
 
     for (auto& line : lines) {
         std::istringstream lineStream { line };
-        std::vector<str> words;
+        vector<str> words;
         str word;
         while (std::getline(lineStream, word, ' ')) {
             words.push_back(word);

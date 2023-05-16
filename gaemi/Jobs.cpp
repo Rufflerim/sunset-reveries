@@ -41,7 +41,7 @@ namespace jobs
     /**
      * Store workers to join them all at the end
      */
-    std::vector<std::thread> workers;
+    vector<std::thread> workers;
 
     /**
      * Condition for threads to exit

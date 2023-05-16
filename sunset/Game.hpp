@@ -10,10 +10,8 @@
 #include "ECSManager.hpp"
 #include "WorldStateManager.hpp"
 
-#include <vector>
 #include <memory>
 
-using std::vector;
 using std::unique_ptr;
 using std::shared_ptr;
 

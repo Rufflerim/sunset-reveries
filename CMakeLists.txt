@@ -1,3 +1,16 @@
+#[===[
+Here is the architecture of the gaemi engine.
+
+---------------------------------
+|             GAME              |
+---------------------------------
+|         gaemi (engine)        |
+----------------------------------------------
+|    gplatform    |    gmath    |    LIBS    |
+----------------------------------------------
+
+]===]
+
 cmake_minimum_required(VERSION 3.20)
 project(sunset-reveries)
 set(CMAKE_CXX_STANDARD 20)
@@ -67,9 +80,14 @@ if (NOT raylib_gui_FOUND) # If there's none, fetch and build raylib
     endif()
 endif()
 
-# Add code
+# Add code.
+add_subdirectory( gplatform )
+add_subdirectory( gmath )
 add_subdirectory( gaemi )
 add_subdirectory( sunset )
+
+
+
 
 # Debug on Linux
 if (UNIX)

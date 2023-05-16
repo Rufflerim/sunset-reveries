@@ -177,7 +177,7 @@ void ECSManager::SystemPhysicsUpdate(float dt) {
                 Vector2 contactPoint;
                 Vector2 contactNormal;
                 float contactTime;
-                std::array<Vector2, 2> probableContactPoints {};
+                array<Vector2, 2> probableContactPoints {};
                 if (gmath::RayVsRect2D(ray.origin, ray.direction, bodyRect, contactPoint, contactNormal, contactTime, probableContactPoints)) {
                     const Vector2 diff = contactPoint - ray.origin;
                     raycastCollisions.emplace_back(raycast.entityId, body.entityId,
@@ -190,7 +190,7 @@ void ECSManager::SystemPhysicsUpdate(float dt) {
                 Vector2 contactPoint;
                 Vector2 contactNormal;
                 float contactTime;
-                std::array<Vector2, 2> probableContactPoints {};
+                array<Vector2, 2> probableContactPoints {};
                 if (gmath::RayVsRect2D(ray.origin, ray.direction, bodyRect, contactPoint, contactNormal, contactTime, probableContactPoints)) {
                     const Vector2 diff = contactPoint - ray.origin;
                     raycastCollisions.emplace_back(raycast.entityId, body.entityId,

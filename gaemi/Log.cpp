@@ -4,8 +4,8 @@
 
 #include "Log.hpp"
 #include <iostream>
-#include <ctime>
-#include "PlatformUtils.hpp"
+#include "ConsoleLine.hpp"
+#include "Calendar.hpp"
 
 const str Log::GAME_LOG_FILE = "Reveries.log";
 std::ofstream Log::file;
@@ -18,7 +18,7 @@ Log::~Log() {
     stream << std::endl;
 
     file << stream.str();
-    utils::ConsoleWrite(stream.str(), logLevel);
+    gplatform::ConsoleWrite(stream.str(), static_cast<i32>(logLevel));
 
     stream.clear();
     file.close();
@@ -26,7 +26,7 @@ Log::~Log() {
 
 std::ostringstream& Log::Get(LogLevel level) {
     logLevel = level;
-    stream <<  GetLabel(level) << ": [" << GetDate().data() << "] \t";
+    stream <<  GetLabel(level) << ": [" << gplatform::GetDate().data() << "] \t";
     return stream;
 }
 
@@ -60,19 +60,3 @@ str Log::GetLabel(LogLevel level) {
     return label;
 }
 
-std::array<char, 19> Log::GetDate() {
-#ifdef GPLATFORM_WINDOWS
-    time_t now;
-    std::array <char, 19> date {};
-    struct tm timeInfo {};
-    time(&now);
-    localtime_s(&timeInfo, &now);
-    strftime(date.data(), date.size(), "%y-%m-%d %H:%M:%S", &timeInfo);
-#else
-    std::array <char, 19> date {};
-    std::time_t t = std::time(nullptr);
-    std::tm tm = *std::localtime(&t);
-    std::strftime(date.data(), sizeof(date), "%y-%m-%d %H:%M:%S", &tm);
-#endif
-    return date;
-}

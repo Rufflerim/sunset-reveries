@@ -5,7 +5,6 @@
 #ifndef SUNSET_REVERIES_ENTITY_HPP
 #define SUNSET_REVERIES_ENTITY_HPP
 
-#include <array>
 #include "Defines.hpp"
 #include "Log.hpp"
 
@@ -15,7 +14,7 @@ struct Entity {
     explicit Entity(u64 idP): id {idP} {}
 
     u64 id;
-    std::array<i32, MAX_COMPONENTS> components { -1, -1, -1, -1, -1, -1 };
+    array<i32, MAX_COMPONENTS> components { -1, -1, -1, -1, -1, -1 };
 
 #ifdef GDEBUG
     void LogEntity() {

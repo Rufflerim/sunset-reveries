@@ -7,7 +7,6 @@
 
 #include <optional>
 #include <utility>
-#include <vector>
 #include <memory>
 
 #include "raylib.h"
@@ -18,7 +17,6 @@
 #include "WorldChange.hpp"
 
 class ECSManager;
-using std::vector;
 
 enum class ComponentIndex {
     Transform2D = 0,
@@ -121,8 +119,8 @@ struct RigidbodyRaycast2D {
     vector<Ray2D> horizontalRays;
 
     void SetRayDirection(Ray2DDirection direction);
-    std::vector<Ray2D> UpdateHorizontalRays();
-    std::vector<Ray2D> UpdateVerticalRays();
+    vector<Ray2D> UpdateHorizontalRays();
+    vector<Ray2D> UpdateVerticalRays();
     void Update();
 
 #ifdef GDEBUG
