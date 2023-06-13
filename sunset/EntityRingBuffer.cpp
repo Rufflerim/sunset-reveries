@@ -41,15 +41,15 @@ u64 EntityRingBuffer::CreateProjectile(u64 spawnerId, f32 radianShootAngle) {
                                                                Rectangle { 0, 0, projectileSprite.srcRect.width, projectileSprite.srcRect.height },
                                                                true, false);
         projectileTransform.pos = spawnPos + Vector2 { 32.f, 32.f };
-        projectileBody.velocity = Vector2 { static_cast<float>(gmath::CosRad(radianShootAngle) * 5000.0f),
-                                            static_cast<float>(gmath::SinRad(radianShootAngle) * 5000.0f) };
+        projectileBody.velocity = Vector2 { gmath::CosRad(radianShootAngle) * 5000.0f,
+                                            gmath::SinRad(radianShootAngle) * 5000.0f };
         LOG(LogLevel::Trace) << "Created entity " << projectileId;
     } else {
         auto& projectileTransform = ecs->GetComponent<Transform2D>(projectileId);
         auto& projectileBody = ecs->GetComponent<Rigidbody2D>(projectileId);
         projectileTransform.pos = spawnPos + Vector2 { 32.f, 32.f };
-        projectileBody.velocity = Vector2 { static_cast<float>(gmath::CosRad(radianShootAngle) * 5000.0f),
-                                            static_cast<float>(gmath::SinRad(radianShootAngle) * 5000.0f) };
+        projectileBody.velocity = Vector2 { gmath::CosRad(radianShootAngle) * 5000.0f,
+                                            gmath::SinRad(radianShootAngle) * 5000.0f };
         LOG(LogLevel::Trace) << "Reused entity " << projectileId;
     }
     return projectileId;
