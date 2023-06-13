@@ -31,7 +31,7 @@ void Game::Draw() {
     ecs->DrawScene();
 }
 
-void Game::AddScene(unique_ptr<IScene> newScene) {
+void Game::AddScene(uptr<IScene> newScene) {
     sceneStack.push_back(std::move(newScene));
     sceneStack.back()->Load();
 }
@@ -42,7 +42,7 @@ void Game::RemoveCurrentScene() {
     sceneStack.pop_back();
 }
 
-void Game::SwitchScene(unique_ptr<IScene> newScene) {
+void Game::SwitchScene(uptr<IScene> newScene) {
     if (!sceneStack.empty()) {
         RemoveCurrentScene();
     }

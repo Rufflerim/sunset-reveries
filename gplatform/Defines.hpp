@@ -7,6 +7,7 @@
 #include <string>
 #include <vector>
 #include <array>
+#include <memory>
 
 /**
  * Types
@@ -28,6 +29,12 @@ using f64 = double;
 using str = std::string;
 using std::vector;
 using std::array;
+
+template<class T>
+using uptr = std::unique_ptr<T>;
+
+template<class T>
+using sptr = std::shared_ptr<T>;
 
 /**
  * Debug

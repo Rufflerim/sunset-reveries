@@ -8,7 +8,7 @@
 #include "ECSManager.hpp"
 #include <cmath>
 
-RigidbodyRaycast2D::RigidbodyRaycast2D(u64 entityId, std::shared_ptr<ECSManager> ecsP,
+RigidbodyRaycast2D::RigidbodyRaycast2D(u64 entityId, sptr<ECSManager> ecsP,
                                        i32 horizontalRaysCountP, i32 verticalRaysCountP,
                                        f32 horizontalRayLength, f32 verticalRayLength,
                                        f32 margin) :
@@ -148,13 +148,5 @@ void Weapon::ShootOnce() const {
     }
     const f32 radianShootAngle = shootAngle * PI / 360.0f;
 
-    u64 projectileId = ecs->CreateEntity();
-    auto& projectileTransform = ecs->CreateTransform2DComponent(projectileId);
-    const Sprite& projectileSprite = ecs->CreateSpriteComponent(projectileId, "projectile");
-    auto& projectileBody = ecs->CreateRigidbody2DComponent(projectileId, Vector2 { 0, 0 },
-                                    Rectangle { 0, 0, projectileSprite.srcRect.width, projectileSprite.srcRect.height },
-                                    true, false);
-    projectileTransform.pos = ecs->GetComponent<Transform2D>(entityId).pos + Vector2 { 32.f, 32.f };
-    projectileBody.velocity = Vector2 { static_cast<float>(cos(radianShootAngle) * 5000.0f),
-                                        static_cast<float>(sin(radianShootAngle) * 5000.0f) };
+    projectileBuffer->CreateProjectile(entityId, radianShootAngle);
 }

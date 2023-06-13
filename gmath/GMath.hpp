@@ -33,6 +33,14 @@ struct Ray2D
 
 namespace gmath {
 
+    f32 CosRad(f32 angleRadians);
+    f32 CosDeg(f32 angleDegrees);
+    f32 Cos(f32 angleDegrees);
+
+    f32 SinRad(f32 angleRadians);
+    f32 SinDeg(f32 angleDegrees);
+    f32 Sin(f32 angleDegrees);
+
     /***
      * Check if a 2d ray collides a rectangle
      * @param rayOrigin

@@ -10,11 +10,6 @@
 #include "ECSManager.hpp"
 #include "WorldStateManager.hpp"
 
-#include <memory>
-
-using std::unique_ptr;
-using std::shared_ptr;
-
 class Game : public IGame {
 public:
     void Load() override;
@@ -22,9 +17,9 @@ public:
     void Draw() override;
     void Unload() override;
 
-    void AddScene(unique_ptr<IScene> newScene);
+    void AddScene(uptr<IScene> newScene);
     void RemoveCurrentScene();
-    void SwitchScene(unique_ptr<IScene> newScene);
+    void SwitchScene(uptr<IScene> newScene);
 
     void Rewind(u64 frameSpeed);
     void Forward(u64 frameSpeed);
@@ -34,9 +29,9 @@ public:
     void ConsumePlayerChanges();
 
 private:
-    vector<unique_ptr<IScene>> sceneStack {};
-    shared_ptr<ECSManager> ecs;
-    unique_ptr<WorldStateManager> worldStateManager;
+    vector<uptr<IScene>> sceneStack {};
+    sptr<ECSManager> ecs;
+    uptr<WorldStateManager> worldStateManager;
 
     vector<PlayerChange> playerChanges;
 };

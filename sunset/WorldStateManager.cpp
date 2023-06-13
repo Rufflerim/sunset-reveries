@@ -4,7 +4,7 @@
 
 #include "WorldStateManager.hpp"
 
-WorldStateManager::WorldStateManager(shared_ptr<ECSManager> ecs) :
+WorldStateManager::WorldStateManager(sptr<ECSManager> ecs) :
     ecs { std::move(ecs) }
 {
     // TODO: Reserve for more than 5 minutes. Or implement a level maximum time?

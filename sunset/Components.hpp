@@ -7,7 +7,6 @@
 
 #include <optional>
 #include <utility>
-#include <memory>
 
 #include "raylib.h"
 #include "Defines.hpp"
@@ -15,6 +14,7 @@
 #include "GMath.hpp"
 #include "Renderer.hpp"
 #include "WorldChange.hpp"
+#include "EntityRingBuffer.hpp"
 
 class ECSManager;
 
@@ -100,7 +100,7 @@ enum class Ray2DDirection {
 };
 
 struct RigidbodyRaycast2D {
-    RigidbodyRaycast2D(u64 entityId, std::shared_ptr<ECSManager> ecsP,
+    RigidbodyRaycast2D(u64 entityId, sptr<ECSManager> ecsP,
                        i32 horizontalRaysCountP, i32 verticalRaysCountP,
                        f32 horizontalRayLength, f32 verticalRayLength, f32 margin);
 
@@ -113,7 +113,7 @@ struct RigidbodyRaycast2D {
     f32 margin;
     Ray2DDirection currentVerticalDirection { Ray2DDirection::Down };
     Ray2DDirection currentHorizontalDirection { Ray2DDirection::Right };
-    std::shared_ptr<ECSManager> ecs;
+    sptr<ECSManager> ecs;
 
     vector<Ray2D> verticalRays;
     vector<Ray2D> horizontalRays;
@@ -155,8 +155,8 @@ enum class CharacterOrientation {
 };
 
 struct Weapon {
-    Weapon(u64 entityIdP, std::shared_ptr<ECSManager> ecsP)
-    : entityId { entityIdP }, ecs { std::move(ecsP) } {
+    Weapon(u64 entityIdP, EntityRingBuffer* projectileBufferP)
+    : entityId { entityIdP }, projectileBuffer { projectileBufferP } {
 
     }
 
@@ -169,7 +169,8 @@ struct Weapon {
     bool isOneShot { false };
     bool doesGravityAffectProjectile { false };
     CharacterOrientation currentOrientation { CharacterOrientation::Right };
-    std::shared_ptr<ECSManager> ecs;
+    //sptr<ECSManager> ecs;
+    EntityRingBuffer* projectileBuffer;
 
     void Update(f32 dt);
     void Shoot();

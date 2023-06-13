@@ -66,7 +66,7 @@ Rigidbody2D& ECSManager::CreateRigidbody2DComponent(u64 entityId, const Vector2&
     return bodies.back();
 }
 
-RigidbodyRaycast2D& ECSManager::CreateBodyRaycast2DComponent(u64 entityId, const std::shared_ptr<ECSManager>& ecs,
+RigidbodyRaycast2D& ECSManager::CreateBodyRaycast2DComponent(u64 entityId, const sptr<ECSManager>& ecs,
                                               i32 horizontalRaysCount, i32 verticalRaysCount,
                                               f32 horizontalRayLength, f32 verticalRayLength,
                                               f32 margin) {
@@ -84,9 +84,9 @@ Replay& ECSManager::CreateReplayComponent(u64 entityId, u64 formerEntityId, u32 
     return replays.back();
 }
 
-Weapon& ECSManager::CreateWeaponComponent(u64 entityId, shared_ptr<ECSManager> ecs) {
+Weapon& ECSManager::CreateWeaponComponent(u64 entityId, EntityRingBuffer* projectileRingBuffer) {
     i32 newComponentId = static_cast<i32>(weapons.size());
-    weapons.emplace_back(entityId, std::move(ecs));
+    weapons.emplace_back(entityId, projectileRingBuffer);
     UpdateEntityWithComponent(entityId, newComponentId, ComponentIndex::Weapon);
     return weapons.back();
 }

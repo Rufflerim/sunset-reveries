@@ -11,9 +11,6 @@
 #include "WorldChange.hpp"
 #include "WorldState.hpp"
 #include <variant>
-#include <memory>
-
-using std::shared_ptr;
 
 class ECSManager {
 public:
@@ -38,12 +35,12 @@ public:
     Sprite& CreateSpriteComponent(u64 entityId, const str& texName);
     Rigidbody2D& CreateRigidbody2DComponent(u64 entityId, const Vector2& pos, const Rectangle& box,
                                     bool doApplyGravity, bool isGhost);
-    RigidbodyRaycast2D& CreateBodyRaycast2DComponent(u64 entityId, const std::shared_ptr<ECSManager>& ecs,
+    RigidbodyRaycast2D& CreateBodyRaycast2DComponent(u64 entityId, const sptr<ECSManager>& ecs,
                                       i32 horizontalRaysCount, i32 verticalRaysCount,
                                       f32 horizontalRayLength, f32 verticalRayLength, f32 margin
                                       );
     Replay& CreateReplayComponent(u64 entityId, u64 formerEntityId, u32 startFrame, u32 endFrame);
-    Weapon& CreateWeaponComponent(u64 entityId, shared_ptr<ECSManager> ecs);
+    Weapon& CreateWeaponComponent(u64 entityId, EntityRingBuffer* projectileRingBuffer);
 
     template<class T>
     T& GetComponent(u64 entityId) {

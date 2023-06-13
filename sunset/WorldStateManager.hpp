@@ -8,7 +8,6 @@
 #include "WorldState.hpp"
 #include "ECSManager.hpp"
 
-
 class WorldStateManager {
 
     enum class RecordingStatus {
@@ -17,7 +16,7 @@ class WorldStateManager {
     };
 
 public:
-    explicit WorldStateManager(shared_ptr<ECSManager> ecs);
+    explicit WorldStateManager(sptr<ECSManager> ecs);
     void StoreNewState(WorldState newState);
     void Rewind(u32 speed);
     void Forward(u32 speed);
@@ -28,7 +27,7 @@ public:
     [[nodiscard]] bool IsRecording() const { return recordingStatus == RecordingStatus::Recording; };
 
 private:
-    shared_ptr<ECSManager> ecs;
+    sptr<ECSManager> ecs;
 
     vector<WorldState> worldStates;
     u32 currentFrame { 0 };

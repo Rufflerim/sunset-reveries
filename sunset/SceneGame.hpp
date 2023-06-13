@@ -10,11 +10,7 @@
 #include "ECSManager.hpp"
 #include "WorldStateManager.hpp"
 #include "Game.hpp"
-
-#include <memory>
-
-using std::unique_ptr;
-using std::shared_ptr;
+#include "EntityRingBuffer.hpp"
 
 enum class TimeStatus {
     Normal,
@@ -25,7 +21,7 @@ enum class TimeStatus {
 
 class SceneGame : public IScene {
 public:
-    SceneGame(shared_ptr<ECSManager> ecsRef,
+    SceneGame(sptr<ECSManager> ecsRef,
               Game& game);
     void Load() override;
     void Update(f32 dt) override;
@@ -34,10 +30,11 @@ public:
 
 private:
     Game& game;
-    shared_ptr<ECSManager> ecs;
+    sptr<ECSManager> ecs;
     Texture2D backgroundTexture {};
     u64 playerId { 0 };
     Weapon* playerWeapon { nullptr };
+    uptr<EntityRingBuffer> projectiles { nullptr };
 
     float jumpPressTime { 0 };
     Vector2 moveAcceleration {0.0f, 0.0f };

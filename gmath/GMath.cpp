@@ -127,4 +127,30 @@ namespace gmath {
     f32 EaseOutExpo(f32 t) {
         return t == 1.0f ? 1.0f : 1.0f - std::pow(2.0f, -10.0f * t);
     }
+
+    f32 CosRad(f32 angleRadians) {
+        return static_cast<float>(cos(angleRadians));
+    }
+
+    f32 CosDeg(f32 angleDegrees) {
+        const f32 angleRadians = angleDegrees * PI / 360.0f;
+        return static_cast<float>(cos(angleRadians));
+    }
+
+    f32 Cos(f32 angleDegrees) {
+        return CosDeg(angleDegrees);
+    }
+
+    f32 SinRad(f32 angleRadians) {
+        return static_cast<float>(sin(angleRadians));
+    }
+
+    f32 SinDeg(f32 angleDegrees) {
+        const f32 angleRadians = angleDegrees * PI / 360.0f;
+        return static_cast<float>(sin(angleRadians));
+    }
+
+    f32 Sin(f32 angleDegrees) {
+        return SinDeg(angleDegrees);
+    }
 }

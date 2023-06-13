@@ -13,7 +13,7 @@
 #include "Jobs.hpp"
 
 void Engine::Start(i32 windowWidth, i32 windowHeight, const str& gameNameP,
-                   unique_ptr<IGame>&& gameP) noexcept
+                   uptr<IGame>&& gameP) noexcept
 {
     gameName = gameNameP;
     game = std::move(gameP);

@@ -7,7 +7,7 @@
 #include <iomanip>
 #include "ImRenderer.h"
 
-SceneGame::SceneGame(shared_ptr<ECSManager> ecsRef,
+SceneGame::SceneGame(sptr<ECSManager> ecsRef,
                      Game& game)
 : ecs {std::move( ecsRef )}, game { game },
   PLAYER_JUMP_MAX_PRESS_TIME { AssetsManager::GetData("PLAYER_JUMP_MAX_PRESS_TIME") },
@@ -42,10 +42,13 @@ void SceneGame::Load() {
                                     true, false);
     ecs->CreateBodyRaycast2DComponent(playerId, ecs, 4, 5,
                                       100.0f, 100.0f, 5.0f);
-    playerWeapon = &ecs->CreateWeaponComponent(playerId, ecs);
 
 
+    // Projectiles and weapons
+    projectiles = make_unique<EntityRingBuffer>(100, ecs);
+    playerWeapon = &ecs->CreateWeaponComponent(playerId, projectiles.get());
 
+    // Level
     auto floorId = ecs->CreateEntity();
     auto& floorTransform = ecs->CreateTransform2DComponent(floorId);
     floorTransform.pos = { 0, 600 };
