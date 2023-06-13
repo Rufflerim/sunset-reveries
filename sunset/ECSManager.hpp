@@ -10,7 +10,10 @@
 #include "Components.hpp"
 #include "WorldChange.hpp"
 #include "WorldState.hpp"
+
 #include <variant>
+
+class Vec2;
 
 class ECSManager {
 public:
@@ -33,7 +36,7 @@ public:
 
     Transform2D& CreateTransform2DComponent(u64 entityId);
     Sprite& CreateSpriteComponent(u64 entityId, const str& texName);
-    Rigidbody2D& CreateRigidbody2DComponent(u64 entityId, const Vector2& pos, const Rectangle& box,
+    Rigidbody2D& CreateRigidbody2DComponent(u64 entityId, const Vec2& pos, const Rect& box,
                                     bool doApplyGravity, bool isGhost);
     RigidbodyRaycast2D& CreateBodyRaycast2DComponent(u64 entityId, const sptr<ECSManager>& ecs,
                                       i32 horizontalRaysCount, i32 verticalRaysCount,

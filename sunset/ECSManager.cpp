@@ -8,8 +8,12 @@
 #include "ECSManager.hpp"
 #include "Renderer.hpp"
 #include "WorldChange.hpp"
-#include "GMath.hpp"
+#include "Ray2D.hpp"
 #include "Jobs.hpp"
+
+using gmath::Vec2;
+using gmath::Ray2D;
+using gmath::Rect;
 
 u64 ECSManager::maxId { 0 };
 
@@ -58,8 +62,8 @@ Sprite& ECSManager::CreateSpriteComponent(u64 entityId, const str& texName) {
     return sprites.back();
 }
 
-Rigidbody2D& ECSManager::CreateRigidbody2DComponent(u64 entityId, const Vector2& pos,
-                                            const Rectangle& box, bool doApplyGravity, bool isGhost) {
+Rigidbody2D& ECSManager::CreateRigidbody2DComponent(u64 entityId, const Vec2& pos,
+                                            const Rect& box, bool doApplyGravity, bool isGhost) {
     i32 newComponentId = static_cast<i32>(bodies.size());
     bodies.emplace_back(entityId, pos, box, doApplyGravity, isGhost);
     UpdateEntityWithComponent(entityId, newComponentId, ComponentIndex::Rigidbody2D);
@@ -173,26 +177,26 @@ void ECSManager::SystemPhysicsUpdate(float dt) {
             for (const auto& ray : raycast.horizontalRays) {
                 // No horizontal collisions with ghosts
                 if (body.isGhost) continue;
-                const Rectangle bodyRect = body.GetPositionedRectangle();
-                Vector2 contactPoint;
-                Vector2 contactNormal;
+                const Rect bodyRect = body.GetPositionedRect();
+                Vec2 contactPoint;
+                Vec2 contactNormal;
                 float contactTime;
-                array<Vector2, 2> probableContactPoints {};
+                array<Vec2, 2> probableContactPoints {};
                 if (gmath::RayVsRect2D(ray.origin, ray.direction, bodyRect, contactPoint, contactNormal, contactTime, probableContactPoints)) {
-                    const Vector2 diff = contactPoint - ray.origin;
+                    const Vec2 diff = contactPoint - ray.origin;
                     raycastCollisions.emplace_back(raycast.entityId, body.entityId,
                                                    contactPoint,raycast.attachBody, body,
                                                    ray, diff.x * diff.x + diff.y * diff.y);
                 }
             }
             for (const auto& ray : raycast.verticalRays) {
-                const Rectangle bodyRect = body.GetPositionedRectangle();
-                Vector2 contactPoint;
-                Vector2 contactNormal;
+                const Rect bodyRect = body.GetPositionedRect();
+                Vec2 contactPoint;
+                Vec2 contactNormal;
                 float contactTime;
-                array<Vector2, 2> probableContactPoints {};
+                array<Vec2, 2> probableContactPoints {};
                 if (gmath::RayVsRect2D(ray.origin, ray.direction, bodyRect, contactPoint, contactNormal, contactTime, probableContactPoints)) {
-                    const Vector2 diff = contactPoint - ray.origin;
+                    const Vec2 diff = contactPoint - ray.origin;
                     raycastCollisions.emplace_back(raycast.entityId, body.entityId,
                                                    contactPoint,raycast.attachBody, body,
                                                    ray, diff.x * diff.x + diff.y * diff.y);
@@ -202,14 +206,13 @@ void ECSManager::SystemPhysicsUpdate(float dt) {
     }
 
     // Newtonian physics
-    positionChanges.reserve(transforms.size());
     for (const auto& body : bodies) {
         if (!body.doApplyGravity) continue;
         if (body.isGhost) continue;
         // Friction and gravity
         f32 gravityEffect = PHYSICS_GRAVITY_ACCELERATION * dt;
         PositionChange positionChange { body.entityId, false,
-                                        { -body.velocity.x * PHYSICS_FRICTION_RATE, gravityEffect },
+                                        Vec2 { -body.velocity.x * PHYSICS_FRICTION_RATE, gravityEffect },
                                         dt
         };
         positionChanges.emplace_back(positionChange);
@@ -262,7 +265,7 @@ void ECSManager::SystemReplayUpdate() {
             /// TODO If by rewind / forward we go back to a time when a ghost is disappearing, it may disappear immediatly because replayEndFrame has changed
             // Ghost fades after lifetime
             GetComponent<Sprite>(replay.entityId).opacity = static_cast<u8>(static_cast<f32>(replay.replayEndFrame + PLAYER_GHOST_FADE_TIME - currentFrame) / static_cast<f32>(PLAYER_GHOST_FADE_TIME) * 255.0f);
-            GetComponent<Rigidbody2D>(replay.entityId).velocity = { 0, 0 };
+            GetComponent<Rigidbody2D>(replay.entityId).velocity = Vec2 { 0, 0 };
             if (currentFrame >= replay.replayEndFrame + PLAYER_GHOST_FADE_TIME) {
                 RemoveEntity(replay.entityId);
             }
@@ -303,7 +306,7 @@ WorldState ECSManager::UpdateWorld() {
 
         // Manage velocity and player movement
         body.velocity = body.velocity + positionChange.velocityDelta + body.playerAcceleration;
-        body.playerAcceleration = {0, 0 };
+        body.playerAcceleration = Vec2 {0, 0 };
 
         if (positionChange.stopVelocityX) {
             body.velocity.x = 0;

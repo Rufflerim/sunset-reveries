@@ -11,4 +11,4 @@ namespace gplatform {
     array<char, 19> GetDate();
 }
 
-#endif //SUNSET_REVERIES_CALENDAR_HPP
+#endif //GPLATFORMS_CALENDAR_HPP

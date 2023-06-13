@@ -67,7 +67,7 @@ void WorldStateManager::CreateClone() {
     ecs->CreateTransform2DComponent(newPlayerGhostId);
     ecs->CreateSpriteComponent(newPlayerGhostId, "ghost");
     const auto& ghostTexture = AssetsManager::GetTexture("ghost");
-    ecs->CreateRigidbody2DComponent(newPlayerGhostId, { 0, 0 },
+    ecs->CreateRigidbody2DComponent(newPlayerGhostId, Vec2 { 0, 0 },
                                     {0, 0, static_cast<float>(ghostTexture.width), static_cast<float>(ghostTexture.height)},
                                     false, true);
     const u64 formerEntityId = 0; // TODO Check player id
@@ -85,7 +85,7 @@ void WorldStateManager::CreateClone() {
         replay.bodies.back().isGhost = true;
     }
     // First position won't be updated because we are not recording, so let's do it here
-    const Vector2 pos = replay.transforms.at(0).pos;
+    const Vec2 pos = replay.transforms.at(0).pos;
     ecs->GetComponent<Transform2D>(newPlayerGhostId).pos = pos;
     ecs->GetComponent<Rigidbody2D>(newPlayerGhostId).pos = pos;
 }

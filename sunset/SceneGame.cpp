@@ -32,12 +32,12 @@ void SceneGame::Load() {
     const f32 playerX { 400 };
     const f32 playerY { 200 };
     auto& playerTransform = ecs->CreateTransform2DComponent(playerId);
-    playerTransform.pos = { playerX, playerY };
+    playerTransform.pos = Vec2 { playerX, playerY };
 
     ecs->CreateSpriteComponent(playerId, "player");
     const auto& playerTexture = AssetsManager::GetTexture("player");
 
-    ecs->CreateRigidbody2DComponent(playerId, { playerX, playerY },
+    ecs->CreateRigidbody2DComponent(playerId, Vec2 { playerX, playerY },
                                     { 0, 0, static_cast<float>(playerTexture.width), static_cast<float>(playerTexture.height)},
                                     true, false);
     ecs->CreateBodyRaycast2DComponent(playerId, ecs, 4, 5,
@@ -51,8 +51,8 @@ void SceneGame::Load() {
     // Level
     auto floorId = ecs->CreateEntity();
     auto& floorTransform = ecs->CreateTransform2DComponent(floorId);
-    floorTransform.pos = { 0, 600 };
-    ecs->CreateRigidbody2DComponent(floorId, { 0, 600 },
+    floorTransform.pos = Vec2 { 0, 600 };
+    ecs->CreateRigidbody2DComponent(floorId, Vec2 { 0, 600 },
                                    { 0, 0, 1280.0f, 120.0f},
                                    false, false);
 
@@ -210,24 +210,24 @@ void SceneGame::DrawInterface() {
     p << std::fixed <<  std::setprecision(1) << sliderValue;
     switch (timeStatus) {
         case TimeStatus::Normal:
-            render::DrawDefaultText("[LEFT] Rewind", Vector2 { 700, 610 }, 20, GRAY);
+            render::DrawDefaultText("[LEFT] Rewind", Vec2 { 700, 610 }, 20, GRAY);
             break;
         case TimeStatus::Rewinding:
-            render::im::GuiSlider( Rectangle { 700, 690, 500, 20 }, "Time", p.str() + "%", sliderValue, 0, 100);
-            render::DrawDefaultText("[LEFT] Rewind", Vector2 { 700, 610 }, 20, blinkTextColor);
-            render::DrawDefaultText("[release] Pause", Vector2 { 700, 650 }, 20, GRAY);
+            render::im::GuiSlider( Rect { 700, 690, 500, 20 }, "Time", p.str() + "%", sliderValue, 0, 100);
+            render::DrawDefaultText("[LEFT] Rewind", Vec2 { 700, 610 }, 20, blinkTextColor);
+            render::DrawDefaultText("[release] Pause", Vec2 { 700, 650 }, 20, GRAY);
             break;
         case TimeStatus::Pause:
-            render::im::GuiSlider( Rectangle { 700, 690, 500, 20 }, "Time", p.str() + "%", sliderValue, 0, 100);
-            render::DrawDefaultText("[LEFT] Rewind", Vector2 { 700, 610 }, 20, GRAY);
-            render::DrawDefaultText("[RIGHT] Forward", Vector2 { 1000, 610 }, 20, GRAY);
-            render::DrawDefaultText("[DOWN] Resume", Vector2 { 700, 650 }, 20, GRAY);
-            render::DrawDefaultText("[UP] Clone", Vector2 { 1000, 650 }, 20, blinkTextColor);
+            render::im::GuiSlider( Rect { 700, 690, 500, 20 }, "Time", p.str() + "%", sliderValue, 0, 100);
+            render::DrawDefaultText("[LEFT] Rewind", Vec2 { 700, 610 }, 20, GRAY);
+            render::DrawDefaultText("[RIGHT] Forward", Vec2 { 1000, 610 }, 20, GRAY);
+            render::DrawDefaultText("[DOWN] Resume", Vec2 { 700, 650 }, 20, GRAY);
+            render::DrawDefaultText("[UP] Clone", Vec2 { 1000, 650 }, 20, blinkTextColor);
             break;
         case TimeStatus::Forward:
-            render::im::GuiSlider( Rectangle { 700, 690, 500, 20 }, "Time", p.str() + "%", sliderValue, 0, 100);
-            render::DrawDefaultText("[RIGHT] Forward", Vector2 { 700, 610 }, 20, blinkTextColor);
-            render::DrawDefaultText("[release] Pause", Vector2 { 700, 650 }, 20, GRAY);
+            render::im::GuiSlider( Rect { 700, 690, 500, 20 }, "Time", p.str() + "%", sliderValue, 0, 100);
+            render::DrawDefaultText("[RIGHT] Forward", Vec2 { 700, 610 }, 20, blinkTextColor);
+            render::DrawDefaultText("[release] Pause", Vec2 { 700, 650 }, 20, GRAY);
             break;
     }
 }
@@ -243,12 +243,12 @@ u64 SceneGame::CreateRandomBouncingEntity() {
     const f32 y = static_cast<f32>(GetRandomValue(150, 550));
 
     auto& transform = ecs->CreateTransform2DComponent(newId);
-    transform.pos = { x, y };
+    transform.pos = Vec2 { x, y };
 
     ecs->CreateSpriteComponent(newId, "player");
     const auto& playerTexture = AssetsManager::GetTexture("player");
 
-    auto& body = ecs->CreateRigidbody2DComponent(newId, { x, y },
+    auto& body = ecs->CreateRigidbody2DComponent(newId, Vec2 { x, y },
                                     { 0, 0, static_cast<float>(playerTexture.width), static_cast<float>(playerTexture.height)},
                                     true, false);
     body.velocity.x = static_cast<float>(GetRandomValue(0, 600));

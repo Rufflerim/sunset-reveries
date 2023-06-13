@@ -10,7 +10,6 @@ endif ()
 
 add_library( ${PROJECT_NAME} ${platform_SOURCES} )
 target_include_directories( ${PROJECT_NAME} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR} )
-#target_link_libraries( ${PROJECT_NAME} raylib )
 
 if(CMAKE_BUILD_TYPE STREQUAL "Debug")
     target_compile_definitions(gplatform PUBLIC DEBUG=1)

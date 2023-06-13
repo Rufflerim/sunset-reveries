@@ -3,8 +3,10 @@
 //
 
 #include "EntityRingBuffer.hpp"
-#include "GMath.hpp"
+#include "Vec2.hpp"
 #include "ECSManager.hpp"
+
+using gmath::Vec2;
 
 EntityRingBuffer::EntityRingBuffer(u64 sizeP, sptr<ECSManager> ecsP) :
     size { sizeP },
@@ -32,23 +34,23 @@ void EntityRingBuffer::FreeEntity(u64 entityId) {
 u64 EntityRingBuffer::CreateProjectile(u64 spawnerId, f32 radianShootAngle) {
     u64 projectileId = NextEntity();
     Entity& entity = ecs->FindEntity(projectileId);
-    Vector2 spawnPos = ecs->GetComponent<Transform2D>(spawnerId).pos;
+    Vec2 spawnPos = ecs->GetComponent<Transform2D>(spawnerId).pos;
     // Create components if not transform, reuse else
     if (entity.components[0] == -1) {
         auto& projectileTransform = ecs->CreateTransform2DComponent(projectileId);
         const Sprite& projectileSprite = ecs->CreateSpriteComponent(projectileId, "projectile");
-        auto& projectileBody = ecs->CreateRigidbody2DComponent(projectileId, Vector2 { 0, 0 },
-                                                               Rectangle { 0, 0, projectileSprite.srcRect.width, projectileSprite.srcRect.height },
+        auto& projectileBody = ecs->CreateRigidbody2DComponent(projectileId, Vec2 { 0, 0 },
+                                                               Rect { 0, 0, projectileSprite.srcRect.width, projectileSprite.srcRect.height },
                                                                true, false);
-        projectileTransform.pos = spawnPos + Vector2 { 32.f, 32.f };
-        projectileBody.velocity = Vector2 { gmath::CosRad(radianShootAngle) * 5000.0f,
+        projectileTransform.pos = spawnPos + Vec2 { 32, 32 };
+        projectileBody.velocity = Vec2 { gmath::CosRad(radianShootAngle) * 5000.0f,
                                             gmath::SinRad(radianShootAngle) * 5000.0f };
         LOG(LogLevel::Trace) << "Created entity " << projectileId;
     } else {
         auto& projectileTransform = ecs->GetComponent<Transform2D>(projectileId);
         auto& projectileBody = ecs->GetComponent<Rigidbody2D>(projectileId);
-        projectileTransform.pos = spawnPos + Vector2 { 32.f, 32.f };
-        projectileBody.velocity = Vector2 { gmath::CosRad(radianShootAngle) * 5000.0f,
+        projectileTransform.pos = spawnPos + Vec2 { 32, 32 };
+        projectileBody.velocity = Vec2 { gmath::CosRad(radianShootAngle) * 5000.0f,
                                             gmath::SinRad(radianShootAngle) * 5000.0f };
         LOG(LogLevel::Trace) << "Reused entity " << projectileId;
     }

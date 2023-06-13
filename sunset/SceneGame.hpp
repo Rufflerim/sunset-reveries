@@ -37,7 +37,7 @@ private:
     uptr<EntityRingBuffer> projectiles { nullptr };
 
     float jumpPressTime { 0 };
-    Vector2 moveAcceleration {0.0f, 0.0f };
+    Vec2 moveAcceleration {0.0f, 0.0f };
 
     u32 currentFrame { 0 };
     u32 maxCurrentFrame { 0 };

@@ -11,12 +11,16 @@
 #include "raylib.h"
 #include "Defines.hpp"
 #include "AssetsManager.hpp"
-#include "GMath.hpp"
 #include "Renderer.hpp"
 #include "WorldChange.hpp"
 #include "EntityRingBuffer.hpp"
+#include "Ray2D.hpp"
 
 class ECSManager;
+
+using gmath::Ray2D;
+using gmath::Vec2;
+using gmath::Rect;
 
 enum class ComponentIndex {
     Transform2D = 0,
@@ -31,9 +35,9 @@ struct Transform2D {
     explicit Transform2D(u64 entityIdP) : entityId { entityIdP } {}
 
     u64 entityId;
-    Vector2 pos { 0.0f, 0.0f };
+    Vec2 pos { 0.0f, 0.0f };
     float rotation { 0.0f };
-    Vector2 scale { 0.0f, 0.0f };
+    Vec2 scale { 0.0f, 0.0f };
 };
 
 struct Sprite {
@@ -47,14 +51,14 @@ struct Sprite {
 
     u64 entityId;
     u8 opacity { 255 };
-    Rectangle srcRect { 0, 0, 1, 1 };
-    Rectangle dstRect { 0, 0, 1, 1 };
+    Rect srcRect { 0, 0, 1, 1 };
+    Rect dstRect { 0, 0, 1, 1 };
     str texName;
     Texture tex;
 };
 
 struct Rigidbody2D {
-    explicit Rigidbody2D(u64 entityIdP, const Vector2& pos, const Rectangle& box,
+    explicit Rigidbody2D(u64 entityIdP, const Vec2& pos, const Rect& box,
                          bool doApplyGravityP, bool isGhostP) :
         entityId { entityIdP },
         pos { pos },
@@ -64,17 +68,17 @@ struct Rigidbody2D {
     {}
 
     u64 entityId;
-    Vector2 pos { 0.0f, 0.0f };
-    Rectangle boundingBox { 0, 0, 1, 1 };
-    Vector2 velocity { 0.0f, 0.0f };
-    Vector2 playerAcceleration {0.0f, 0.0f };
-    Vector2 groundVelocity {0.0f, 0.0f };
+    Vec2 pos { 0.0f, 0.0f };
+    Rect boundingBox { 0, 0, 1, 1 };
+    Vec2 velocity { 0.0f, 0.0f };
+    Vec2 playerAcceleration {0.0f, 0.0f };
+    Vec2 groundVelocity {0.0f, 0.0f };
     bool doApplyGravity { true };
     bool isGhost { false };
     bool isGrounded { false };
 
-    [[nodiscard]] Rectangle GetPositionedRectangle() const {
-        return Rectangle { pos.x + boundingBox.x, pos.y + boundingBox.y, boundingBox.width, boundingBox.height };
+    [[nodiscard]] Rect GetPositionedRect() const {
+        return Rect { pos.x + boundingBox.x, pos.y + boundingBox.y, boundingBox.width, boundingBox.height };
     }
 
     [[nodiscard]] f32 GetRealX() const {
@@ -86,8 +90,8 @@ struct Rigidbody2D {
     }
 
 #ifdef GDEBUG
-    void DrawDebug() {
-        const Rectangle box { pos.x + boundingBox.x,
+    void DrawDebug() const {
+        const Rect box { pos.x + boundingBox.x,
                               pos.y + boundingBox.y,
                               boundingBox.width, boundingBox.height };
         render::DrawRectangleLines(box, BLUE);
@@ -105,7 +109,7 @@ struct RigidbodyRaycast2D {
                        f32 horizontalRayLength, f32 verticalRayLength, f32 margin);
 
     u64 entityId;
-    Rigidbody2D attachBody { 0, Vector2  { 0, 0 }, Rectangle  { 0, 0, 1, 1 }, false, false };
+    Rigidbody2D attachBody { 0, Vec2  { 0, 0 }, Rect  { 0, 0, 1, 1 }, false, false };
     i32 horizontalRaysCount;
     i32 verticalRaysCount;
     f32 horizontalRayLength;
@@ -161,7 +165,7 @@ struct Weapon {
     }
 
     u64 entityId;
-    Vector2 projectileOriginOffset { 20.0f, 0.0f};
+    Vec2 projectileOriginOffset { 20.0f, 0.0f};
     i32 projectilePerShoot { 1 };
     f32 angle { 0.0f };
     i32 angularSpreadDegree { 10 };
@@ -181,18 +185,18 @@ struct Weapon {
 
 // Utils
 struct Collision2D {
-    Collision2D(u64 entityId, Rectangle currentBox, Vector2 velocity,
-                u64 otherId, Rectangle otherCurrentBox, Vector2 otherVelocity):
+    Collision2D(u64 entityId, Rect currentBox, Vec2 velocity,
+                u64 otherId, Rect otherCurrentBox, Vec2 otherVelocity):
             entityId { entityId}, currentBox { currentBox }, velocity { velocity },
             otherId { otherId }, otherCurrentBox { otherCurrentBox }, otherVelocity { otherVelocity }
     {}
 
     u64 entityId;
-    Rectangle currentBox;
-    Vector2 velocity;
+    Rect currentBox;
+    Vec2 velocity;
     u64 otherId;
-    Rectangle otherCurrentBox;
-    Vector2 otherVelocity;
+    Rect otherCurrentBox;
+    Vec2 otherVelocity;
 };
 
 #endif //SUNSET_REVERIES_COMPONENTS_HPP

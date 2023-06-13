@@ -2,36 +2,20 @@
 // Created by gaetz on 07/03/23.
 //
 
-#ifndef SUNSET_REVERIES_GMATH_HPP
-#define SUNSET_REVERIES_GMATH_HPP
+#ifndef GMATH_GMATH_HPP
+#define GMATH_GMATH_HPP
 
 #include "raylib.h"
+#include "Types.hpp"
 #include <array>
 
-using f32 = float;
-using std::array;
-
-Vector2 operator+(Vector2 lh, Vector2 rh);
-Vector2 operator-(Vector2 lh, Vector2 rh);
-
-Vector2 operator*(Vector2 v, f32 f);
-Vector2 operator*(f32 f, Vector2 v);
-
-Vector2 operator/(Vector2 v, f32 f);
-Vector2 operator/(f32 f, Vector2 v);
-
-struct Ray2D
-{
-    Ray2D(Vector2 origin, Vector2 direction, f32 length):
-        origin{origin}, direction{direction}, length{length}
-    {}
-
-    Vector2 origin {};
-    Vector2 direction {};
-    f32 length { -1 };
-};
 
 namespace gmath {
+
+    // Trigonometry
+
+    f32 ToDeg(f32 angleRadians);
+    f32 ToRad(f32 angleDegrees);
 
     f32 CosRad(f32 angleRadians);
     f32 CosDeg(f32 angleDegrees);
@@ -41,19 +25,43 @@ namespace gmath {
     f32 SinDeg(f32 angleDegrees);
     f32 Sin(f32 angleDegrees);
 
-    /***
-     * Check if a 2d ray collides a rectangle
-     * @param rayOrigin
-     * @param rayDir
-     * @param targetRect
-     * @param contactPoint
-     * @param contactNormal
-     * @param nearContactTime
-     * @param probableContactPoints
-     * @return True if the intersection exists. Details are computed in contactPoint, contactNormal and nearContactTime.
-     */
-    bool RayVsRect2D(const Vector2 &rayOrigin, const Vector2 &rayDir, const Rectangle &targetRect, Vector2 &contactPoint,
-                Vector2 &contactNormal, float &nearContactTime, array<Vector2, 2> &probableContactPoints);
+    f32 TanRad(f32 angleRadians);
+    f32 TanDeg(f32 angleDegrees);
+    f32 Tan(f32 angleDegrees);
+
+    f32 CoTanRad(f32 angleRadians);
+    f32 CoTanDeg(f32 angleDegrees);
+    f32 CoTan(f32 angleDegrees);
+
+    f32 Acos(f32 value);
+    f32 Asin(f32 value);
+    f32 Atan2(f32 y, f32 x);
+
+
+    // Approximations
+
+    template<typename T>
+    T Max(const T& a, const T& b) {
+        return (a < b ? b : a);
+    }
+
+    template<typename T>
+    T Min(const T& a, const T& b) {
+        return (a < b ? a : b);
+    }
+
+    template<typename T>
+    T Clamp(const T& value, const T& lower, const T& upper) {
+        return Min(upper, Max(lower, value));
+    }
+
+    i32 Round(f32 value);
+    f32 Abs(f32 value);
+    i32 Floor(f32 value);
+    i32 Ceil(f32 value);
+
+
+    // Easing
 
     /***
      * Easing function. Grow quick then reach limit slowly.
@@ -64,4 +72,4 @@ namespace gmath {
 
 }
 
-#endif //SUNSET_REVERIES_GMATH_HPP
+#endif //GMATH_GMATH_HPP

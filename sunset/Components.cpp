@@ -57,27 +57,27 @@ void RigidbodyRaycast2D::SetRayDirection(Ray2DDirection direction) {
 
 vector<Ray2D> RigidbodyRaycast2D::UpdateHorizontalRays() {
     vector<Ray2D> rays;
-    const Vector2 startPosition { attachBody.pos + Vector2 { attachBody.boundingBox.x, attachBody.boundingBox.y } };
-    const Vector2 endPosition = startPosition + Vector2 { 0, attachBody.boundingBox.height };
-    const Vector2 offset = (endPosition - startPosition) / static_cast<f32>(horizontalRaysCount - 1);
-    const Vector2 indent {0, margin };
+    const Vec2 startPosition { attachBody.pos + Vec2 { attachBody.boundingBox.x, attachBody.boundingBox.y } };
+    const Vec2 endPosition = startPosition + Vec2 { 0.0f, attachBody.boundingBox.height };
+    const Vec2 offset = (endPosition - startPosition) / static_cast<f32>(horizontalRaysCount - 1);
+    const Vec2 indent { 0.0f, margin };
     if (currentHorizontalDirection == Ray2DDirection::Left) {
         for (i32 i = 0; i < horizontalRaysCount; ++i) {
             rays.emplace_back(
-                    startPosition + offset * static_cast<f32>(i) + Vector2 {margin, 0 }
-                    + (i == 0 ? indent : Vector2 {0, 0})
-                    + (i == horizontalRaysCount - 1 ? -1.0f * indent : Vector2 {0, 0}),
-                    Vector2 { -1, 0 },
+                    startPosition + offset * static_cast<f32>(i) + Vec2 { margin, 0.0f }
+                    + (i == 0 ? indent : Vec2 {0, 0})
+                    + (i == horizontalRaysCount - 1 ? -1.0f * indent : Vec2 {0, 0}),
+                    Vec2 { -1, 0 },
                     horizontalRayLength + margin);
         }
     } else {
         for (i32 i = 0; i < horizontalRaysCount; ++i) {
             rays.emplace_back(
-                    startPosition + offset * static_cast<f32>(i) - Vector2 {margin, 0 }
-                    + Vector2 { attachBody.boundingBox.width, 0 }
-                    + (i == 0 ? indent : Vector2 {0, 0})
-                    + (i == horizontalRaysCount - 1 ? -1.0f * indent : Vector2 {0, 0}),
-                    Vector2 { 1, 0 },
+                    startPosition + offset * static_cast<f32>(i) - Vec2 {margin, 0.0f }
+                    + Vec2 { attachBody.boundingBox.width, 0.0f }
+                    + (i == 0 ? indent : Vec2 {0, 0})
+                    + (i == horizontalRaysCount - 1 ? -1.0f * indent : Vec2 {0, 0}),
+                    Vec2 { 1, 0 },
                     horizontalRayLength + margin);
         }
     }
@@ -86,27 +86,27 @@ vector<Ray2D> RigidbodyRaycast2D::UpdateHorizontalRays() {
 
 vector<Ray2D> RigidbodyRaycast2D::UpdateVerticalRays() {
     vector<Ray2D> rays;
-    const Vector2 startPosition { attachBody.pos + Vector2 { attachBody.boundingBox.x, attachBody.boundingBox.y } };
-    const Vector2 endPosition = startPosition + Vector2 { attachBody.boundingBox.width, 0 };
-    const Vector2 offset = (endPosition - startPosition) / static_cast<f32>(verticalRaysCount - 1);
-    const Vector2 indent {margin, 0 };
+    const Vec2 startPosition { attachBody.pos + Vec2 { attachBody.boundingBox.x, attachBody.boundingBox.y } };
+    const Vec2 endPosition = startPosition + Vec2 { attachBody.boundingBox.width, 0.0f };
+    const Vec2 offset = (endPosition - startPosition) / static_cast<f32>(verticalRaysCount - 1);
+    const Vec2 indent {margin, 0.0f };
     if (currentVerticalDirection == Ray2DDirection::Down) {
         for (i32 i = 0; i < verticalRaysCount; ++i) {
             rays.emplace_back(
-                    startPosition + offset * static_cast<f32>(i) - Vector2 { 0, margin }
-                    + Vector2 { 0, attachBody.boundingBox.height }
-                    + (i == 0 ? indent : Vector2 {0, 0})
-                    + (i == verticalRaysCount - 1 ? -1.0f * indent : Vector2 {0, 0}),
-                    Vector2 { 0, 1 },
+                    startPosition + offset * static_cast<f32>(i) - Vec2 { 0.0f, margin }
+                    + Vec2 { 0.0f, attachBody.boundingBox.height }
+                    + (i == 0 ? indent : Vec2 {0, 0})
+                    + (i == verticalRaysCount - 1 ? -1.0f * indent : Vec2 {0, 0}),
+                    Vec2 { 0, 1 },
                     verticalRayLength + margin);
         }
     } else {
         for (i32 i = 0; i < verticalRaysCount; ++i) {
             rays.emplace_back(
-                    startPosition + offset * static_cast<f32>(i) + Vector2 { 0, margin }
-                    + (i == 0 ? indent : Vector2 {0, 0})
-                    + (i == verticalRaysCount - 1 ? -1.0f * indent : Vector2 {0, 0}),
-                    Vector2 { 0, -1 },
+                    startPosition + offset * static_cast<f32>(i) + Vec2 { 0.0f, margin }
+                    + (i == 0 ? indent : Vec2 {0, 0})
+                    + (i == verticalRaysCount - 1 ? -1.0f * indent : Vec2 {0, 0}),
+                    Vec2 { 0, -1 },
                     verticalRayLength + margin);
         }
     }
