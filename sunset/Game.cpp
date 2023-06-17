@@ -17,9 +17,11 @@ void Game::Update(f32 dt) {
         scene->Update(dt);
         if (scene->GetLocking()) break;
     }
-    if (worldStateManager->IsRecording()) ecs->UpdateScene(dt);
-    ConsumePlayerChanges();
-    worldStateManager->StoreNewState(ecs->UpdateWorld());
+    if (worldStateManager->IsRecording()) ecs->UpdateScene(dt, worldChanger);
+    ecs->EndUpdate();
+    WorldState newWorldState = worldChanger.UpdateWorld(ecs->GetCurrentWorldState());
+    worldStateManager->StoreNewState(newWorldState);
+    worldChanger.ClearFrameChanges();
 }
 
 void Game::Draw() {
@@ -73,12 +75,7 @@ void Game::Resume(bool doCreateClone) {
 }
 
 void Game::PushPlayerChange(PlayerChange playerChange) {
-    playerChanges.emplace_back(playerChange);
+    //playerChanges.emplace_back(playerChange);
+    worldChanger.PushPlayerChange(playerChange);
 }
-
-void Game::ConsumePlayerChanges() {
-    ecs->SetPlayerChanges(playerChanges);
-    playerChanges.clear();
-}
-
 

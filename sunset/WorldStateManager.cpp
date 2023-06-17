@@ -15,6 +15,7 @@ void WorldStateManager::StoreNewState(WorldState newState) {
     if (!IsRecording()) return;
     currentFrame = worldStates.size();
     newState.currentFrame = currentFrame;
+    ecs->SetWorldState(newState);
     worldStates.push_back(std::move(newState));
 }
 

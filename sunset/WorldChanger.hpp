@@ -2,14 +2,15 @@
 // Created by gaetz on 05/03/23.
 //
 
-#ifndef SUNSET_REVERIES_WORLD_CHANGE_HPP
-#define SUNSET_REVERIES_WORLD_CHANGE_HPP
+#ifndef SUNSET_REVERIES_WORLD_CHANGER_HPP
+#define SUNSET_REVERIES_WORLD_CHANGER_HPP
 
 #include "Ray2D.hpp"
 
 using gmath::Ray2D;
 using gmath::Vec2;
 
+class WorldState;
 
 struct PlayerChange {
     u64 entityId { 0 };
@@ -48,4 +49,21 @@ struct RaycastCollision {
     f32 lengthSquaredBeforeCollision { 0 };
 };
 
-#endif //SUNSET_REVERIES_WORLD_CHANGE_HPP
+
+class WorldChanger {
+public:
+    void PushPositionChange(PositionChange positionChange);
+    vector<PositionChange>& GetPositionChanges() { return positionChanges; }
+
+    void PushPlayerChange(PlayerChange playerChange);
+
+    WorldState UpdateWorld(WorldState worldState);
+    void ClearFrameChanges();
+
+private:
+    vector<PositionChange> positionChanges;
+    vector<PlayerChange> playerChanges;
+};
+
+
+#endif //SUNSET_REVERIES_WORLD_CHANGER_HPP

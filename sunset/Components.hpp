@@ -12,7 +12,7 @@
 #include "Defines.hpp"
 #include "AssetsManager.hpp"
 #include "Renderer.hpp"
-#include "WorldChange.hpp"
+#include "WorldChanger.hpp"
 #include "EntityRingBuffer.hpp"
 #include "Ray2D.hpp"
 

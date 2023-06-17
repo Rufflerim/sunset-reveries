@@ -26,14 +26,12 @@ public:
     void Resume(bool doCreateClone);
 
     void PushPlayerChange(PlayerChange playerChange);
-    void ConsumePlayerChanges();
 
 private:
     vector<uptr<IScene>> sceneStack {};
     sptr<ECSManager> ecs;
+    WorldChanger worldChanger;
     uptr<WorldStateManager> worldStateManager;
-
-    vector<PlayerChange> playerChanges;
 };
 
 

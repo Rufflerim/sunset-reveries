@@ -8,7 +8,7 @@
 #include "Defines.hpp"
 #include "Entity.hpp"
 #include "Components.hpp"
-#include "WorldChange.hpp"
+#include "WorldChanger.hpp"
 #include "WorldState.hpp"
 
 #include <variant>
@@ -19,11 +19,12 @@ class ECSManager {
 public:
     ECSManager();
 
-    void UpdateScene(f32 dt);
+    void UpdateScene(f32 dt, WorldChanger& worldChanger);
     void DrawScene();
 
-    void SetPlayerChanges(const vector<PlayerChange>& playerChangesP) { playerChanges = playerChangesP; }
-    WorldState UpdateWorld();
+    //void SetPlayerChanges(const vector<PlayerChange>& playerChangesP) { playerChanges = playerChangesP; }
+    void EndUpdate();
+    [[nodiscard]] WorldState GetCurrentWorldState() const;
     void SetWorldState(const WorldState& newWorldState);
     void PrepareDraw();
     void SetCurrentFrame(u32 currentFrameP) {
@@ -81,17 +82,14 @@ private:
     vector<Replay> replays;
     vector<Weapon> weapons;
 
-    // World updates
     u32 currentFrame { 0 };
-    vector<PositionChange> positionChanges;
-    vector<PlayerChange> playerChanges;
     vector<RaycastCollision> raycastCollisions;
 
     i32 FindEntityComponent(u64 entityId, ComponentIndex componentIndex);
     void UpdateEntityWithComponent(u64 entityId, i32 newComponentId, ComponentIndex componentIndex);
     void CleanRemovedEntities();
 
-    void SystemPhysicsUpdate(f32 dt);
+    void SystemPhysicsUpdate(f32 dt, WorldChanger& worldChanger);
     void SystemReplayUpdate();
     void SystemWeaponUpdate(f32 dt);
     void SystemSpriteDraw();
