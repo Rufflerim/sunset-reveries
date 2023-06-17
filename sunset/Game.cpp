@@ -17,10 +17,11 @@ void Game::Update(f32 dt) {
         scene->Update(dt);
         if (scene->GetLocking()) break;
     }
-    if (worldStateManager->IsRecording()) ecs->UpdateScene(dt, worldChanger);
-    ecs->EndUpdate();
+    if (worldStateManager->IsRecording()) ecs->Update(dt, worldChanger);
     WorldState newWorldState = worldChanger.UpdateWorld(ecs->GetCurrentWorldState());
     worldStateManager->StoreNewState(newWorldState);
+
+    ecs->EndUpdate();
     worldChanger.ClearFrameChanges();
 }
 
@@ -30,7 +31,7 @@ void Game::Draw() {
         scene->Draw();
         if (!scene->GetTransparent()) break;
     }
-    ecs->DrawScene();
+    ecs->RenderWorld();
 }
 
 void Game::AddScene(uptr<IScene> newScene) {

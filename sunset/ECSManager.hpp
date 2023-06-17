@@ -19,17 +19,17 @@ class ECSManager {
 public:
     ECSManager();
 
-    void UpdateScene(f32 dt, WorldChanger& worldChanger);
-    void DrawScene();
+    void Update(f32 dt, WorldChanger& worldChanger);
+    void RenderWorld();
 
-    //void SetPlayerChanges(const vector<PlayerChange>& playerChangesP) { playerChanges = playerChangesP; }
-    void EndUpdate();
     [[nodiscard]] WorldState GetCurrentWorldState() const;
     void SetWorldState(const WorldState& newWorldState);
-    void PrepareDraw();
     void SetCurrentFrame(u32 currentFrameP) {
         currentFrame = currentFrameP;
     }
+
+    void EndUpdate();
+    void PrepareDraw();
 
     u64 CreateEntity();
     void RemoveEntity(u64 entityId);
@@ -93,6 +93,7 @@ private:
     void SystemReplayUpdate();
     void SystemWeaponUpdate(f32 dt);
     void SystemSpriteDraw();
+
 
     template<class T>
     void RemoveComponent(vector<T>& components, Entity& removedEntity, ComponentIndex componentTypeIndex) {

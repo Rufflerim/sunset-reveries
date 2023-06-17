@@ -27,14 +27,31 @@ ECSManager::ECSManager() :
 }
 
 
-void ECSManager::UpdateScene(f32 dt, WorldChanger& worldChanger) {
+void ECSManager::Update(f32 dt, WorldChanger& worldChanger) {
     SystemReplayUpdate();
     jobs::Execute([this, dt] { SystemWeaponUpdate(dt); });
     jobs::Execute([this, dt, &worldChanger] { SystemPhysicsUpdate(dt, worldChanger); });
     jobs::Wait();
 }
 
-void ECSManager::DrawScene() {
+void ECSManager::EndUpdate() {
+    // Raycast update
+    for (auto& raycast : bodyRaycasts) {
+        if (raycast.attachBody.velocity.x > 0) {
+            raycast.SetRayDirection(Ray2DDirection::Right);
+        } else if (raycast.attachBody.velocity.x < 0) {
+            raycast.SetRayDirection(Ray2DDirection::Left);
+        }
+        if (raycast.attachBody.velocity.y > 0) {
+            raycast.SetRayDirection(Ray2DDirection::Down);
+        } else if (raycast.attachBody.velocity.y < 0) {
+            raycast.SetRayDirection(Ray2DDirection::Up);
+        }
+        raycast.Update();
+    }
+}
+
+void ECSManager::RenderWorld() {
     SystemSpriteDraw();
 
     CleanRemovedEntities();
@@ -280,24 +297,6 @@ void ECSManager::SystemReplayUpdate() {
 void ECSManager::SystemWeaponUpdate(f32 dt) {
     for (auto& weapon : weapons) {
         weapon.Update(dt);
-    }
-}
-
-
-void ECSManager::EndUpdate() {
-    // Raycast update
-    for (auto& raycast : bodyRaycasts) {
-        if (raycast.attachBody.velocity.x > 0) {
-            raycast.SetRayDirection(Ray2DDirection::Right);
-        } else if (raycast.attachBody.velocity.x < 0) {
-            raycast.SetRayDirection(Ray2DDirection::Left);
-        }
-        if (raycast.attachBody.velocity.y > 0) {
-            raycast.SetRayDirection(Ray2DDirection::Down);
-        } else if (raycast.attachBody.velocity.y < 0) {
-            raycast.SetRayDirection(Ray2DDirection::Up);
-        }
-        raycast.Update();
     }
 }
 
