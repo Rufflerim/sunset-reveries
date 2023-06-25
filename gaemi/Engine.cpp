@@ -36,6 +36,8 @@ void Engine::Start(i32 windowWidth, i32 windowHeight, const str& gameNameP,
 #endif
         game->Update(dt);
 
+
+
         render::BeginDraw();
         render::ClearScreen();
         game->Draw();

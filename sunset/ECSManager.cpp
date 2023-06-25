@@ -26,7 +26,6 @@ ECSManager::ECSManager() :
 
 }
 
-
 void ECSManager::Update(f32 dt, WorldChanger& worldChanger) {
     SystemReplayUpdate();
     jobs::Execute([this, dt] { SystemWeaponUpdate(dt); });

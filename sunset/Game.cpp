@@ -18,7 +18,8 @@ void Game::Update(f32 dt) {
         if (scene->GetLocking()) break;
     }
     if (worldStateManager->IsRecording()) ecs->Update(dt, worldChanger);
-    WorldState newWorldState = worldChanger.UpdateWorld(ecs->GetCurrentWorldState());
+    WorldState newWorldState = worldChanger.UpdateWorld(
+            ecs->GetCurrentWorldState());
     worldStateManager->StoreNewState(newWorldState);
 
     ecs->EndUpdate();

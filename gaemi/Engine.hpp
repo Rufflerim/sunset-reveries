@@ -8,6 +8,7 @@
 #include <string>
 #include "Renderer.hpp"
 #include "Defines.hpp"
+#include "flecs.h"
 
 class IGame;
 
@@ -18,6 +19,8 @@ public:
 
     str gameName;
     uptr<IGame> game;
+    flecs::world world;
+
 };
 
 
