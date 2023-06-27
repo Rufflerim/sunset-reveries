@@ -26,7 +26,7 @@ namespace jobs {
         // Push an item to the end if there is free space
         //  Returns true if succesful
         //  Returns false if there is not enough space
-        inline bool push_back(const T& item)
+        inline bool PushBack(const T& item)
         {
             bool result = false;
             lock.lock();
@@ -46,7 +46,7 @@ namespace jobs {
          * @param item : The item we want.
          * @return True if successful, false if there are no items
          */
-        inline bool pop_front(T& item)
+        inline bool PopFront(T& item)
         {
             bool result = false;
             lock.lock();

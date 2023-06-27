@@ -6,6 +6,7 @@
 #include <iostream>
 #include "ConsoleLine.hpp"
 #include "Calendar.hpp"
+#include "Asserts.hpp"
 
 const str Log::GAME_LOG_FILE = "Reveries.log";
 std::ofstream Log::file;
@@ -60,3 +61,6 @@ str Log::GetLabel(LogLevel level) {
     return label;
 }
 
+void ReportAssertionFailure(const str& expression, const str& message, const char* codeFile, i32 codeLine) {
+    LOG(LogLevel::Fatal) << "Assertion failure: " << expression << ", message: " << message << ", in file: " << codeFile << " line: " << codeLine;
+}

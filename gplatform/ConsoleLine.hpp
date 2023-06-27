@@ -2,8 +2,8 @@
 // Created by gaetz on 16/05/2023.
 //
 
-#ifndef GPLATFORMS_CONSOLELINE_HPP
-#define GPLATFORMS_CONSOLELINE_HPP
+#ifndef GPLATFORM_CONSOLELINE_HPP
+#define GPLATFORM_CONSOLELINE_HPP
 
 #include "Defines.hpp"
 
@@ -12,4 +12,4 @@ namespace gplatform {
 
 }
 
-#endif //GPLATFORMS_CONSOLELINE_HPP
+#endif //GPLATFORM_CONSOLELINE_HPP

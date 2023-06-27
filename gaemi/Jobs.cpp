@@ -66,7 +66,7 @@ namespace jobs
                 // This is the infinite loop that a worker thread will do
                 while (isRunning.load()) {
                     // Try to grab a job from the jobPool queue
-                    if (jobPool.pop_front(job)) {
+                    if (jobPool.PopFront(job)) {
                         // It found a job, execute it:
                         job();
                         // Update worker label state
@@ -100,7 +100,7 @@ namespace jobs
         currentLabel += 1;
 
         // Try to push a new job until it is pushed successfully:
-        while (!jobPool.push_back(job)) {
+        while (!jobPool.PushBack(job)) {
             Poll();
         }
 
@@ -154,7 +154,7 @@ namespace jobs
             };
 
             // Try to push a new job until it is pushed successfully:
-            while (!jobPool.push_back(jobGroup)) { Poll(); }
+            while (!jobPool.PushBack(jobGroup)) { Poll(); }
 
             wakeCondition.notify_one(); // wake one thread
         }

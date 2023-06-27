@@ -1,8 +1,8 @@
 //
 // Created by gaetz on 05/11/2022.
 //
-#ifndef GPLATFORMS_DEFINES_HPP
-#define GPLATFORMS_DEFINES_HPP
+#ifndef GPLATFORM_DEFINES_HPP
+#define GPLATFORM_DEFINES_HPP
 
 #include <string>
 #include <vector>
@@ -70,4 +70,17 @@ using sptr = std::shared_ptr<T>;
     #pragma warning Unknown dynamic link import/export semantics.
 #endif
 
-#endif //GPLATFORMS_DEFINES_HPP
+/**
+ * Assertions
+ */
+
+#define GASSERTIONS_ENABLED
+
+#if _MSC_VER
+    #include <intrin.h>
+    #define DebugBreak() __debugbreak()
+#else
+    #define DebugBreak() __builtin_trap()
+#endif
+
+#endif //GPLATFORM_DEFINES_HPP

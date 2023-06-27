@@ -5,6 +5,7 @@
 #include "EntityRingBuffer.hpp"
 #include "Vec2.hpp"
 #include "ECSManager.hpp"
+#include "Asserts.hpp"
 
 using gmath::Vec2;
 
@@ -12,7 +13,7 @@ EntityRingBuffer::EntityRingBuffer(u64 sizeP, sptr<ECSManager> ecsP) :
     size { sizeP },
     ecs { std::move(ecsP) }
 {
-    /// TODO Assert size is superior to 1
+    GASSERT_MSG(sizeP > 1, "Entity ring buffer size should be superior to 1")
 
     entityFirstId = ecs->CreateEntity();
     for (u64 i = 0; i < size - 1; ++i) {
