@@ -118,6 +118,7 @@ endif()
 add_subdirectory( gplatform )
 add_subdirectory( gmath )
 add_subdirectory( gaemi )
+add_subdirectory( gecs )
 add_subdirectory( sunset )
 
 

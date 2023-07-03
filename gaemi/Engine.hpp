@@ -19,8 +19,6 @@ public:
 
     str gameName;
     uptr<IGame> game;
-    flecs::world world;
-
 };
 
 
