@@ -8,7 +8,11 @@
 #include <bitset>
 using std::bitset;
 
+#include <unordered_map>
+using std::unordered_map;
+
 #include "Defines.hpp"
+#include "GMath.hpp"
 
 namespace gecs {
 
@@ -18,7 +22,34 @@ namespace gecs {
     using Id = u64;
     using ArchetypeId = bitset<MAX_COMPONENTS>;
 
+    enum class ComponentId {
+        Position = 0,
+        Velocity = 1
+    };
 
+    u32 ComponentIdToBitValue(ComponentId componentId) {
+        f32 id = static_cast<f32>(componentId);
+        return gmath::Floor(gmath::Pow(2, id));
+    }
+
+
+
+    struct Column {
+    public:
+        ComponentId componentId;
+        size_t elementSize;
+        size_t count;
+        void* elements;
+    };
+
+    class Archetype;
+
+    struct ArchetypeRecord {
+        /// Reference to entity's archetype
+        Archetype* archetype;
+        /// Entity row in archetypes component table
+        size_t row;
+    };
 
 }
 

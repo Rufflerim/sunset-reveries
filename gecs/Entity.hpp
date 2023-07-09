@@ -7,6 +7,7 @@
 
 #include "Defines.hpp"
 #include "Types.hpp"
+#include "World.hpp"
 
 namespace gecs {
 
@@ -17,6 +18,21 @@ namespace gecs {
 
     public:
         Id id;
+
+        template<class T>
+        void AddComponent() {
+            ComponentId component = GetComponentId<T>();
+            auto& world = World::Instance();
+            ArchetypeRecord& record = world.GetEntities()[id];
+            Archetype* archetype = record.archetype;
+            Archetype* nextArchetype = archetype->archetypeChanges[component].add;
+            world.MoveEntity(id, archetype, record.row, nextArchetype);
+        }
+
+        template<class T>
+        T& GetComponent() {
+            return World::Instance().GetComponent<T>(id);
+        }
     };
 
 

@@ -6,16 +6,30 @@
 #define GECS_ARCHETYPE_HPP
 
 #include "Types.hpp"
-
-#include <bitset>
+#include "Components.hpp"
 
 namespace gecs {
 
+    class Archetype;
+
+    struct ArchetypeChange {
+        Archetype* add;
+        Archetype* remove;
+    };
 
     class Archetype {
+    public:
         Id id;
         ArchetypeId archetypeId;
+        vector<IColumn> components;
+        unordered_map<ComponentId, ArchetypeChange> archetypeChanges;
+
+
+
     };
+
+
+
 }
 
 

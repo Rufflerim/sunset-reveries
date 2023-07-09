@@ -3,8 +3,11 @@
 //
 
 #include "Entity.hpp"
+#include "Types.hpp"
+#include "World.hpp"
 
 namespace gecs {
+
 
 
 

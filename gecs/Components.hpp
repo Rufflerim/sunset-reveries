@@ -13,10 +13,9 @@ using gmath::Vec2;
 #include "unordered_map"
 using std::unordered_map;
 
-
-enum class ComponentId {
-    Position = 0,
-    Velocity = 1
+class IColumn {
+public:
+    gecs::ComponentId id;
 };
 
 struct Position {
@@ -28,6 +27,12 @@ struct Position {
     }
 };
 
+class PositionColumn : public IColumn {
+public:
+    gecs::ComponentId id { gecs::ComponentId::Position };
+    vector<Position> data;
+};
+
 struct Velocity {
     f32 x { 0.0f };
     f32 y { 0.0f };
@@ -35,6 +40,12 @@ struct Velocity {
     Vec2 Vec() const {
         return Vec2 { x, y };
     }
+};
+
+class VelocityColumn : public IColumn {
+public:
+    gecs::ComponentId id { gecs::ComponentId::Velocity };
+    vector<Velocity> data;
 };
 
 namespace gecs {
@@ -45,6 +56,15 @@ namespace gecs {
     public:
         Id id;
     };
+
+    template <class T>
+    ComponentId GetComponentId() {
+        if constexpr (std::is_same_v<T, Position>) {
+            return ComponentId::Position;
+        } else if constexpr (std::is_same_v<T, Velocity>) {
+            return ComponentId::Velocity;
+        }
+    }
 }
 
 

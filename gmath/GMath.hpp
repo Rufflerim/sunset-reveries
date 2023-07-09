@@ -59,6 +59,7 @@ namespace gmath {
     f32 Abs(f32 value);
     i32 Floor(f32 value);
     i32 Ceil(f32 value);
+    f32 Pow(f32 base, f32 exponent);
 
 
     // Easing
