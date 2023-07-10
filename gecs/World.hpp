@@ -37,7 +37,7 @@ namespace gecs {
 
     private:
 
-        void MoveEntity(Id entity, Archetype* archetype, size_t row, Archetype* nextArchetype);
+        void MoveEntity(ArchetypeRecord& recordToUpdate, size_t row, Archetype* nextArchetype);
 
 
         template<class T>

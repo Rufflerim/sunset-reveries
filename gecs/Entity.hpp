@@ -23,10 +23,9 @@ namespace gecs {
         void AddComponent() {
             ComponentId component = GetComponentId<T>();
             auto& world = World::Instance();
-            ArchetypeRecord& record = world.GetEntities()[id];
-            Archetype* archetype = record.archetype;
-            Archetype* nextArchetype = archetype->archetypeChanges[component].add;
-            world.MoveEntity(id, archetype, record.row, nextArchetype);
+            ArchetypeRecord& recordToUpdate = world.GetEntities()[id];
+            Archetype* nextArchetype = recordToUpdate.archetype->archetypeChanges[component].add;
+            world.MoveEntity(recordToUpdate, recordToUpdate.row, nextArchetype);
         }
 
         template<class T>

@@ -6,16 +6,20 @@
 
 namespace gecs {
 
-    void World::MoveEntity(Id entity, Archetype* archetype, size_t row, Archetype* nextArchetype) {
+    void World::MoveEntity(ArchetypeRecord& recordToUpdate, size_t row, Archetype* nextArchetype) {
         /// TODO
         // Insert in new archetype data from previous archetype
         for (IColumn& dstCol : nextArchetype->components) {
-            for (IColumn& srcCol : archetype->components) {
+            for (IColumn& srcCol : recordToUpdate.archetype->components) {
                 if (dstCol.id == srcCol.id) {
+                    // Copy data in new component columns
                     void* data = srcCol.GetDataRow(row);
-                    dstCol.AddElement(data, srcCol.GetDataSize());
-                    // Update entity's row ?
-
+                    auto newRow = dstCol.AddElement(data, srcCol.GetDataSize());
+                    // Remove previous data from archetype, after saving data
+                    srcCol.RemoveElement(row);
+                    // Update entity's row
+                    recordToUpdate.archetype = nextArchetype;
+                    recordToUpdate.row = newRow;
                 }
             }
         }
