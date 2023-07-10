@@ -59,10 +59,10 @@ namespace gecs {
         template <class T>
         T& GetComponentEntityData(Archetype* archetype, size_t componentColumn, size_t entityRow) {
             if constexpr (std::is_same_v<T, Position>) {
-                auto col = static_cast<PositionColumn>(archetype->components[componentColumn]);
+                auto& col = dynamic_cast<PositionColumn&>(archetype->components[componentColumn]);
                 return col.data[entityRow];
             } else if constexpr (std::is_same_v<T, Velocity>) {
-                auto col = static_cast<VelocityColumn>(archetype->components[componentColumn]);
+                auto& col = dynamic_cast<VelocityColumn&>(archetype->components[componentColumn]);
                 return col.data[entityRow];
             }
         }
