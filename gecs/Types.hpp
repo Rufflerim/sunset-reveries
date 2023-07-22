@@ -48,7 +48,7 @@ namespace gecs {
         /// Reference to entity's archetype
         Archetype* archetype;
         /// Entity row in archetypes component table
-        size_t row;
+        u64 row;
     };
 
 }

@@ -8,7 +8,6 @@
 #include <string>
 #include "Renderer.hpp"
 #include "Defines.hpp"
-#include "flecs.h"
 
 class IGame;
 

@@ -36,9 +36,8 @@ namespace gecs {
         unordered_map<ComponentId, ComponentArchetypes>& GetComponents() { return componentRegistry; }
 
     private:
-
-        void MoveEntity(ArchetypeRecord& recordToUpdate, size_t row, Archetype* nextArchetype);
-
+        void Init();
+        u64 MoveEntity(const ArchetypeRecord& recordToUpdate, size_t row, Archetype* nextArchetype);
 
         template<class T>
         T& GetComponent(Id entity) {
