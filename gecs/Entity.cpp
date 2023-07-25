@@ -8,7 +8,7 @@
 
 namespace gecs {
 
-
-
-
+    Entity::Entity(u64 idRoot) {
+        id = idRoot;
+    }
 }

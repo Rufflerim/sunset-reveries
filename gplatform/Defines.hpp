@@ -78,9 +78,9 @@ using sptr = std::shared_ptr<T>;
 
 #if _MSC_VER
     #include <intrin.h>
-    #define DebugBreak() __debugbreak()
+    #define DebugBreakpoint() __debugbreak()
 #else
-    #define DebugBreak() __builtin_trap()
+    #define DebugBreakpoint() __builtin_trap()
 #endif
 
 #endif //GPLATFORM_DEFINES_HPP

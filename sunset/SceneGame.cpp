@@ -6,6 +6,8 @@
 #include <utility>
 #include <iomanip>
 #include "ImRenderer.h"
+#include "../gecs/World.hpp"
+#include "../gecs/Entity.hpp"
 
 SceneGame::SceneGame(sptr<ECSManager> ecsRef,
                      Game& game)
@@ -26,6 +28,14 @@ void SceneGame::Load() {
     AssetsManager::LoadTexture("projectile", "assets/images/projectile.png", ToSceneId(SceneName::SceneGame));
 
     backgroundTexture = AssetsManager::GetTexture("bg_sunset");
+
+    gecs::World& world = gecs::World::Instance();
+    world.Init();
+    testEntityId = world.CreateEntity();
+    gecs::Entity entity = world.GetEntity(testEntityId);
+    Position pos {2, 5};
+    entity.AddComponent<Position>(pos);
+
 
     // Player
     playerId = ecs->CreateEntity();
@@ -82,6 +92,11 @@ void SceneGame::Load() {
 }
 
 void SceneGame::Update(f32 dt) {
+    gecs::World& world = gecs::World::Instance();
+    Position position = world.GetEntity(testEntityId).GetComponent<Position>();
+
+
+
     switch (timeStatus) {
         case TimeStatus::Normal:
             UpdateNormal(dt);

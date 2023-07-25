@@ -11,6 +11,7 @@
 #include "WorldStateManager.hpp"
 #include "Game.hpp"
 #include "EntityRingBuffer.hpp"
+#include "../gecs/Types.hpp"
 
 enum class TimeStatus {
     Normal,
@@ -29,6 +30,8 @@ public:
     void Unload() override;
 
 private:
+    gecs::Id testEntityId;
+
     Game& game;
     sptr<ECSManager> ecs;
     Texture2D backgroundTexture {};

@@ -27,20 +27,12 @@ namespace gecs {
         Velocity = 1
     };
 
+    /*
     u32 ComponentIdToBitValue(ComponentId componentId) {
         f32 id = static_cast<f32>(componentId);
         return gmath::Floor(gmath::Pow(2, id));
     }
-
-
-
-    struct Column {
-    public:
-        ComponentId componentId;
-        size_t elementSize;
-        size_t count;
-        void* elements;
-    };
+    */
 
     class Archetype;
 

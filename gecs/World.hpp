@@ -35,35 +35,64 @@ namespace gecs {
         unordered_map<ArchetypeId, Archetype>& GetArchetypes() { return archetypeRegistry; }
         unordered_map<ComponentId, ComponentArchetypes>& GetComponents() { return componentRegistry; }
 
-    private:
         void Init();
-        u64 MoveEntity(const ArchetypeRecord& recordToUpdate, size_t row, Archetype* nextArchetype);
+        Id CreateEntity();
+        Entity GetEntity(Id entityId);
+
+    private:
+
+        u64 maxId;
+        ArchetypeId defaultArchetype;
 
         template<class T>
         T& GetComponent(Id entity) {
-            ComponentId componentId = GetComponentId<T>();
+            ComponentId componentId = ToComponentId<T>();
             ArchetypeRecord& record = entityRegistry[entity];
             Archetype* archetype = record.archetype;
 
-            // Check if archetype has component
+            // Assert archetype has component
             ComponentArchetypes archetypes = componentRegistry[componentId];
-            if (archetypes.count(archetype->archetypeId) == 0) {
-                return nullptr;
-            }
+            GASSERT_MSG(archetypes.count(archetype->archetypeId) != 0, "Archetype must have component to get it")
 
             size_t componentColumn = archetypes[archetype->archetypeId];
-            return GetComponentEntityData<T>(archetype, componentColumn, record.row);
+            return archetype->components[componentColumn].GetRow<T>(record.row);
         }
 
         template <class T>
-        T& GetComponentEntityData(Archetype* archetype, size_t componentColumn, size_t entityRow) {
-            if constexpr (std::is_same_v<T, Position>) {
-                auto& col = dynamic_cast<PositionColumn&>(archetype->components[componentColumn]);
-                return col.data[entityRow];
-            } else if constexpr (std::is_same_v<T, Velocity>) {
-                auto& col = dynamic_cast<VelocityColumn&>(archetype->components[componentColumn]);
-                return col.data[entityRow];
+        u64 MoveEntity(const ArchetypeRecord& recordToUpdate, size_t row, Archetype* nextArchetype) {
+            u64 checkRow = std::numeric_limits<uint64_t>::max();
+            u64 newRow = std::numeric_limits<uint64_t>::max();
+            i32 checkColsDst { 0 }; // Used to avoid empty archetype case
+            i32 checkColsSrc { 0 }; // Used to avoid empty archetype case
+
+            // Insert in new archetype data from previous archetype
+            for (IColumn& dstCol : nextArchetype->components) {
+                for (IColumn& srcCol : recordToUpdate.archetype->components) {
+                    if (dstCol.id != srcCol.id) continue;
+
+                    // Copy data in new component columns
+                    auto component = srcCol.GetRow<T>(row);
+                    newRow = dstCol.AddElement<T>(component);
+                    // Check row is the same for each column
+                    if (checkRow != std::numeric_limits<uint64_t>::max()) {
+                        GASSERT_MSG(checkRow == newRow, "Row must be the same in all archetype columns");
+                    }
+                    checkRow = newRow;
+
+                    /*
+                    void* data = srcCol.GetDataRow(row);
+                    newRow = dstCol.AddElement(data, srcCol.GetDataSize());
+                    */
+
+                    // Remove previous data from archetype, after saving data
+                    srcCol.RemoveElement(row);
+
+                    ++checkColsSrc;
+                }
+                ++checkColsDst;
             }
+            GASSERT_MSG(newRow != std::numeric_limits<uint64_t>::max() && checkColsDst > 0 && checkColsSrc > 0, "Row should exist");
+            return newRow;
         }
 
         // Singleton

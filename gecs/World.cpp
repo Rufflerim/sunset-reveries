@@ -3,6 +3,7 @@
 //
 
 #include "World.hpp"
+#include "Entity.hpp"
 
 namespace gecs {
 
@@ -21,27 +22,52 @@ namespace gecs {
         emptyArchetype.id = 0;
         emptyArchetype.archetypeId = emptyArchetypeId;
         archetypeRegistry.insert(std::make_pair(emptyArchetypeId, std::move(emptyArchetype)));
+        defaultArchetype = emptyArchetypeId;
 
+        // Position archetype
         Archetype positionArchetype;
         positionArchetype.id = 1;
         positionArchetype.archetypeId = positionArchetypeId;
-
-        /// TODO Add colums of components?
-        PositionColumn col;
-        positionArchetype.components.push_back(col);
-
+        IColumn posArchCol;
+        posArchCol.Init<Position>(100);
+        positionArchetype.components.push_back(std::move(posArchCol));
         archetypeRegistry.insert(std::make_pair(positionArchetypeId, std::move(positionArchetype)));
 
+        ComponentArchetypes componentArchetypePos;
+        componentArchetypePos.insert(std::make_pair(positionArchetypeId, 0));
+        componentRegistry.insert(std::make_pair(ComponentId::Position, componentArchetypePos));
 
+        // Velocity archetype
         Archetype velocityArchetype;
         velocityArchetype.id = 2;
         velocityArchetype.archetypeId = velocityArchetypeId;
+        IColumn velArchCol;
+        velArchCol.Init<Velocity>(100);
+        velocityArchetype.components.push_back(std::move(velArchCol));
         archetypeRegistry.insert(std::make_pair(velocityArchetypeId, std::move(velocityArchetype)));
 
+        ComponentArchetypes componentArchetypeVel;
+        componentArchetypeVel.insert(std::make_pair(velocityArchetypeId, 0));
+        componentRegistry.insert(std::make_pair(ComponentId::Velocity, componentArchetypeVel));
+
+
+        // Pos Vel Archetype
         Archetype posVelArchetype;
-        posVelArchetype.id = 2;
+        posVelArchetype.id = 3;
         posVelArchetype.archetypeId = posVelArchetypeId;
+        IColumn posVelArchPosCol;
+        posVelArchPosCol.Init<Position>(100);
+        posVelArchetype.components.push_back(std::move(posVelArchPosCol));
+        IColumn posVelArchVelCol;
+        posVelArchVelCol.Init<Velocity>(100);
+        posVelArchetype.components.push_back(std::move(posVelArchVelCol));
         archetypeRegistry.insert(std::make_pair(posVelArchetypeId, std::move(posVelArchetype)));
+
+        ComponentArchetypes componentArchetypePosVel;
+        componentArchetypePosVel.insert(std::make_pair(posVelArchetypeId, 0));
+        componentRegistry[ComponentId::Position].insert(std::make_pair(posVelArchetypeId, 0));
+        componentRegistry[ComponentId::Velocity].insert(std::make_pair(posVelArchetypeId, 1));
+
 
         // Init archetype graph
         // -- Empty
@@ -66,22 +92,15 @@ namespace gecs {
         archetypeRegistry[posVelArchetypeId].archetypeChanges[ComponentId::Velocity].remove = &archetypeRegistry[positionArchetypeId];
     }
 
-    u64 World::MoveEntity(const ArchetypeRecord& recordToUpdate, size_t row, Archetype* nextArchetype) {
-        u64 newRow;
-        // Insert in new archetype data from previous archetype
-        for (IColumn& dstCol : nextArchetype->components) {
-            for (IColumn& srcCol : recordToUpdate.archetype->components) {
-                if (dstCol.id != srcCol.id) continue;
-
-                // Copy data in new component columns
-                void* data = srcCol.GetDataRow(row);
-                newRow = dstCol.AddElement(data, srcCol.GetDataSize());
-                // Remove previous data from archetype, after saving data
-                srcCol.RemoveElement(row);
-            }
-        }
-        return newRow;
+    Id World::CreateEntity() {
+        auto entity = Entity(maxId++);
+        ArchetypeRecord newEntityRecord { &archetypeRegistry[defaultArchetype], entityRegistry.size() - 1 };
+        entityRegistry.insert(std::make_pair(entity.id, newEntityRecord));
+        return entity.id;
     }
 
+    Entity World::GetEntity(Id entityId) {
+        return Entity(entityId);
+    }
 
 }

@@ -5,6 +5,7 @@
 #ifndef GECS_COMPONENTS_HPP
 #define GECS_COMPONENTS_HPP
 
+#include <variant>
 #include "Types.hpp"
 #include "Asserts.hpp"
 
@@ -13,16 +14,6 @@ using gmath::Vec2;
 
 #include "unordered_map"
 using std::unordered_map;
-
-class IColumn {
-public:
-    gecs::ComponentId id;
-
-    virtual void* GetDataRow(size_t row) = 0;
-    virtual size_t GetDataSize() = 0;
-    virtual u64 AddElement(void* newData, size_t sizeOfData) = 0;
-    virtual void RemoveElement(size_t row) = 0;
-};
 
 
 // Position
@@ -36,6 +27,7 @@ struct Position {
     }
 };
 
+/*
 class PositionColumn : public IColumn {
 public:
     gecs::ComponentId id { gecs::ComponentId::Position };
@@ -43,10 +35,6 @@ public:
 
     void* GetDataRow(size_t row) override {
         return &data[row];
-    };
-
-    size_t GetDataSize() override {
-        return sizeof(Position);
     };
 
     u64 AddElement(void* newData, size_t sizeOfData) override {
@@ -63,6 +51,7 @@ public:
         data.erase(data.begin() + row);
     };
 };
+ */
 
 
 // Velocity
@@ -76,35 +65,53 @@ struct Velocity {
     }
 };
 
-class VelocityColumn : public IColumn {
-public:
-    gecs::ComponentId id { gecs::ComponentId::Velocity };
-    vector<Velocity> data;
+namespace gecs {
 
-    void* GetDataRow(size_t row) override {
-        return &data[row];
-    };
-
-    size_t GetDataSize() override {
-        return sizeof(Velocity);
-    };
-
-    u64 AddElement(void* newData, size_t sizeOfData) override {
-        GASSERT_MSG(sizeof(Velocity) == sizeOfData, "New element size must be size of component column type (Velocity)")
-        auto* newDataPtr = static_cast<Velocity*>(newData);
-        Velocity newElement;
-        newElement.x = newDataPtr->x;
-        newElement.y = newDataPtr->y;
-        data.push_back(newElement);
-        return data.size() - 1;
+    template <class T>
+    ComponentId ToComponentId() {
+        if constexpr (std::is_same_v<T, Position>) {
+            return ComponentId::Position;
+        } else if constexpr (std::is_same_v<T, Velocity>) {
+            return ComponentId::Velocity;
+        }
     }
 
-    void RemoveElement(u64 row) override {
-        data.erase(data.begin() + row);
-    };
-};
+    class IColumn {
+    public:
+        gecs::ComponentId id;
 
-namespace gecs {
+        template<class T>
+        void Init(size_t numberOfElements = 100) {
+            data.reserve(numberOfElements);
+            dataSize = sizeof(T);
+            componentId = ToComponentId<T>();
+        }
+
+        template<class T>
+        T& GetRow(size_t row) {
+            return std::get<T>(data[row]);
+        }
+
+        size_t GetDataSize() const { return dataSize; }
+        ComponentId GetComponentId() const { return componentId; }
+
+        template<class T>
+        u64 AddElement(T element) {
+            data.push_back(std::move(element));
+            return data.size() - 1;
+        };
+
+        void RemoveElement(u64 row) {
+            data.erase(data.begin() + static_cast<i64>(row));
+        };
+
+    private:
+        vector<std::variant<Position, Velocity>> data;
+        size_t dataSize;
+        ComponentId componentId;
+    };
+
+
 
     class Entity;
 
@@ -112,15 +119,6 @@ namespace gecs {
     public:
         Id id;
     };
-
-    template <class T>
-    ComponentId GetComponentId() {
-        if constexpr (std::is_same_v<T, Position>) {
-            return ComponentId::Position;
-        } else if constexpr (std::is_same_v<T, Velocity>) {
-            return ComponentId::Velocity;
-        }
-    }
 }
 
 
