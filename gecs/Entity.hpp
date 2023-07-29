@@ -29,7 +29,7 @@ namespace gecs {
             // Add data in component column of new archetype
             u64 newRow;
             for (auto& column : nextArchetype->components) {
-                if (component != column.id) continue;
+                if (component != column.GetComponentId()) continue;
                 newRow = column.AddElement<T>(componentData);
                 break;
             }

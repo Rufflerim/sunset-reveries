@@ -33,8 +33,12 @@ void SceneGame::Load() {
     world.Init();
     testEntityId = world.CreateEntity();
     gecs::Entity entity = world.GetEntity(testEntityId);
+    world.LogWorld();
+
+
     Position pos {2, 5};
     entity.AddComponent<Position>(pos);
+    world.LogWorld();
 
 
     // Player

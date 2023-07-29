@@ -12,7 +12,6 @@ using std::bitset;
 using std::unordered_map;
 
 #include "Defines.hpp"
-#include "GMath.hpp"
 
 namespace gecs {
 
@@ -24,15 +23,16 @@ namespace gecs {
 
     enum class ComponentId {
         Position = 0,
-        Velocity = 1
+        Velocity = 1,
+
+        Absurd = 32
     };
 
-    /*
-    u32 ComponentIdToBitValue(ComponentId componentId) {
-        f32 id = static_cast<f32>(componentId);
-        return gmath::Floor(gmath::Pow(2, id));
-    }
-    */
+    str ComponentIdToString(ComponentId componentId);
+    ComponentId IndexToComponentId(i32 index);
+    str ArchetypeIdToString(ArchetypeId id);
+    u32 ComponentIdToBitValue(ComponentId componentId);
+
 
     class Archetype;
 

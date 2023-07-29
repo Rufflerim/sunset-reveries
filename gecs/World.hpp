@@ -38,6 +38,7 @@ namespace gecs {
         void Init();
         Id CreateEntity();
         Entity GetEntity(Id entityId);
+        void LogWorld();
 
     private:
 
@@ -68,7 +69,7 @@ namespace gecs {
             // Insert in new archetype data from previous archetype
             for (IColumn& dstCol : nextArchetype->components) {
                 for (IColumn& srcCol : recordToUpdate.archetype->components) {
-                    if (dstCol.id != srcCol.id) continue;
+                    if (dstCol.GetComponentId() != srcCol.GetComponentId()) continue;
 
                     // Copy data in new component columns
                     auto component = srcCol.GetRow<T>(row);
@@ -81,7 +82,7 @@ namespace gecs {
 
                     /*
                     void* data = srcCol.GetDataRow(row);
-                    newRow = dstCol.AddElement(data, srcCol.GetDataSize());
+                    newRow = dstCol.AddElement(data, srcCol.GetDataMemorySize());
                     */
 
                     // Remove previous data from archetype, after saving data

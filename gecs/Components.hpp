@@ -78,8 +78,6 @@ namespace gecs {
 
     class IColumn {
     public:
-        gecs::ComponentId id;
-
         template<class T>
         void Init(size_t numberOfElements = 100) {
             data.reserve(numberOfElements);
@@ -92,8 +90,15 @@ namespace gecs {
             return std::get<T>(data[row]);
         }
 
-        size_t GetDataSize() const { return dataSize; }
+        template<class T>
+        const T& GetRowConst(size_t row) const {
+            return std::get<T>(data[row]);
+        }
+
+        size_t GetDataMemorySize() const { return dataSize; }
+        size_t Count() const  { return data.size(); }
         ComponentId GetComponentId() const { return componentId; }
+
 
         template<class T>
         u64 AddElement(T element) {
@@ -105,20 +110,20 @@ namespace gecs {
             data.erase(data.begin() + static_cast<i64>(row));
         };
 
+        /* Functions used for logging purpose */
+
+        const Position& GetPos(size_t row) const;
+        const Velocity& GetVelocity(size_t row) const;
+
     private:
         vector<std::variant<Position, Velocity>> data;
         size_t dataSize;
         ComponentId componentId;
     };
 
-
+    str LogComponent(ComponentId componentId, const IColumn& column, size_t row);
 
     class Entity;
-
-    class Component {
-    public:
-        Id id;
-    };
 }
 
 

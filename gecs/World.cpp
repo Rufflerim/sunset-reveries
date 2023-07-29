@@ -4,6 +4,8 @@
 
 #include "World.hpp"
 #include "Entity.hpp"
+#include "Log.hpp"
+#include <sstream>
 
 namespace gecs {
 
@@ -94,7 +96,7 @@ namespace gecs {
 
     Id World::CreateEntity() {
         auto entity = Entity(maxId++);
-        ArchetypeRecord newEntityRecord { &archetypeRegistry[defaultArchetype], entityRegistry.size() - 1 };
+        ArchetypeRecord newEntityRecord { &archetypeRegistry[defaultArchetype], 0 /* No column */ };
         entityRegistry.insert(std::make_pair(entity.id, newEntityRecord));
         return entity.id;
     }
@@ -103,4 +105,32 @@ namespace gecs {
         return Entity(entityId);
     }
 
+    void World::LogWorld() {
+        std::stringstream stream;
+        stream << std::endl;
+        stream << Log::LogMap<gecs::Id, gecs::ArchetypeRecord>("Entities", entityRegistry,
+                                                   [&](gecs::Id id, const gecs::ArchetypeRecord& record) {
+                                                       str strId = "Entity: "+ std::to_string(id);
+                                                       str archetypeId = "Archetype: " + ArchetypeIdToString(record.archetype->archetypeId);
+                                                       str strRow = "Row: " + std::to_string(record.row);
+                                                       str strComp;
+                                                       Archetype* entityArchetype = record.archetype;
+                                                       for (IColumn& column : entityArchetype->components) {
+                                                           ComponentId componentId = column.GetComponentId();
+                                                           strComp += ComponentIdToString(componentId);
+                                                           strComp += ": ";
+                                                           strComp += LogComponent(componentId, column, record.row);
+                                                       }
+                                                       return strId + " | " + archetypeId + " | " + strRow + " | " + strComp;
+                                                   });
+
+        stream << std::endl;
+        stream << Log::LogMap<gecs::ArchetypeId, gecs::Archetype>("Archetypes", archetypeRegistry,
+                                                   [](gecs::ArchetypeId id, const gecs::Archetype& archetype) {
+                                                       str archetypeId = "Archetype: " + ArchetypeIdToString(id);
+                                                       str count = "Number of entities: " + std::to_string(archetype.GetRowCount());
+                                                       return archetypeId + " | " + count;
+                                                   });
+        LOG(LogLevel::Debug) << "WORLD STATUS" << std::endl << stream.str();
+    }
 }

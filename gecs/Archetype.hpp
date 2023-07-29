@@ -24,7 +24,7 @@ namespace gecs {
         vector<IColumn> components;
         unordered_map<ComponentId, ArchetypeChange> archetypeChanges;
 
-
+        size_t GetRowCount() const;
 
     };
 
