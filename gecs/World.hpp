@@ -67,8 +67,8 @@ namespace gecs {
             i32 checkColsSrc { 0 }; // Used to avoid empty archetype case
 
             // Insert in new archetype data from previous archetype
-            for (IColumn& dstCol : nextArchetype->components) {
-                for (IColumn& srcCol : recordToUpdate.archetype->components) {
+            for (Column& dstCol : nextArchetype->components) {
+                for (Column& srcCol : recordToUpdate.archetype->components) {
                     if (dstCol.GetComponentId() != srcCol.GetComponentId()) continue;
 
                     // Copy data in new component columns

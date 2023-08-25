@@ -21,7 +21,8 @@ namespace gecs {
     public:
         Id id;
         ArchetypeId archetypeId;
-        vector<IColumn> components;
+        char name[12];
+        vector<Column> components;
         unordered_map<ComponentId, ArchetypeChange> archetypeChanges;
 
         size_t GetRowCount() const;

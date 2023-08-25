@@ -21,6 +21,7 @@ namespace gmath {
         explicit Vec2(f32 x, i32 y);
         explicit Vec2(i32 x, f32 y);
         explicit Vec2(i32 x, i32 y);
+        str Log() const;
 
         // Arithmetic operators
 

@@ -9,12 +9,12 @@
 #include "Types.hpp"
 #include "Asserts.hpp"
 
-#include "Vec2.hpp"
+#include "Rect.hpp"
+using gmath::Rect;
 using gmath::Vec2;
 
 #include "unordered_map"
 using std::unordered_map;
-
 
 // Position
 
@@ -27,8 +27,98 @@ struct Position {
     }
 };
 
+// Velocity
+
+struct Velocity {
+    f32 x { 0.0f };
+    f32 y { 0.0f };
+
+    Vec2 Vec() const {
+        return Vec2 { x, y };
+    }
+};
+
+struct Sprite {
+    explicit Sprite(Texture textureP):
+        srcRect { 0.0f, 0.0f, static_cast<f32>(textureP.width), static_cast<f32>(textureP.height) },
+        dstSize { srcRect.width, srcRect.height },
+        texture { textureP }
+    {}
+
+    Rect srcRect;
+    Vec2 dstSize { 1.0f, 1.0f };
+    Texture texture;
+};
+
+namespace gecs {
+
+    template <class T>
+    ComponentId ToComponentId() {
+        if constexpr (std::is_same_v<T, Position>) {
+            return ComponentId::Position;
+        } else if constexpr (std::is_same_v<T, Velocity>) {
+            return ComponentId::Velocity;
+        } else if constexpr (std::is_same_v<T, Sprite>) {
+            return ComponentId::Sprite;
+        }
+    }
+
+    class Column {
+    private:
+        u32 dataSize;
+        ComponentId componentId;
+        vector<std::variant<Position, Velocity, Sprite>> data;
+
+    public:
+        template<class T>
+        void Init(size_t numberOfElements = 100) {
+            data.reserve(numberOfElements);
+            dataSize = sizeof(T);
+            componentId = ToComponentId<T>();
+        }
+
+        template<class T>
+        T& GetRow(size_t row) {
+            return std::get<T>(data[row]);
+        }
+
+        template<class T>
+        const T& GetRowConst(size_t row) const {
+            return std::get<T>(data[row]);
+        }
+
+        u32 GetDataMemorySize() const { return dataSize; }
+        size_t Count() const  { return data.size(); }
+        ComponentId GetComponentId() const { return componentId; }
+
+
+        template<class T>
+        u64 AddElement(T element) {
+            data.push_back(std::move(element));
+            return data.size() - 1;
+        };
+
+        void RemoveElement(u64 row) {
+            data.erase(data.begin() + static_cast<i64>(row));
+        };
+
+        /* Functions used for logging purpose */
+
+        const Position& GetPos(size_t row) const;
+        const Velocity& GetVelocity(size_t row) const;
+        const Sprite& GetSprite(size_t row) const;
+    };
+
+    str LogComponent(ComponentId componentId, const Column& column, size_t row);
+
+    class Entity;
+}
+
+
+
+
 /*
-class PositionColumn : public IColumn {
+class PositionColumn : public Column {
 public:
     gecs::ComponentId id { gecs::ComponentId::Position };
     vector<Position> data;
@@ -53,78 +143,6 @@ public:
 };
  */
 
-
-// Velocity
-
-struct Velocity {
-    f32 x { 0.0f };
-    f32 y { 0.0f };
-
-    Vec2 Vec() const {
-        return Vec2 { x, y };
-    }
-};
-
-namespace gecs {
-
-    template <class T>
-    ComponentId ToComponentId() {
-        if constexpr (std::is_same_v<T, Position>) {
-            return ComponentId::Position;
-        } else if constexpr (std::is_same_v<T, Velocity>) {
-            return ComponentId::Velocity;
-        }
-    }
-
-    class IColumn {
-    public:
-        template<class T>
-        void Init(size_t numberOfElements = 100) {
-            data.reserve(numberOfElements);
-            dataSize = sizeof(T);
-            componentId = ToComponentId<T>();
-        }
-
-        template<class T>
-        T& GetRow(size_t row) {
-            return std::get<T>(data[row]);
-        }
-
-        template<class T>
-        const T& GetRowConst(size_t row) const {
-            return std::get<T>(data[row]);
-        }
-
-        size_t GetDataMemorySize() const { return dataSize; }
-        size_t Count() const  { return data.size(); }
-        ComponentId GetComponentId() const { return componentId; }
-
-
-        template<class T>
-        u64 AddElement(T element) {
-            data.push_back(std::move(element));
-            return data.size() - 1;
-        };
-
-        void RemoveElement(u64 row) {
-            data.erase(data.begin() + static_cast<i64>(row));
-        };
-
-        /* Functions used for logging purpose */
-
-        const Position& GetPos(size_t row) const;
-        const Velocity& GetVelocity(size_t row) const;
-
-    private:
-        vector<std::variant<Position, Velocity>> data;
-        size_t dataSize;
-        ComponentId componentId;
-    };
-
-    str LogComponent(ComponentId componentId, const IColumn& column, size_t row);
-
-    class Entity;
-}
 
 
 #endif //GECS_COMPONENTS_HPP

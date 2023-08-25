@@ -30,7 +30,7 @@ namespace gecs {
         Archetype positionArchetype;
         positionArchetype.id = 1;
         positionArchetype.archetypeId = positionArchetypeId;
-        IColumn posArchCol;
+        Column posArchCol;
         posArchCol.Init<Position>(100);
         positionArchetype.components.push_back(std::move(posArchCol));
         archetypeRegistry.insert(std::make_pair(positionArchetypeId, std::move(positionArchetype)));
@@ -43,7 +43,7 @@ namespace gecs {
         Archetype velocityArchetype;
         velocityArchetype.id = 2;
         velocityArchetype.archetypeId = velocityArchetypeId;
-        IColumn velArchCol;
+        Column velArchCol;
         velArchCol.Init<Velocity>(100);
         velocityArchetype.components.push_back(std::move(velArchCol));
         archetypeRegistry.insert(std::make_pair(velocityArchetypeId, std::move(velocityArchetype)));
@@ -57,10 +57,10 @@ namespace gecs {
         Archetype posVelArchetype;
         posVelArchetype.id = 3;
         posVelArchetype.archetypeId = posVelArchetypeId;
-        IColumn posVelArchPosCol;
+        Column posVelArchPosCol;
         posVelArchPosCol.Init<Position>(100);
         posVelArchetype.components.push_back(std::move(posVelArchPosCol));
-        IColumn posVelArchVelCol;
+        Column posVelArchVelCol;
         posVelArchVelCol.Init<Velocity>(100);
         posVelArchetype.components.push_back(std::move(posVelArchVelCol));
         archetypeRegistry.insert(std::make_pair(posVelArchetypeId, std::move(posVelArchetype)));
@@ -69,6 +69,12 @@ namespace gecs {
         componentArchetypePosVel.insert(std::make_pair(posVelArchetypeId, 0));
         componentRegistry[ComponentId::Position].insert(std::make_pair(posVelArchetypeId, 0));
         componentRegistry[ComponentId::Velocity].insert(std::make_pair(posVelArchetypeId, 1));
+
+        // Pos Sprite Archetype
+
+
+        // Pos Vel Sprite Box Archetype
+
 
 
         // Init archetype graph
@@ -115,7 +121,7 @@ namespace gecs {
                                                        str strRow = "Row: " + std::to_string(record.row);
                                                        str strComp;
                                                        Archetype* entityArchetype = record.archetype;
-                                                       for (IColumn& column : entityArchetype->components) {
+                                                       for (Column& column : entityArchetype->components) {
                                                            ComponentId componentId = column.GetComponentId();
                                                            strComp += ComponentIdToString(componentId);
                                                            strComp += ": ";

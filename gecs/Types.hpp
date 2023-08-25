@@ -24,6 +24,7 @@ namespace gecs {
     enum class ComponentId {
         Position = 0,
         Velocity = 1,
+        Sprite = 2,
 
         Absurd = 32
     };
