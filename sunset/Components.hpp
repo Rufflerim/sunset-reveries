@@ -16,11 +16,11 @@
 #include "EntityRingBuffer.hpp"
 #include "Ray2D.hpp"
 
-class ECSManager;
-
 using gmath::Ray2D;
 using gmath::Vec2;
 using gmath::Rect;
+
+class ECSManager;
 
 enum class ComponentIndex {
     Transform2D = 0,

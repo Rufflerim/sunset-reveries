@@ -29,9 +29,9 @@ void AssetsManager::UnloadSceneTextures(i32 sceneId) {
 }
 
 void AssetsManager::LoadData() {
-    const unordered_map<str, f32> playerData { std::move(File::ReadFile(FileType::Data, "player.data")) };
+    const unordered_map<str, f32> playerData { std::move(gfile::File::ReadFile(gfile::FileType::Data, "player.data")) };
     data.insert(playerData.begin(), playerData.end());
-    const unordered_map<str, f32> physicsData { std::move(File::ReadFile(FileType::Data, "physics.data")) };
+    const unordered_map<str, f32> physicsData { std::move(gfile::File::ReadFile(gfile::FileType::Data, "physics.data")) };
     data.insert(physicsData.begin(), physicsData.end());
 }
 

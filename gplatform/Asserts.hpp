@@ -41,7 +41,7 @@
         if(expr) {                                                              \
         } else {                                                                \
             ReportAssertionFailure(#expr, message, __FILE__, __LINE__);         \
-            DebugBreakpoint();                                                       \
+            DebugBreakpoint();                                                  \
         }                                                                       \
     }
 
@@ -52,7 +52,7 @@
             if(expr) {                                                          \
             } else {                                                            \
                 ReportAssertionFailure(#expr, "", __FILE__, __LINE__);          \
-                DebugBreakpoint();                                                   \
+                DebugBreakpoint();                                              \
             }                                                                   \
         }
     #else

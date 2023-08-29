@@ -16,41 +16,38 @@ using gmath::Vec2;
 #include "unordered_map"
 using std::unordered_map;
 
-// Position
-
-struct Position {
-    f32 x { 0.0f };
-    f32 y { 0.0f };
-
-    Vec2 Vec() const {
-        return Vec2 { x, y };
-    }
-};
-
-// Velocity
-
-struct Velocity {
-    f32 x { 0.0f };
-    f32 y { 0.0f };
-
-    Vec2 Vec() const {
-        return Vec2 { x, y };
-    }
-};
-
-struct Sprite {
-    explicit Sprite(Texture textureP):
-        srcRect { 0.0f, 0.0f, static_cast<f32>(textureP.width), static_cast<f32>(textureP.height) },
-        dstSize { srcRect.width, srcRect.height },
-        texture { textureP }
-    {}
-
-    Rect srcRect;
-    Vec2 dstSize { 1.0f, 1.0f };
-    Texture texture;
-};
-
 namespace gecs {
+
+    struct Position {
+        f32 x { 0.0f };
+        f32 y { 0.0f };
+
+        Vec2 Vec() const {
+            return Vec2 { x, y };
+        }
+    };
+
+    struct Velocity {
+        f32 x { 0.0f };
+        f32 y { 0.0f };
+
+        Vec2 Vec() const {
+            return Vec2 { x, y };
+        }
+    };
+
+    struct Sprite {
+        explicit Sprite(Texture textureP):
+            srcRect { 0.0f, 0.0f, static_cast<f32>(textureP.width), static_cast<f32>(textureP.height) },
+            dstSize { srcRect.width, srcRect.height },
+            texture { textureP }
+        {}
+
+        Rect srcRect;
+        Vec2 dstSize { 1.0f, 1.0f };
+        Texture texture;
+    };
+
 
     template <class T>
     ComponentId ToComponentId() {

@@ -7,16 +7,14 @@
 
 #include "Defines.hpp"
 
-enum class FileType {
-    Data = 0
-};
+namespace gfile {
 
-str FileTypePath(FileType fileType) {
-    switch (fileType) {
-        case FileType::Data: {
-            return "assets/data/";
-        }
-    }
+    enum class FileType {
+        Data = 0
+    };
+
+    str FileTypePath(FileType fileType);
+
 }
 
 #endif //GFILE_FILETYPES_HPP

@@ -7,7 +7,6 @@
 
 #include "IScene.hpp"
 #include "raylib.h"
-#include "ECSManager.hpp"
 #include "WorldStateManager.hpp"
 #include "Game.hpp"
 #include "EntityRingBuffer.hpp"

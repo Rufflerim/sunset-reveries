@@ -12,6 +12,7 @@
 #include "WorldState.hpp"
 
 #include <variant>
+#include <algorithm>
 
 class Vec2;
 

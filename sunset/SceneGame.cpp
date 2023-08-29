@@ -9,6 +9,9 @@
 #include "../gecs/World.hpp"
 #include "../gecs/Entity.hpp"
 
+using gecs::Position;
+using gecs::Velocity;
+
 SceneGame::SceneGame(sptr<ECSManager> ecsRef,
                      Game& game)
 : ecs {std::move( ecsRef )}, game { game },

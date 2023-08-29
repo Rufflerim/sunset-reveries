@@ -11,13 +11,15 @@
 #include <unordered_map>
 using std::unordered_map;
 
-class File {
-public:
-    static unordered_map<str, f32> ReadFile(FileType fileType, const str &filename);
+namespace gfile {
 
-private:
-    stat
-};
+    class File {
+    public:
+        static unordered_map<str, f32> ReadFile(FileType fileType, const str& filename);
+
+    };
+
+}
 
 
 #endif //GFILE_FILE_HPP

@@ -34,6 +34,7 @@ namespace gecs {
                 return "{ src: " + sprite.srcRect.Log() + ", dst: " + sprite.dstSize.Log() + " } ";
             }
             case ComponentId::Absurd:
+            default:
                 return "";
         }
     }
