@@ -12,12 +12,27 @@ namespace gecs {
     void World::Init() {
         // Init archetype ids with bits
         ArchetypeId emptyArchetypeId;
+
         ArchetypeId positionArchetypeId;
         positionArchetypeId.flip(0);
+
         ArchetypeId velocityArchetypeId;
         velocityArchetypeId.flip(1);
+
+        ArchetypeId spriteArchetypeId;
+        spriteArchetypeId.flip(2);
+
         ArchetypeId posVelArchetypeId;
         posVelArchetypeId.flip(0).flip(1);
+
+        ArchetypeId posSprArchetypeId;
+        posSprArchetypeId.flip(0).flip(2);
+
+        ArchetypeId velSprArchetypeId;
+        velSprArchetypeId.flip(1).flip(2);
+
+        ArchetypeId posVelSprArchetypeId;
+        posVelSprArchetypeId.flip(0).flip(1).flip(2);
 
         // Init archetypes
         Archetype emptyArchetype;
@@ -35,9 +50,7 @@ namespace gecs {
         positionArchetype.components.push_back(std::move(posArchCol));
         archetypeRegistry.insert(std::make_pair(positionArchetypeId, std::move(positionArchetype)));
 
-        ComponentArchetypes componentArchetypePos;
-        componentArchetypePos.insert(std::make_pair(positionArchetypeId, 0));
-        componentRegistry.insert(std::make_pair(ComponentId::Position, componentArchetypePos));
+        componentRegistry[ComponentId::Position].insert(std::make_pair(positionArchetypeId, 0));
 
         // Velocity archetype
         Archetype velocityArchetype;
@@ -48,14 +61,23 @@ namespace gecs {
         velocityArchetype.components.push_back(std::move(velArchCol));
         archetypeRegistry.insert(std::make_pair(velocityArchetypeId, std::move(velocityArchetype)));
 
-        ComponentArchetypes componentArchetypeVel;
-        componentArchetypeVel.insert(std::make_pair(velocityArchetypeId, 0));
-        componentRegistry.insert(std::make_pair(ComponentId::Velocity, componentArchetypeVel));
+        componentRegistry[ComponentId::Velocity].insert(std::make_pair(velocityArchetypeId, 0));
+
+        // Sprite archetype
+        Archetype spriteArchetype;
+        spriteArchetype.id = 3;
+        spriteArchetype.archetypeId = spriteArchetypeId;
+        Column sprArchCol;
+        sprArchCol.Init<Sprite>(100);
+        spriteArchetype.components.push_back(std::move(sprArchCol));
+        archetypeRegistry.insert(std::make_pair(spriteArchetypeId, std::move(spriteArchetype)));
+
+        componentRegistry[ComponentId::Sprite].insert(std::make_pair(spriteArchetypeId, 0));
 
 
         // Pos Vel Archetype
         Archetype posVelArchetype;
-        posVelArchetype.id = 3;
+        posVelArchetype.id = 4;
         posVelArchetype.archetypeId = posVelArchetypeId;
         Column posVelArchPosCol;
         posVelArchPosCol.Init<Position>(100);
@@ -65,16 +87,57 @@ namespace gecs {
         posVelArchetype.components.push_back(std::move(posVelArchVelCol));
         archetypeRegistry.insert(std::make_pair(posVelArchetypeId, std::move(posVelArchetype)));
 
-        ComponentArchetypes componentArchetypePosVel;
-        componentArchetypePosVel.insert(std::make_pair(posVelArchetypeId, 0));
         componentRegistry[ComponentId::Position].insert(std::make_pair(posVelArchetypeId, 0));
         componentRegistry[ComponentId::Velocity].insert(std::make_pair(posVelArchetypeId, 1));
 
         // Pos Sprite Archetype
+        Archetype posSprArchetype;
+        posSprArchetype.id = 5;
+        posSprArchetype.archetypeId = posSprArchetypeId;
+        Column posSprArchPosCol;
+        posSprArchPosCol.Init<Position>(100);
+        posSprArchetype.components.push_back(std::move(posSprArchPosCol));
+        Column posSprArchSprCol;
+        posSprArchSprCol.Init<Sprite>(100);
+        posSprArchetype.components.push_back(std::move(posSprArchSprCol));
+        archetypeRegistry.insert(std::make_pair(posSprArchetypeId, std::move(posSprArchetype)));
 
+        componentRegistry[ComponentId::Position].insert(std::make_pair(posSprArchetypeId, 0));
+        componentRegistry[ComponentId::Sprite].insert(std::make_pair(posSprArchetypeId, 1));
 
-        // Pos Vel Sprite Box Archetype
+        // Vel Sprite Archetype
+        Archetype velSprArchetype;
+        velSprArchetype.id = 6;
+        velSprArchetype.archetypeId = velSprArchetypeId;
+        Column velSprArchVelCol;
+        velSprArchVelCol.Init<Position>(100);
+        velSprArchetype.components.push_back(std::move(velSprArchVelCol));
+        Column velSprArchSprCol;
+        velSprArchSprCol.Init<Sprite>(100);
+        velSprArchetype.components.push_back(std::move(velSprArchSprCol));
+        archetypeRegistry.insert(std::make_pair(velSprArchetypeId, std::move(velSprArchetype)));
 
+        componentRegistry[ComponentId::Velocity].insert(std::make_pair(velSprArchetypeId, 0));
+        componentRegistry[ComponentId::Sprite].insert(std::make_pair(velSprArchetypeId, 1));
+
+        // Pos Vel Sprite Archetype
+        Archetype posVelSprArchetype;
+        posVelSprArchetype.id = 7;
+        posVelSprArchetype.archetypeId = posVelSprArchetypeId;
+        Column posVelSprArchPosCol;
+        posVelSprArchPosCol.Init<Position>(100);
+        posVelSprArchetype.components.push_back(std::move(posVelSprArchPosCol));
+        Column posVelSprArchVelCol;
+        posVelSprArchVelCol.Init<Velocity>(100);
+        posVelSprArchetype.components.push_back(std::move(posVelSprArchVelCol));
+        Column posVelSprArchSprCol;
+        posVelSprArchSprCol.Init<Sprite>(100);
+        posVelSprArchetype.components.push_back(std::move(posVelSprArchSprCol));
+        archetypeRegistry.insert(std::make_pair(posVelSprArchetypeId, std::move(posVelSprArchetype)));
+
+        componentRegistry[ComponentId::Position].insert(std::make_pair(posVelSprArchetypeId, 0));
+        componentRegistry[ComponentId::Velocity].insert(std::make_pair(posVelSprArchetypeId, 1));
+        componentRegistry[ComponentId::Sprite].insert(std::make_pair(posVelSprArchetypeId, 2));
 
 
         // Init archetype graph
@@ -83,21 +146,57 @@ namespace gecs {
         archetypeRegistry[emptyArchetypeId].archetypeChanges[ComponentId::Position].remove = nullptr;
         archetypeRegistry[emptyArchetypeId].archetypeChanges[ComponentId::Velocity].add = &archetypeRegistry[velocityArchetypeId];
         archetypeRegistry[emptyArchetypeId].archetypeChanges[ComponentId::Velocity].remove = nullptr;
+        archetypeRegistry[emptyArchetypeId].archetypeChanges[ComponentId::Sprite].add = &archetypeRegistry[spriteArchetypeId];
+        archetypeRegistry[emptyArchetypeId].archetypeChanges[ComponentId::Sprite].remove = nullptr;
         // -- Position
         archetypeRegistry[positionArchetypeId].archetypeChanges[ComponentId::Position].add = &archetypeRegistry[positionArchetypeId];
-        archetypeRegistry[positionArchetypeId].archetypeChanges[ComponentId::Position].remove = &archetypeRegistry[emptyArchetypeId];
+        archetypeRegistry[positionArchetypeId].archetypeChanges[ComponentId::Position].remove = &archetypeRegistry[emptyArchetypeId];;
         archetypeRegistry[positionArchetypeId].archetypeChanges[ComponentId::Velocity].add = &archetypeRegistry[posVelArchetypeId];
         archetypeRegistry[positionArchetypeId].archetypeChanges[ComponentId::Velocity].remove = nullptr;
+        archetypeRegistry[positionArchetypeId].archetypeChanges[ComponentId::Sprite].add = &archetypeRegistry[posSprArchetypeId];
+        archetypeRegistry[positionArchetypeId].archetypeChanges[ComponentId::Sprite].remove = nullptr;
         // -- Velocity
         archetypeRegistry[velocityArchetypeId].archetypeChanges[ComponentId::Position].add = &archetypeRegistry[posVelArchetypeId];
         archetypeRegistry[velocityArchetypeId].archetypeChanges[ComponentId::Position].remove = nullptr;
         archetypeRegistry[velocityArchetypeId].archetypeChanges[ComponentId::Velocity].add = &archetypeRegistry[velocityArchetypeId];
         archetypeRegistry[velocityArchetypeId].archetypeChanges[ComponentId::Velocity].remove = &archetypeRegistry[emptyArchetypeId];
+        archetypeRegistry[velocityArchetypeId].archetypeChanges[ComponentId::Sprite].add = &archetypeRegistry[velSprArchetypeId];
+        archetypeRegistry[velocityArchetypeId].archetypeChanges[ComponentId::Sprite].remove = nullptr;
+        // -- Sprite
+        archetypeRegistry[spriteArchetypeId].archetypeChanges[ComponentId::Position].add = &archetypeRegistry[posSprArchetypeId];
+        archetypeRegistry[spriteArchetypeId].archetypeChanges[ComponentId::Position].remove = nullptr;
+        archetypeRegistry[spriteArchetypeId].archetypeChanges[ComponentId::Velocity].add = &archetypeRegistry[velSprArchetypeId];
+        archetypeRegistry[spriteArchetypeId].archetypeChanges[ComponentId::Velocity].remove = nullptr;
+        archetypeRegistry[spriteArchetypeId].archetypeChanges[ComponentId::Sprite].add = &archetypeRegistry[spriteArchetypeId];
+        archetypeRegistry[spriteArchetypeId].archetypeChanges[ComponentId::Sprite].remove = &archetypeRegistry[emptyArchetypeId];
         // -- Position and Velocity
         archetypeRegistry[posVelArchetypeId].archetypeChanges[ComponentId::Position].add = &archetypeRegistry[posVelArchetypeId];
         archetypeRegistry[posVelArchetypeId].archetypeChanges[ComponentId::Position].remove = &archetypeRegistry[velocityArchetypeId];
         archetypeRegistry[posVelArchetypeId].archetypeChanges[ComponentId::Velocity].add = &archetypeRegistry[posVelArchetypeId];
         archetypeRegistry[posVelArchetypeId].archetypeChanges[ComponentId::Velocity].remove = &archetypeRegistry[positionArchetypeId];
+        archetypeRegistry[posVelArchetypeId].archetypeChanges[ComponentId::Sprite].add = &archetypeRegistry[posVelSprArchetypeId];
+        archetypeRegistry[posVelArchetypeId].archetypeChanges[ComponentId::Sprite].remove = &archetypeRegistry[posVelArchetypeId];
+        // -- Position and Sprite
+        archetypeRegistry[posSprArchetypeId].archetypeChanges[ComponentId::Position].add = &archetypeRegistry[posSprArchetypeId];
+        archetypeRegistry[posSprArchetypeId].archetypeChanges[ComponentId::Position].remove = &archetypeRegistry[spriteArchetypeId];
+        archetypeRegistry[posSprArchetypeId].archetypeChanges[ComponentId::Velocity].add = &archetypeRegistry[posVelSprArchetypeId];
+        archetypeRegistry[posSprArchetypeId].archetypeChanges[ComponentId::Velocity].remove = &archetypeRegistry[posSprArchetypeId];
+        archetypeRegistry[posSprArchetypeId].archetypeChanges[ComponentId::Sprite].add = &archetypeRegistry[posSprArchetypeId];
+        archetypeRegistry[posSprArchetypeId].archetypeChanges[ComponentId::Sprite].remove = &archetypeRegistry[positionArchetypeId];
+        // -- Velocity and Sprite
+        archetypeRegistry[velSprArchetypeId].archetypeChanges[ComponentId::Position].add = &archetypeRegistry[posVelSprArchetypeId];
+        archetypeRegistry[velSprArchetypeId].archetypeChanges[ComponentId::Position].remove = &archetypeRegistry[velSprArchetypeId];
+        archetypeRegistry[velSprArchetypeId].archetypeChanges[ComponentId::Velocity].add = &archetypeRegistry[velSprArchetypeId];
+        archetypeRegistry[velSprArchetypeId].archetypeChanges[ComponentId::Velocity].remove = &archetypeRegistry[spriteArchetypeId];
+        archetypeRegistry[velSprArchetypeId].archetypeChanges[ComponentId::Sprite].add = &archetypeRegistry[velSprArchetypeId];
+        archetypeRegistry[velSprArchetypeId].archetypeChanges[ComponentId::Sprite].remove = &archetypeRegistry[velocityArchetypeId];
+        // -- Position, Velocity and Sprite
+        archetypeRegistry[posVelSprArchetypeId].archetypeChanges[ComponentId::Position].add = &archetypeRegistry[posVelSprArchetypeId];
+        archetypeRegistry[posVelSprArchetypeId].archetypeChanges[ComponentId::Position].remove = &archetypeRegistry[velSprArchetypeId];
+        archetypeRegistry[posVelSprArchetypeId].archetypeChanges[ComponentId::Velocity].add = &archetypeRegistry[posVelSprArchetypeId];
+        archetypeRegistry[posVelSprArchetypeId].archetypeChanges[ComponentId::Velocity].remove = &archetypeRegistry[posSprArchetypeId];
+        archetypeRegistry[posVelSprArchetypeId].archetypeChanges[ComponentId::Sprite].add = &archetypeRegistry[posVelSprArchetypeId];
+        archetypeRegistry[posVelSprArchetypeId].archetypeChanges[ComponentId::Sprite].remove = &archetypeRegistry[posVelArchetypeId];
     }
 
     Id World::CreateEntity() {

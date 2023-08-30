@@ -17,6 +17,9 @@ namespace gecs {
             case ComponentId::Velocity: {
                 return "Vel";
             }
+            case ComponentId::Sprite: {
+                return "Spr";
+            }
             default: {
                 return "ABSURD";
             }
@@ -27,6 +30,7 @@ namespace gecs {
         switch (index) {
             case 0: return ComponentId::Position;
             case 1: return ComponentId::Velocity;
+            case 2: return ComponentId::Sprite;
             default: return ComponentId::Absurd;
         }
     }
