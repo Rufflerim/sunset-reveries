@@ -36,11 +36,15 @@ void SceneGame::Load() {
     world.Init();
     testEntityId = world.CreateEntity();
     gecs::Entity entity = world.GetEntity(testEntityId);
-    world.LogWorld();
 
 
     Position pos {2, 5};
     entity.AddComponent<Position>(pos);
+    Velocity vel {1, 0};
+    entity.AddComponent<Velocity>(vel);
+    gecs::Sprite sprite { AssetsManager::GetTexture("player") };
+    entity.AddComponent<gecs::Sprite>(sprite);
+
     world.LogWorld();
 
 
