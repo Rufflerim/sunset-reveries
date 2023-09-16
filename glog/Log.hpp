@@ -2,8 +2,8 @@
 // Created by gaetz on 05/11/2022.
 //
 
-#ifndef GAEMI_LOG_HPP
-#define GAEMI_LOG_HPP
+#ifndef GLOG_LOG_HPP
+#define GLOG_LOG_HPP
 
 #include "Defines.hpp"
 #include <sstream>
@@ -58,4 +58,4 @@ private:
         Log().Get(level)
 
 
-#endif //GAEMI_LOG_HPP
+#endif //GLOG_LOG_HPP

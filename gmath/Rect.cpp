@@ -21,7 +21,7 @@ namespace gmath {
 
     str Rect::Log() const {
         return "{ x: " + std::to_string(x) + ", y:" + std::to_string(y) +
-                "width: " + std::to_string(width) + ", height:" + std::to_string(height) + " } ";
+                ", width: " + std::to_string(width) + ", height:" + std::to_string(height) + " } ";
     }
 
     Rectangle Rect::ToRaylib() const {

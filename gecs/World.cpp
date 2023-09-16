@@ -295,4 +295,13 @@ namespace gecs {
                                                    });
         LOG(LogLevel::Debug) << "WORLD STATUS" << std::endl << stream.str();
     }
+
+    Archetype* World::GetArchetype(const str& archetypeName) {
+        for (auto& a : archetypeRegistry) {
+            if (a.second.name == archetypeName) {
+                return &a.second;
+            }
+        }
+        return nullptr;
+    }
 }

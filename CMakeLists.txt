@@ -88,9 +88,10 @@ add_subdirectory( gplatform )
 add_subdirectory( glog )
 add_subdirectory( gfile )
 add_subdirectory( gmath )
-add_subdirectory( gaemi )
 add_subdirectory( gecs )
-add_subdirectory( sunset )
+add_subdirectory( gcausality )
+add_subdirectory( gaemi )
+add_subdirectory( testbed )
 
 
 

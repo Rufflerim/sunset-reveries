@@ -43,6 +43,8 @@ namespace gecs {
 
         Entity GetEntity(Id entityId);
 
+        Archetype* GetArchetype(const str& archetypeName);
+
         void LogWorld();
 
     private:
