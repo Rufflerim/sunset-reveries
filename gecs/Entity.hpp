@@ -35,7 +35,7 @@ namespace gecs {
             }
             // Move previous archetype data in new archetype
             if (recordToUpdate.archetype->archetypeId != 0) {
-                world.MoveEntity<T>(recordToUpdate, recordToUpdate.row, nextArchetype);
+                world.MoveEntity(recordToUpdate, recordToUpdate.row, nextArchetype);
             }
 
             // Update entity's row
@@ -50,7 +50,7 @@ namespace gecs {
             ArchetypeRecord& recordToUpdate = world.GetEntities()[id];
             Archetype* nextArchetype = recordToUpdate.archetype->archetypeChanges[component].remove;
             // Move previous archetype data in new archetype
-            u64 newRow = world.MoveEntity<T>(recordToUpdate, recordToUpdate.row, nextArchetype);
+            u64 newRow = world.MoveEntity(recordToUpdate, recordToUpdate.row, nextArchetype);
             // Update entity's row
             recordToUpdate.archetype = nextArchetype;
             recordToUpdate.row = newRow;

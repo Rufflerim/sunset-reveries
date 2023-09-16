@@ -8,6 +8,7 @@
 #include <variant>
 #include "Types.hpp"
 #include "Asserts.hpp"
+#include "Log.hpp"
 
 #include "Rect.hpp"
 using gmath::Rect;

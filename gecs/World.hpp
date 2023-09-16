@@ -32,12 +32,17 @@ namespace gecs {
 
     public:
         unordered_map<Id, ArchetypeRecord>& GetEntities() { return entityRegistry; }
+
         unordered_map<ArchetypeId, Archetype>& GetArchetypes() { return archetypeRegistry; }
+
         unordered_map<ComponentId, ComponentArchetypes>& GetComponents() { return componentRegistry; }
 
         void Init();
+
         Id CreateEntity();
+
         Entity GetEntity(Id entityId);
+
         void LogWorld();
 
     private:
@@ -59,53 +64,20 @@ namespace gecs {
             return archetype->components[componentColumn].GetRow<T>(record.row);
         }
 
-        template <class T>
-        u64 MoveEntity(const ArchetypeRecord& recordToUpdate, size_t row, Archetype* nextArchetype) {
-            u64 checkRow = std::numeric_limits<uint64_t>::max();
-            u64 newRow = std::numeric_limits<uint64_t>::max();
-            i32 checkColsDst { 0 }; // Used to avoid empty archetype case
-            i32 checkColsSrc { 0 }; // Used to avoid empty archetype case
-
-            // Insert in new archetype data from previous archetype
-            for (Column& dstCol : nextArchetype->components) {
-                for (Column& srcCol : recordToUpdate.archetype->components) {
-                    if (dstCol.GetComponentId() != srcCol.GetComponentId()) continue;
-
-                    // Copy data in new component columns
-                    auto component = srcCol.GetRow<T>(row);
-                    newRow = dstCol.AddElement<T>(component);
-                    // Check row is the same for each column
-                    if (checkRow != std::numeric_limits<uint64_t>::max()) {
-                        GASSERT_MSG(checkRow == newRow, "Row must be the same in all archetype columns");
-                    }
-                    checkRow = newRow;
-
-                    /*
-                    void* data = srcCol.GetDataRow(row);
-                    newRow = dstCol.AddElement(data, srcCol.GetDataMemorySize());
-                    */
-
-                    // Remove previous data from archetype, after saving data
-                    srcCol.RemoveElement(row);
-
-                    ++checkColsSrc;
-                }
-                ++checkColsDst;
-            }
-            GASSERT_MSG(newRow != std::numeric_limits<uint64_t>::max() && checkColsDst > 0 && checkColsSrc > 0, "Row should exist");
-            return newRow;
-        }
+        u64 MoveEntity(const ArchetypeRecord& recordToUpdate, size_t row, Archetype* nextArchetype);
 
         // Singleton
     private:
         World() = default;
+
     public:
         static World& Instance() {
             static World instance;
             return instance;
         }
 
-        World(World const&)          = delete;
+        World(World const&) = delete;
+
         void operator=(World const&) = delete;
     };
 

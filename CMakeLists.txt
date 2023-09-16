@@ -85,6 +85,7 @@ endif()
 
 # Add code.
 add_subdirectory( gplatform )
+add_subdirectory( glog )
 add_subdirectory( gfile )
 add_subdirectory( gmath )
 add_subdirectory( gaemi )

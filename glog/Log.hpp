@@ -6,7 +6,6 @@
 #define GAEMI_LOG_HPP
 
 #include "Defines.hpp"
-#include "raylib.h"
 #include <sstream>
 #include <fstream>
 #include "LogLevel.hpp"

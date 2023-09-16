@@ -39,9 +39,9 @@ void SceneGame::Load() {
 
 
     Position pos {2, 5};
-    entity.AddComponent<Position>(pos);
+    entity.AddComponent<gecs::Position>(pos);
     Velocity vel {1, 0};
-    entity.AddComponent<Velocity>(vel);
+    entity.AddComponent<gecs::Velocity>(vel);
     gecs::Sprite sprite { AssetsManager::GetTexture("player") };
     entity.AddComponent<gecs::Sprite>(sprite);
 

@@ -38,6 +38,7 @@ namespace gecs {
         Archetype emptyArchetype;
         emptyArchetype.id = 0;
         emptyArchetype.archetypeId = emptyArchetypeId;
+        strcpy_s(emptyArchetype.name, 6, "Empty");
         archetypeRegistry.insert(std::make_pair(emptyArchetypeId, std::move(emptyArchetype)));
         defaultArchetype = emptyArchetypeId;
 
@@ -45,6 +46,7 @@ namespace gecs {
         Archetype positionArchetype;
         positionArchetype.id = 1;
         positionArchetype.archetypeId = positionArchetypeId;
+        strcpy_s(positionArchetype.name, 4, "Pos");
         Column posArchCol;
         posArchCol.Init<Position>(100);
         positionArchetype.components.push_back(std::move(posArchCol));
@@ -56,6 +58,7 @@ namespace gecs {
         Archetype velocityArchetype;
         velocityArchetype.id = 2;
         velocityArchetype.archetypeId = velocityArchetypeId;
+        strcpy_s(velocityArchetype.name, 4, "Vel");
         Column velArchCol;
         velArchCol.Init<Velocity>(100);
         velocityArchetype.components.push_back(std::move(velArchCol));
@@ -67,6 +70,7 @@ namespace gecs {
         Archetype spriteArchetype;
         spriteArchetype.id = 3;
         spriteArchetype.archetypeId = spriteArchetypeId;
+        strcpy_s(spriteArchetype.name, 11, "Background");
         Column sprArchCol;
         sprArchCol.Init<Sprite>(100);
         spriteArchetype.components.push_back(std::move(sprArchCol));
@@ -79,6 +83,7 @@ namespace gecs {
         Archetype posVelArchetype;
         posVelArchetype.id = 4;
         posVelArchetype.archetypeId = posVelArchetypeId;
+        strcpy_s(posVelArchetype.name, 7, "PosVel");
         Column posVelArchPosCol;
         posVelArchPosCol.Init<Position>(100);
         posVelArchetype.components.push_back(std::move(posVelArchPosCol));
@@ -94,6 +99,7 @@ namespace gecs {
         Archetype posSprArchetype;
         posSprArchetype.id = 5;
         posSprArchetype.archetypeId = posSprArchetypeId;
+        strcpy_s(posSprArchetype.name, 10, "FixSprite");
         Column posSprArchPosCol;
         posSprArchPosCol.Init<Position>(100);
         posSprArchetype.components.push_back(std::move(posSprArchPosCol));
@@ -109,6 +115,7 @@ namespace gecs {
         Archetype velSprArchetype;
         velSprArchetype.id = 6;
         velSprArchetype.archetypeId = velSprArchetypeId;
+        strcpy_s(velSprArchetype.name, 7, "VelSpr");
         Column velSprArchVelCol;
         velSprArchVelCol.Init<Position>(100);
         velSprArchetype.components.push_back(std::move(velSprArchVelCol));
@@ -124,6 +131,7 @@ namespace gecs {
         Archetype posVelSprArchetype;
         posVelSprArchetype.id = 7;
         posVelSprArchetype.archetypeId = posVelSprArchetypeId;
+        strcpy_s(posVelSprArchetype.name, 7, "Sprite");
         Column posVelSprArchPosCol;
         posVelSprArchPosCol.Init<Position>(100);
         posVelSprArchetype.components.push_back(std::move(posVelSprArchPosCol));
@@ -208,6 +216,55 @@ namespace gecs {
 
     Entity World::GetEntity(Id entityId) {
         return Entity(entityId);
+    }
+
+    u64 World::MoveEntity(const ArchetypeRecord& recordToUpdate, size_t row, Archetype* nextArchetype) {
+        u64 checkRow = std::numeric_limits<uint64_t>::max();
+        u64 newRow = std::numeric_limits<uint64_t>::max();
+        i32 checkColsDst { 0 }; // Used to avoid empty archetype case
+        i32 checkColsSrc { 0 }; // Used to avoid empty archetype case
+
+        // Insert in new archetype data from previous archetype
+        for (Column& dstCol: nextArchetype->components) {
+            for (Column& srcCol: recordToUpdate.archetype->components) {
+                if (dstCol.GetComponentId() != srcCol.GetComponentId()) continue;
+
+                // Copy data in new component columns
+                switch (dstCol.GetComponentId()) {
+                    case ComponentId::Position: {
+                        auto component = srcCol.GetRow<Position>(row);
+                        newRow = dstCol.AddElement<Position>(component);
+                    }
+                        break;
+                    case ComponentId::Velocity: {
+                        auto component = srcCol.GetRow<Velocity>(row);
+                        newRow = dstCol.AddElement<Velocity>(component);
+                    }
+                        break;
+                    case ComponentId::Sprite: {
+                        auto component = srcCol.GetRow<Sprite>(row);
+                        newRow = dstCol.AddElement<Sprite>(component);
+                    }
+                        break;
+                    case ComponentId::Absurd:
+                        break;
+                }
+
+                // Check row is the same for each column
+                if (checkRow != std::numeric_limits<uint64_t>::max()) {
+                    GASSERT_MSG(checkRow == newRow, "Row must be the same in all archetype columns");
+                }
+                checkRow = newRow;
+
+                // Remove previous data from archetype, after saving data
+                srcCol.RemoveElement(row);
+                ++checkColsSrc;
+            }
+            ++checkColsDst;
+        }
+        GASSERT_MSG(newRow != std::numeric_limits<uint64_t>::max() && checkColsDst > 0 && checkColsSrc > 0,
+                    "Row should exist");
+        return newRow;
     }
 
     void World::LogWorld() {
