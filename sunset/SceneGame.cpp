@@ -38,15 +38,16 @@ void SceneGame::Load() {
     gecs::Entity entity = world.GetEntity(testEntityId);
 
 
-    Position pos {2, 5};
+    Position pos {200, 500};
     entity.AddComponent<gecs::Position>(pos);
-    Velocity vel {1, 0};
+    Velocity vel {0, 0};
     entity.AddComponent<gecs::Velocity>(vel);
     gecs::Sprite sprite { AssetsManager::GetTexture("player") };
     entity.AddComponent<gecs::Sprite>(sprite);
 
     world.LogWorld();
 
+    /*
 
     // Player
     playerId = ecs->CreateEntity();
@@ -77,6 +78,7 @@ void SceneGame::Load() {
                                    { 0, 0, 1280.0f, 120.0f},
                                    false, false);
 
+     */
     /*
     auto platform1Id = ecs->CreateEntity();
     ecs->CreateTransform2DComponent(platform1Id);
@@ -108,6 +110,8 @@ void SceneGame::Update(f32 dt) {
 
 
 
+    /*
+
     switch (timeStatus) {
         case TimeStatus::Normal:
             UpdateNormal(dt);
@@ -122,6 +126,8 @@ void SceneGame::Update(f32 dt) {
             UpdateForward(dt);
             break;
     }
+
+    */
 }
 
 void SceneGame::UpdateNormal(f32 dt) {
@@ -216,6 +222,13 @@ void SceneGame::UpdateForward(f32 dt) {
 
 void SceneGame::Draw() {
     render::DrawTexture(backgroundTexture, 0, 120, WHITE);
+
+    gecs::World& world = gecs::World::Instance();
+    gecs::Entity entity = world.GetEntity(testEntityId);
+    auto& pos = entity.GetComponent<gecs::Position>();
+    auto& spr = entity.GetComponent<gecs::Sprite>();
+    render::DrawTexture(spr.texture, pos.x, pos.y, WHITE);
+
     DrawInterface();
 }
 
