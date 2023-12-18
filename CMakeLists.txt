@@ -125,10 +125,10 @@ add_custom_command(
 )
 
 # Web Configurations
-if (${PLATFORM} STREQUAL "Web")
+#if (${PLATFORM} STREQUAL "Web")
     # Tell Emscripten to build an example.html file.
-    set_target_properties(${PROJECT_NAME} PROPERTIES SUFFIX ".html")
-endif()
+#    set_target_properties(${PROJECT_NAME} PROPERTIES SUFFIX ".html")
+#endif()
 
 # Checks if OSX and links appropriate frameworks (Only required on MacOS)
 if (APPLE)

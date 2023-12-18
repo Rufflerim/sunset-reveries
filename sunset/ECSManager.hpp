@@ -14,8 +14,6 @@
 #include <variant>
 #include <algorithm>
 
-class Vec2;
-
 class ECSManager {
 public:
     ECSManager();
