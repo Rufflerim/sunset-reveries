@@ -12,6 +12,11 @@
 
 class Game : public IGame {
 public:
+    Game() = default;
+    ~Game() override = default;
+    Game(Game&) = delete;
+    Game& operator=(Game&) = delete;
+
     void Load() override;
     void Update(f32 dt) override;
     void Draw() override;

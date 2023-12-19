@@ -52,7 +52,7 @@ private:
 #endif
 
 #define LOG(level)                                  \
-    if (static_cast<i32>(level) > MAX_LOG_LEVEL)    \
+    if constexpr (static_cast<i32>(level) > MAX_LOG_LEVEL)    \
         ;                                           \
     else                                            \
         Log().Get(level)

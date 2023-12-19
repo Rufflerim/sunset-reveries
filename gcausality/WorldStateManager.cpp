@@ -6,10 +6,10 @@
 
 namespace gcausality {
 
-    void WorldStateManager::Store(gcausality::WorldState worldState) {
+    void WorldStateManager::Store(gcausality::WorldState worldStateCopy) {
         currentFrame = states.size();
-        worldState.currentFrame = currentFrame;
+        worldStateCopy.currentFrame = currentFrame;
         //ecs->SetWorldState(newState);
-        states.push_back(std::move(worldState));
+        states.push_back(std::move(worldStateCopy));
     }
 }

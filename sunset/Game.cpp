@@ -16,6 +16,8 @@ void Game::Load() {
 }
 
 void Game::Update(f32 dt) {
+
+    /// TODO Causality: we could have a scene calling automatically named laws. A scene could register specific laws and call predefined ones.
     for (auto&& scene : std::ranges::reverse_view(sceneStack)) {
         scene->Update(dt);
         if (scene->GetLocking()) break;

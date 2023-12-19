@@ -18,6 +18,11 @@ namespace gcausality {
         void AddLaw(const str& archetypeName, i32 order);
         WorldState Tick(f32 dt);
 
+        static Causality& Instance() {
+            static Causality instance;
+            return instance;
+        }
+
     private:
         vector<Law> laws;
         WorldStateManager stateManager;
