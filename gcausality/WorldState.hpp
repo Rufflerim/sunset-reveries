@@ -7,6 +7,7 @@
 
 #include "Types.hpp"
 #include "Components.hpp"
+#include "StringUtils.hpp"
 
 using gecs::Id;
 using gecs::ArchetypeId;
@@ -24,7 +25,7 @@ namespace gcausality {
             ArchetypeData& operator= (const ArchetypeData& newArchetypeData) {
                 id = newArchetypeData.id;
                 archetypeId = newArchetypeData.archetypeId;
-                strcpy_s(name, strlen(newArchetypeData.name), newArchetypeData.name);
+                gplatform::StrCpy(name, strlen(newArchetypeData.name), newArchetypeData.name);
                 components = newArchetypeData.components;
                 return *this;
             }

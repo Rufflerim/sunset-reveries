@@ -3,7 +3,6 @@
 //
 
 #include "Components.hpp"
-#include "Entity.hpp"
 
 namespace gecs {
 
@@ -33,9 +32,6 @@ namespace gecs {
                 auto& sprite = column.GetSprite(row);
                 return "{ src: " + sprite.srcRect.Log() + ", dst: " + sprite.dstSize.Log() + " } ";
             }
-            case ComponentId::Absurd:
-            default:
-                return "";
         }
     }
 }

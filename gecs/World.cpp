@@ -247,8 +247,6 @@ namespace gecs {
                         newRow = dstCol.AddElement<Sprite>(component);
                     }
                         break;
-                    case ComponentId::Absurd:
-                        break;
                 }
 
                 // Check row is the same for each column

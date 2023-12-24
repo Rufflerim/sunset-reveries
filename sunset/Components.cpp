@@ -2,6 +2,8 @@
 // Created by gaetz on 19/03/23.
 //
 
+/*
+
 #include "Components.hpp"
 
 #include <utility>
@@ -150,3 +152,5 @@ void Weapon::ShootOnce() const {
 
     projectileBuffer->CreateProjectile(entityId, radianShootAngle);
 }
+
+ */

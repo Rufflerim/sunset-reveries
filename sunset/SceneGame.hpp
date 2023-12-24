@@ -11,6 +11,9 @@
 #include "Game.hpp"
 #include "EntityRingBuffer.hpp"
 #include "../gecs/Types.hpp"
+#include "Vec2.hpp"
+
+using gmath::Vec2;
 
 enum class TimeStatus {
     Normal,
@@ -21,7 +24,7 @@ enum class TimeStatus {
 
 class SceneGame : public IScene {
 public:
-    SceneGame(sptr<ECSManager> ecsRef,
+    SceneGame(//sptr<ECSManager> ecsRef,
               Game& game);
     void Load() override;
     void Update(f32 dt) override;
@@ -32,11 +35,11 @@ private:
     gecs::Id testEntityId;
 
     Game& game;
-    sptr<ECSManager> ecs;
+    //sptr<ECSManager> ecs;
     Texture2D backgroundTexture {};
     u64 playerId { 0 };
-    Weapon* playerWeapon { nullptr };
-    uptr<EntityRingBuffer> projectiles { nullptr };
+    //Weapon* playerWeapon { nullptr };
+    //uptr<EntityRingBuffer> projectiles { nullptr };
 
     float jumpPressTime { 0 };
     Vec2 moveAcceleration {0.0f, 0.0f };
@@ -48,13 +51,14 @@ private:
     u8 textAlpha { 255 };
     bool textBlinkUp { false };
 
-    void UpdateNormal(f32 dt);
+    /*void UpdateNormal(f32 dt);
     void UpdateRewind(f32 dt);
     void UpdatePause(f32 dt);
     void UpdateForward(f32 dt);
+    */
     void DrawInterface();
 
-    u64 CreateRandomBouncingEntity();
+    /*u64 CreateRandomBouncingEntity();*/
 
     const f32 PLAYER_JUMP_MAX_PRESS_TIME;
     const f32 PLAYER_HORIZONTAL_ACCELERATION;

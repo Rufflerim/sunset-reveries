@@ -3,18 +3,20 @@
 //
 
 #include "SceneGame.hpp"
-#include <utility>
 #include <iomanip>
 #include "ImRenderer.h"
 #include "../gecs/World.hpp"
 #include "../gecs/Entity.hpp"
+#include "AssetsManager.hpp"
+#include "Renderer.hpp"
 
 using gecs::Position;
 using gecs::Velocity;
+using gecs::Sprite;
 
-SceneGame::SceneGame(sptr<ECSManager> ecsRef,
+SceneGame::SceneGame(//sptr<ECSManager> ecsRef,
                      Game& game)
-: ecs {std::move( ecsRef )}, game { game },
+: /*ecs {std::move( ecsRef )},*/ game { game },
   PLAYER_JUMP_MAX_PRESS_TIME { AssetsManager::GetData("PLAYER_JUMP_MAX_PRESS_TIME") },
   PLAYER_HORIZONTAL_ACCELERATION { AssetsManager::GetData("PLAYER_HORIZONTAL_ACCELERATION") },
   PLAYER_JUMP_ACCELERATION { AssetsManager::GetData("PLAYER_JUMP_ACCELERATION") },
@@ -36,16 +38,39 @@ void SceneGame::Load() {
     world.Init();
     testEntityId = world.CreateEntity();
     gecs::Entity entity = world.GetEntity(testEntityId);
+    auto testEntityId2 = world.CreateEntity();
+    gecs::Entity entity2 = world.GetEntity(testEntityId2);
+    auto testEntityId3 = world.CreateEntity();
+    gecs::Entity entity3 = world.GetEntity(testEntityId3);
 
 
     Position pos {200, 500};
     entity.AddComponent<gecs::Position>(pos);
-    Velocity vel {0, 0};
-    entity.AddComponent<gecs::Velocity>(vel);
+    //Velocity vel {0, 0};
+    //entity.AddComponent<gecs::Velocity>(vel);
     gecs::Sprite sprite { AssetsManager::GetTexture("player") };
     entity.AddComponent<gecs::Sprite>(sprite);
 
+    Position pos2 {100, 400};
+    entity2.AddComponent<gecs::Position>(pos2);
+    Velocity vel2 {100, 0};
+    entity2.AddComponent<gecs::Velocity>(vel2);
+
+    Position pos3 {50, 50};
+    entity3.AddComponent<gecs::Position>(pos3);
+    Velocity vel3 {50, 50};
+    entity3.AddComponent<gecs::Velocity>(vel3);
+    gecs::Sprite sprite3 { AssetsManager::GetTexture("player") };
+    entity3.AddComponent<gecs::Sprite>(sprite3);
+
+
     world.LogWorld();
+
+    auto q = world.Query<Position, Velocity>();
+
+    world.LogWorld();
+
+
 
     /*
 
@@ -130,6 +155,7 @@ void SceneGame::Update(f32 dt) {
     */
 }
 
+/*
 void SceneGame::UpdateNormal(f32 dt) {
     // Player movement
     auto& playerBody = ecs->GetComponent<Rigidbody2D>(playerId);
@@ -219,6 +245,7 @@ void SceneGame::UpdateForward(f32 dt) {
         timeStatus = TimeStatus::Pause;
     }
 }
+*/
 
 void SceneGame::Draw() {
     render::DrawTexture(backgroundTexture, 0, 120, WHITE);
@@ -275,6 +302,7 @@ void SceneGame::Unload() {
     AssetsManager::UnloadSceneTextures(ToSceneId(SceneName::SceneGame));
 }
 
+/*
 u64 SceneGame::CreateRandomBouncingEntity() {
     u64 newId = ecs->CreateEntity();
 
@@ -295,7 +323,7 @@ u64 SceneGame::CreateRandomBouncingEntity() {
 
     return newId;
 }
-
+*/
 
 
 

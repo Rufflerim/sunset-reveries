@@ -12,7 +12,7 @@ void Game::Load() {
     ecs = std::make_shared<ECSManager>();
     worldStateManager = std::make_unique<WorldStateManager>(ecs);
      */
-    AddScene(std::make_unique<SceneGame>(ecs, *this));
+    AddScene(std::make_unique<SceneGame>(*this));
 }
 
 void Game::Update(f32 dt) {
@@ -69,23 +69,26 @@ void Game::Unload() {
 }
 
 void Game::Rewind(u64 frameSpeed) {
-    worldStateManager->Rewind(frameSpeed);
+//    frameSpeedworldStateManager->Rewind(frameSpeed);
 }
 
 void Game::Forward(u64 frameSpeed) {
-    worldStateManager->Forward(frameSpeed);
+//    worldStateManager->Forward(frameSpeed);
 }
 
 void Game::Resume(bool doCreateClone) {
-    if (doCreateClone) {
+    /*if (doCreateClone) {
         worldStateManager->CloneAndResume();
     } else {
         worldStateManager->Resume();
-    }
+    }*/
 }
+
+/*
 
 void Game::PushPlayerChange(PlayerChange playerChange) {
     //playerChanges.emplace_back(playerChange);
     worldChanger.PushPlayerChange(playerChange);
 }
+*/
 

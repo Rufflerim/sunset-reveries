@@ -25,8 +25,6 @@ namespace gecs {
         Position = 0,
         Velocity = 1,
         Sprite = 2,
-
-        Absurd = 32
     };
 
     str ComponentIdToString(ComponentId componentId);

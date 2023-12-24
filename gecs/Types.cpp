@@ -31,7 +31,7 @@ namespace gecs {
             case 0: return ComponentId::Position;
             case 1: return ComponentId::Velocity;
             case 2: return ComponentId::Sprite;
-            default: return ComponentId::Absurd;
+            default: return ComponentId::Position;
         }
     }
 

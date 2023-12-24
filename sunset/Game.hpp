@@ -30,13 +30,13 @@ public:
     void Forward(u64 frameSpeed);
     void Resume(bool doCreateClone);
 
-    void PushPlayerChange(PlayerChange playerChange);
+//    void PushPlayerChange(PlayerChange playerChange);
 
 private:
     vector<uptr<IScene>> sceneStack {};
-    sptr<ECSManager> ecs;
+    /*sptr<ECSManager> ecs;
     WorldChanger worldChanger;
-    uptr<WorldStateManager> worldStateManager;
+    uptr<WorldStateManager> worldStateManager;*/
 };
 
 

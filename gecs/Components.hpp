@@ -61,6 +61,16 @@ namespace gecs {
         }
     }
 
+    template <typename... ComponentTypes>
+    std::vector<ComponentId> ToComponentIds() {
+        std::vector<ComponentId> ret;
+
+        // Use fold expression to call ToComponentId for each type
+        (ret.push_back(ToComponentId<ComponentTypes>()), ...);
+
+        return ret;
+    }
+
     class Column {
     private:
         u32 dataSize;

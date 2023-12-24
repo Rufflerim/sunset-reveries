@@ -2,6 +2,8 @@
 // Created by gaetz on 07/11/2022.
 //
 
+/*
+
 #ifndef SUNSET_REVERIES_COMPONENTS_HPP
 #define SUNSET_REVERIES_COMPONENTS_HPP
 
@@ -30,6 +32,7 @@ enum class ComponentIndex {
     Replay = 4,
     Weapon = 5
 };
+
 
 struct Transform2D {
     explicit Transform2D(u64 entityIdP) : entityId { entityIdP } {}
@@ -200,3 +203,5 @@ struct Collision2D {
 };
 
 #endif //SUNSET_REVERIES_COMPONENTS_HPP
+
+ */
