@@ -9,6 +9,7 @@
 #include "../gecs/Entity.hpp"
 #include "AssetsManager.hpp"
 #include "Renderer.hpp"
+#include "Query.hpp"
 
 using gecs::Position;
 using gecs::Velocity;
@@ -66,7 +67,14 @@ void SceneGame::Load() {
 
     world.LogWorld();
 
-    auto q = world.Query<Position, Velocity>();
+    //auto q = world.Query<Position, Velocity>();
+    auto q = gecs::Query<Position, Velocity>();
+
+
+    q.Each([](Position& pos, Velocity& vel) {
+        pos.x += 77;
+        vel.x += 77;
+    });
 
     world.LogWorld();
 

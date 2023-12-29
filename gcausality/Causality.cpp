@@ -36,7 +36,7 @@ namespace gcausality {
             ArchetypeData archetypeData;
             archetypeData.id = archetype.id;
             archetypeData.archetypeId = archetype.archetypeId;
-            strcpy_s(archetypeData.name, strnlen_s(archetype.name, 12), archetype.name);
+            gplatform::StrCpy(archetypeData.name, gplatform::StrnLen(archetype.name, 12), archetype.name);
             archetypeData.components = archetype.components;
             futureWorldState.stateData.push_back(archetypeData);
         }

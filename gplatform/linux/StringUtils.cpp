@@ -10,4 +10,8 @@ namespace gplatform {
         strcpy(dst, src);
     }
 
+    size_t StrnLen(char* s, size_t max) {
+        return strnlen(s, max);
+    }
+
 }
