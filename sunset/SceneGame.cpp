@@ -37,6 +37,19 @@ void SceneGame::Load() {
 
     gecs::World& world = gecs::World::Instance();
     world.Init();
+
+    for (u32 i = 0; i < 50; ++i) {
+        auto testEntityId = world.CreateEntity();
+        gecs::Entity entity = world.GetEntity(testEntityId);
+        Position pos {static_cast<f32>(0 + i * 10), static_cast<f32>(0 + i * 10)};
+        entity.AddComponent<gecs::Position>(pos);
+        Velocity vel {static_cast<f32>(0 + i * 10), static_cast<f32>(0 + i * 10)};
+        entity.AddComponent<gecs::Velocity>(vel);
+        gecs::Sprite sprite { AssetsManager::GetTexture("ghost") };
+        entity.AddComponent<gecs::Sprite>(sprite);
+    }
+
+    /*
     testEntityId = world.CreateEntity();
     gecs::Entity entity = world.GetEntity(testEntityId);
     auto testEntityId2 = world.CreateEntity();
@@ -63,7 +76,7 @@ void SceneGame::Load() {
     entity3.AddComponent<gecs::Velocity>(vel3);
     gecs::Sprite sprite3 { AssetsManager::GetTexture("player") };
     entity3.AddComponent<gecs::Sprite>(sprite3);
-
+*/
 
     world.LogWorld();
 
