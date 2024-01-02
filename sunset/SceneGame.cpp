@@ -69,12 +69,27 @@ void SceneGame::Load() {
 
     //auto q = world.Query<Position, Velocity>();
     auto q = gecs::Query<Position, Velocity>();
-
+    q.Each([](Position& pos, Velocity& vel) {
+        pos.x += 77;
+        vel.x += 24;
+    });
 
     q.Each([](Position& pos, Velocity& vel) {
         pos.x += 77;
-        vel.x += 77;
+        vel.x += 24;
     });
+    q.Apply();
+
+    world.LogWorld();
+
+
+    auto r = gecs::Query<Position, Velocity, Sprite>();
+    r.Each([](Position& pos, Velocity& vel, Sprite& spr) {
+        pos.x += 1;
+        vel.x += 1;
+        spr.srcRect.x += 1;
+    });
+    r.Apply();
 
     world.LogWorld();
 

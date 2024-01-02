@@ -48,6 +48,95 @@ namespace gecs {
         Archetype* GetArchetype(const str& archetypeName);
         void LogWorld();
 
+        template<typename... ComponentTypes>
+        std::tuple<std::vector<ComponentTypes>...> Query() {
+            vector<CompArchIdAndCol> filterMaterial = GetRelevantArchetypesAndCols<ComponentTypes...>();
+            return std::make_tuple(QuerySingleComp<ComponentTypes>(filterMaterial)...);
+        }
+
+        template<typename... ComponentTypes>
+        void ReintegrateQueryCache(std::tuple<vector<ComponentTypes>...> tuple) {
+            vector<CompArchIdAndCol> compArchCols = GetRelevantArchetypesAndCols<ComponentTypes...>();
+            // From compArchCols, Get vector of vector of pairs of archetypes id and cols,one vector for each component type
+            auto archsAndCols = GetArchetypeAndColumnIndices(compArchCols);
+            // Get start indices for each comp then archetype
+            vector<vector<size_t>> starts = GetDataStartIndices(compArchCols);
+            // Recursively call ReintegrateDataInColumn for each component type
+            size_t i { 0 };
+            size_t j { 0 };
+            std::apply([&](auto&&... args) { (ReintegrateDataInColumn(args, starts[i++], archsAndCols[j++]), ...); }, tuple);
+        }
+
+        vector<vector<std::pair<ArchetypeId, size_t>>> GetArchetypeAndColumnIndices(vector<CompArchIdAndCol> &compArchCols) {
+            vector<vector<std::pair<ArchetypeId, size_t>>> ret;
+            ComponentId currentCompId = compArchCols[0].componentId;;
+            vector<std::pair<ArchetypeId, size_t>> currentArchsAndCols { {compArchCols[0].archId, compArchCols[0].columnIndex} };
+            for (u32 i = 1; i < compArchCols.size(); ++i) {
+                if (currentCompId != compArchCols[i].componentId) {
+                    ret.emplace_back(currentArchsAndCols);
+                    currentArchsAndCols.clear();
+                    currentArchsAndCols.emplace_back(compArchCols[i].archId, compArchCols[i].columnIndex);
+                    currentCompId = compArchCols[i].componentId;
+                    continue;
+                }
+                currentArchsAndCols.emplace_back(compArchCols[i].archId, compArchCols[i].columnIndex);
+            }
+            ret.emplace_back(currentArchsAndCols);
+            return ret;
+        }
+
+        vector<vector<size_t>> GetDataStartIndices(vector<CompArchIdAndCol> &compArchCols) {
+            ComponentId currentCompId = compArchCols[0].componentId;;
+            vector<vector<size_t>> starts {};
+            vector<size_t> currentStarts { 0 };
+            for (u32 i = 1; i < compArchCols.size(); ++i) {
+                if (currentCompId != compArchCols[i].componentId) {
+                    starts.emplace_back(currentStarts);
+                    currentStarts.clear();
+                    currentStarts.push_back(0);
+                    currentCompId = compArchCols[i].componentId;
+                    continue;
+                }
+                currentStarts.push_back(archetypeRegistry[compArchCols[i].archId].components[compArchCols[i].columnIndex].Count());
+            }
+            starts.emplace_back(currentStarts);
+            return starts;
+        }
+
+        template<typename T>
+        void ReintegrateDataInColumn(const std::vector<T>& tupleData, vector<size_t> start, vector<std::pair<ArchetypeId, size_t>> archsAndCols) {
+            for (u32 i = 0; i < start.size(); ++i) {
+                const auto archId = archsAndCols[i].first;
+                const auto column = archsAndCols[i].second;
+                const auto count = archetypeRegistry[archId].components[column].Count();
+                auto it = tupleData.begin() + start[i];
+                auto end = tupleData.begin() + start[i] + count;
+                vector<T> newData = std::vector<T>(it, end);
+                archetypeRegistry[archId].components[column].ReplaceData<T>(newData);
+            }
+        }
+
+
+    private:
+        u64 maxId { 0 };
+        ArchetypeId defaultArchetype;
+
+        template<class T>
+        T& GetComponent(Id entity) {
+            const ComponentId componentId = ToComponentId<T>();
+            const ArchetypeRecord& record = entityRegistry[entity];
+            Archetype* archetype = record.archetype;
+
+            // Assert archetype has component
+            ComponentArchetypes archetypes = componentRegistry[componentId];
+            GASSERT_MSG(archetypes.count(archetype->archetypeId) != 0, "Archetype must have component to get it")
+
+            const size_t componentColumn = archetypes[archetype->archetypeId];
+            return archetype->components[componentColumn].GetRow<T>(record.row);
+        }
+
+        u64 MoveEntity(const ArchetypeRecord& recordToUpdate, size_t row, Archetype* nextArchetype);
+
         template <typename... ComponentTypes>
         vector<CompArchIdAndCol> GetRelevantArchetypesAndCols() {
             vector<CompArchIdAndCol> ret;
@@ -72,7 +161,7 @@ namespace gecs {
             }
             std::sort(ret.begin(), ret.end(), [=](CompArchIdAndCol a, CompArchIdAndCol b) {
                 return a.componentId < b.componentId ||
-                        (a.componentId == b.componentId && a.archId.to_ulong() < b.archId.to_ulong());
+                       (a.componentId == b.componentId && a.archId.to_ulong() < b.archId.to_ulong());
             });
             return ret;
         }
@@ -100,33 +189,6 @@ namespace gecs {
             return result;
         }
 
-        template<typename... ComponentTypes>
-        std::tuple<std::vector<ComponentTypes>...> Query() {
-            vector<CompArchIdAndCol> filterMaterial = GetRelevantArchetypesAndCols<ComponentTypes...>();
-            return std::make_tuple(QuerySingleComp<ComponentTypes>(filterMaterial)...);
-        }
-
-
-    private:
-        u64 maxId { 0 };
-        ArchetypeId defaultArchetype;
-
-        template<class T>
-        T& GetComponent(Id entity) {
-            const ComponentId componentId = ToComponentId<T>();
-            const ArchetypeRecord& record = entityRegistry[entity];
-            Archetype* archetype = record.archetype;
-
-            // Assert archetype has component
-            ComponentArchetypes archetypes = componentRegistry[componentId];
-            GASSERT_MSG(archetypes.count(archetype->archetypeId) != 0, "Archetype must have component to get it")
-
-            const size_t componentColumn = archetypes[archetype->archetypeId];
-            return archetype->components[componentColumn].GetRow<T>(record.row);
-        }
-
-        u64 MoveEntity(const ArchetypeRecord& recordToUpdate, size_t row, Archetype* nextArchetype);
-
         // Singleton
     private:
         World() = default;
@@ -138,7 +200,6 @@ namespace gecs {
         }
 
         World(World const&) = delete;
-
         void operator=(World const&) = delete;
     };
 

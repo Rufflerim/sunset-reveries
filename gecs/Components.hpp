@@ -17,6 +17,10 @@ using gmath::Vec2;
 #include "unordered_map"
 using std::unordered_map;
 
+// This list of components is used to create the column
+// type, with a std::variant.
+#define COMPONENTS Position, Velocity, Sprite
+
 namespace gecs {
 
     struct Position {
@@ -38,6 +42,8 @@ namespace gecs {
     };
 
     struct Sprite {
+
+        Sprite() = default;
         explicit Sprite(Texture textureP):
             srcRect { 0.0f, 0.0f, static_cast<f32>(textureP.width), static_cast<f32>(textureP.height) },
             dstSize { srcRect.width, srcRect.height },
@@ -75,7 +81,7 @@ namespace gecs {
     private:
         u32 dataSize;
         ComponentId componentId;
-        vector<std::variant<Position, Velocity, Sprite>> data;
+        vector<std::variant<COMPONENTS>> data;
 
     public:
         template<class T>
@@ -93,6 +99,14 @@ namespace gecs {
         template<class T>
         const T& GetRowConst(size_t row) const {
             return std::get<T>(data[row]);
+        }
+
+        template<class T>
+        void ReplaceData(const vector<T>& newData) {
+            data.clear();
+            for (const auto& element : newData) {
+                data.push_back(element);
+            }
         }
 
         u32 GetDataMemorySize() const { return dataSize; }
