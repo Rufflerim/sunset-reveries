@@ -11,12 +11,6 @@
 
 namespace gecs {
 
-    struct CompArchIdAndCol {
-        ComponentId componentId;
-        ArchetypeId archId;
-        size_t columnIndex;
-    };
-
     class World {
         friend class Entity;
 

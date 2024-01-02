@@ -7,7 +7,6 @@
 #include <sstream>
 #include "GMath.hpp"
 
-
 namespace gecs {
     str ComponentIdToString(ComponentId componentId) {
         switch (componentId) {

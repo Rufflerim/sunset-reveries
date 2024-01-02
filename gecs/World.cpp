@@ -233,17 +233,17 @@ namespace gecs {
                 // Copy data in new component columns
                 switch (dstCol.GetComponentId()) {
                     case ComponentId::Position: {
-                        auto component = srcCol.GetRow<Position>(row);
+                        const auto component = srcCol.GetRowConst<Position>(row);
                         newRow = dstCol.AddElement<Position>(component);
                     }
                         break;
                     case ComponentId::Velocity: {
-                        auto component = srcCol.GetRow<Velocity>(row);
+                        const auto component = srcCol.GetRowConst<Velocity>(row);
                         newRow = dstCol.AddElement<Velocity>(component);
                     }
                         break;
                     case ComponentId::Sprite: {
-                        auto component = srcCol.GetRow<Sprite>(row);
+                        const auto component = srcCol.GetRowConst<Sprite>(row);
                         newRow = dstCol.AddElement<Sprite>(component);
                     }
                         break;

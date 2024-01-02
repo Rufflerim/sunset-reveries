@@ -103,10 +103,8 @@ namespace gecs {
 
         template<class T>
         void ReplaceData(const vector<T>& newData) {
-            data.clear();
-            for (const auto& element : newData) {
-                data.push_back(element);
-            }
+            GASSERT_DEBUG(data.size() == newData.size())
+            data.assign(newData.begin(), newData.end());
         }
 
         u32 GetDataMemorySize() const { return dataSize; }

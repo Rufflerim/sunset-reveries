@@ -42,6 +42,12 @@ namespace gecs {
         u64 row;
     };
 
+    struct CompArchIdAndCol {
+        ComponentId componentId { ComponentId::Position };
+        ArchetypeId archId { 0 };
+        size_t columnIndex { 0 };
+    };
+
 }
 
 #endif //GECSS_TYPES_HPP
