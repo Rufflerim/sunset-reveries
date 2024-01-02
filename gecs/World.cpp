@@ -303,4 +303,48 @@ namespace gecs {
         }
         return nullptr;
     }
+
+
+    vector<vector<std::pair<ArchetypeId, size_t>>> World::GetArchetypeAndColumnIndices(vector<CompArchIdAndCol> &compArchCols) {
+        vector<vector<std::pair<ArchetypeId, size_t>>> ret;
+        ComponentId currentCompId = compArchCols[0].componentId;;
+        vector<std::pair<ArchetypeId, size_t>> currentArchsAndCols { {compArchCols[0].archId, compArchCols[0].columnIndex} };
+        for (u32 i = 1; i < compArchCols.size(); ++i) {
+            if (currentCompId != compArchCols[i].componentId) {
+                ret.emplace_back(currentArchsAndCols);
+                currentArchsAndCols.clear();
+                currentArchsAndCols.emplace_back(compArchCols[i].archId, compArchCols[i].columnIndex);
+                currentCompId = compArchCols[i].componentId;
+                continue;
+            }
+            currentArchsAndCols.emplace_back(compArchCols[i].archId, compArchCols[i].columnIndex);
+        }
+        ret.emplace_back(currentArchsAndCols);
+        return ret;
+    }
+
+    vector<vector<size_t>> World::GetDataStartIndices(vector<CompArchIdAndCol> &compArchCols) {
+        ComponentId currentCompId = compArchCols[0].componentId;;
+        vector<vector<size_t>> starts {};
+        vector<size_t> currentStarts { 0 };
+        size_t accumulator { 0 };
+        // We create a vector of start indices for each component.
+        // We count the number of elements for the current archetype
+        // and add it to the accumulator, so that we can know the start index
+        // for a specific archetype for the same component.
+        for (u32 i = 1; i < compArchCols.size(); ++i) {
+            if (currentCompId != compArchCols[i].componentId) {
+                starts.emplace_back(currentStarts);
+                currentStarts.clear();
+                currentStarts.push_back(0);
+                accumulator = 0;
+                currentCompId = compArchCols[i].componentId;
+                continue;
+            }
+            accumulator += archetypeRegistry[compArchCols[i].archId].components[compArchCols[i].columnIndex].Count();
+            currentStarts.push_back(accumulator);
+        }
+        starts.emplace_back(currentStarts);
+        return starts;
+    }
 }

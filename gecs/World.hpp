@@ -59,48 +59,12 @@ namespace gecs {
             vector<CompArchIdAndCol> compArchCols = GetRelevantArchetypesAndCols<ComponentTypes...>();
             // From compArchCols, Get vector of vector of pairs of archetypes id and cols,one vector for each component type
             auto archsAndCols = GetArchetypeAndColumnIndices(compArchCols);
-            // Get start indices for each comp then archetype
+            // Get start indices for each archetype containing the component type
             vector<vector<size_t>> starts = GetDataStartIndices(compArchCols);
             // Recursively call ReintegrateDataInColumn for each component type
             size_t i { 0 };
             size_t j { 0 };
-            std::apply([&](auto&&... args) { (ReintegrateDataInColumn(args, starts[i++], archsAndCols[j++]), ...); }, tuple);
-        }
-
-        vector<vector<std::pair<ArchetypeId, size_t>>> GetArchetypeAndColumnIndices(vector<CompArchIdAndCol> &compArchCols) {
-            vector<vector<std::pair<ArchetypeId, size_t>>> ret;
-            ComponentId currentCompId = compArchCols[0].componentId;;
-            vector<std::pair<ArchetypeId, size_t>> currentArchsAndCols { {compArchCols[0].archId, compArchCols[0].columnIndex} };
-            for (u32 i = 1; i < compArchCols.size(); ++i) {
-                if (currentCompId != compArchCols[i].componentId) {
-                    ret.emplace_back(currentArchsAndCols);
-                    currentArchsAndCols.clear();
-                    currentArchsAndCols.emplace_back(compArchCols[i].archId, compArchCols[i].columnIndex);
-                    currentCompId = compArchCols[i].componentId;
-                    continue;
-                }
-                currentArchsAndCols.emplace_back(compArchCols[i].archId, compArchCols[i].columnIndex);
-            }
-            ret.emplace_back(currentArchsAndCols);
-            return ret;
-        }
-
-        vector<vector<size_t>> GetDataStartIndices(vector<CompArchIdAndCol> &compArchCols) {
-            ComponentId currentCompId = compArchCols[0].componentId;;
-            vector<vector<size_t>> starts {};
-            vector<size_t> currentStarts { 0 };
-            for (u32 i = 1; i < compArchCols.size(); ++i) {
-                if (currentCompId != compArchCols[i].componentId) {
-                    starts.emplace_back(currentStarts);
-                    currentStarts.clear();
-                    currentStarts.push_back(0);
-                    currentCompId = compArchCols[i].componentId;
-                    continue;
-                }
-                currentStarts.push_back(archetypeRegistry[compArchCols[i].archId].components[compArchCols[i].columnIndex].Count());
-            }
-            starts.emplace_back(currentStarts);
-            return starts;
+            std::apply([&](auto&&... data) { (ReintegrateDataInColumn(data, starts[i++], archsAndCols[j++]), ...); }, tuple);
         }
 
         template<typename T>
@@ -154,7 +118,8 @@ namespace gecs {
                 ComponentArchetypes archs = c.second;
                 for (const auto archIds : archs) {
                     // We check the archetype contain the minimal components
-                    if ((archIds.first & pattern) == pattern) {
+                    // We also exclude empty archetypes
+                    if ((archIds.first & pattern) == pattern && archetypeRegistry[archIds.first].GetRowCount() > 0) {
                         ret.push_back(CompArchIdAndCol { c.first, archIds.first, archIds.second });
                     }
                 }
@@ -188,6 +153,10 @@ namespace gecs {
 
             return result;
         }
+
+        vector<vector<std::pair<ArchetypeId, size_t>>> GetArchetypeAndColumnIndices(vector<CompArchIdAndCol> &compArchCols);
+
+        vector<vector<size_t>> GetDataStartIndices(vector<CompArchIdAndCol> &compArchCols);
 
         // Singleton
     private:
