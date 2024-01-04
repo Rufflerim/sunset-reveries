@@ -34,10 +34,10 @@ namespace gecs {
     public:
         unordered_map<Id, ArchetypeRecord>& GetEntities() { return entityRegistry; }
         unordered_map<ArchetypeId, Archetype>& GetArchetypes() { return archetypeRegistry; }
-        unordered_map<ComponentId, ComponentArchetypes>& GetComponents() { return componentRegistry; }
 
         void Init();
         Id CreateEntity();
+        void DestroyEntity(Id entityId);
         Entity GetEntity(Id entityId);
         Archetype* GetArchetype(const str& archetypeName);
         void LogWorld();

@@ -27,6 +27,11 @@ namespace gecs {
         f32 x { 0.0f };
         f32 y { 0.0f };
 
+        void Set(const Vec2& newVec) {
+            x = newVec.x;
+            y = newVec.y;
+        }
+
         Vec2 Vec() const {
             return Vec2 { x, y };
         }
@@ -107,7 +112,6 @@ namespace gecs {
             data.assign(newData.begin(), newData.end());
         }
 
-        u32 GetDataMemorySize() const { return dataSize; }
         size_t Count() const  { return data.size(); }
         ComponentId GetComponentId() const { return componentId; }
 
@@ -118,9 +122,28 @@ namespace gecs {
             return data.size() - 1;
         };
 
-        void RemoveElement(u64 row) {
-            data.erase(data.begin() + static_cast<i64>(row));
+        void RemoveElementBySwapping(u64 row) {
+            auto last = data.end() - 1;
+            auto removedElement = data.begin() + static_cast<i64>(row);
+            std::iter_swap(removedElement, last);
+            data.pop_back();
         };
+
+        /*
+    template<class T>
+    void RemoveComponent(vector<T>& components, Entity& removedEntity, ComponentIndex componentTypeIndex) {
+        i32 typeIndex = static_cast<i32>(componentTypeIndex);
+        auto componentIndex = removedEntity.components.at(typeIndex);
+        if (componentIndex != -1) {
+            auto last = components.end() - 1;
+            FindEntity(last->entityId).components[typeIndex] = componentIndex;
+            auto removedComponent = components.begin() + componentIndex;
+            std::iter_swap(removedComponent, last);
+            components.pop_back();
+        }
+    }
+
+         */
 
         /* Functions used for logging purpose */
 

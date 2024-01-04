@@ -14,6 +14,7 @@
 using gecs::Position;
 using gecs::Velocity;
 using gecs::Sprite;
+using gecs::Query;
 
 SceneGame::SceneGame(//sptr<ECSManager> ecsRef,
                      Game& game)
@@ -43,62 +44,16 @@ void SceneGame::Load() {
         gecs::Entity entity = world.GetEntity(testEntityId);
         Position pos {static_cast<f32>(0 + i * 10), static_cast<f32>(0 + i * 10)};
         entity.AddComponent<gecs::Position>(pos);
-        Velocity vel {static_cast<f32>(0 + i * 10), static_cast<f32>(0 + i * 10)};
+        Velocity vel {static_cast<f32>(100), 0};
         entity.AddComponent<gecs::Velocity>(vel);
         gecs::Sprite sprite { AssetsManager::GetTexture("ghost") };
         entity.AddComponent<gecs::Sprite>(sprite);
     }
 
-    /*
-    testEntityId = world.CreateEntity();
-    gecs::Entity entity = world.GetEntity(testEntityId);
-    auto testEntityId2 = world.CreateEntity();
-    gecs::Entity entity2 = world.GetEntity(testEntityId2);
-    auto testEntityId3 = world.CreateEntity();
-    gecs::Entity entity3 = world.GetEntity(testEntityId3);
-
-
-    Position pos {200, 500};
-    entity.AddComponent<gecs::Position>(pos);
-    //Velocity vel {0, 0};
-    //entity.AddComponent<gecs::Velocity>(vel);
-    gecs::Sprite sprite { AssetsManager::GetTexture("player") };
-    entity.AddComponent<gecs::Sprite>(sprite);
-
-    Position pos2 {100, 400};
-    entity2.AddComponent<gecs::Position>(pos2);
-    Velocity vel2 {100, 0};
-    entity2.AddComponent<gecs::Velocity>(vel2);
-
-    Position pos3 {50, 50};
-    entity3.AddComponent<gecs::Position>(pos3);
-    Velocity vel3 {50, 50};
-    entity3.AddComponent<gecs::Velocity>(vel3);
-    gecs::Sprite sprite3 { AssetsManager::GetTexture("player") };
-    entity3.AddComponent<gecs::Sprite>(sprite3);
-*/
-
     world.LogWorld();
 
-    auto r = gecs::Query<Position>();
-    r.Each([](Position& pos) {
-        pos.x += 1;
-    });
-    r.Apply();
 
-    auto q = gecs::Query<Position, Velocity>();
-    q.Each([](Position& pos, Velocity& vel) {
-        pos.x += 10;
-        vel.x += 12;
-    });
 
-    q.Each([](Position& pos, Velocity& vel) {
-        pos.x += 10;
-        vel.x += 12;
-    });
-    q.Apply();
-
-    world.LogWorld();
 
 
 
@@ -160,9 +115,14 @@ void SceneGame::Load() {
 }
 
 void SceneGame::Update(f32 dt) {
-    gecs::World& world = gecs::World::Instance();
-    Position position = world.GetEntity(testEntityId).GetComponent<Position>();
 
+    auto q = Query<Position, Velocity>();
+    q.Each([dt](Position& pos, Velocity& vel) {
+        const Vec2 newPos { pos.x + vel.x * dt, pos.y + vel.y * dt };
+        pos.Set(newPos);
+    });
+
+    q.Apply();
 
 
     /*
@@ -280,11 +240,11 @@ void SceneGame::UpdateForward(f32 dt) {
 void SceneGame::Draw() {
     render::DrawTexture(backgroundTexture, 0, 120, WHITE);
 
-    gecs::World& world = gecs::World::Instance();
-    gecs::Entity entity = world.GetEntity(testEntityId);
-    auto& pos = entity.GetComponent<gecs::Position>();
-    auto& spr = entity.GetComponent<gecs::Sprite>();
-    render::DrawTexture(spr.texture, pos.x, pos.y, WHITE);
+    // Query all entities with a position and a sprite
+    auto posSprites = gecs::Query<Position, Sprite>();
+    posSprites.Each([](Position& pos, Sprite& spr) {
+        render::DrawTexture(spr.texture, pos.x, pos.y, WHITE);
+    });
 
     DrawInterface();
 }
@@ -331,29 +291,6 @@ void SceneGame::DrawInterface() {
 void SceneGame::Unload() {
     AssetsManager::UnloadSceneTextures(ToSceneId(SceneName::SceneGame));
 }
-
-/*
-u64 SceneGame::CreateRandomBouncingEntity() {
-    u64 newId = ecs->CreateEntity();
-
-    const f32 x = static_cast<f32>(GetRandomValue(100, 1100));
-    const f32 y = static_cast<f32>(GetRandomValue(150, 550));
-
-    auto& transform = ecs->CreateTransform2DComponent(newId);
-    transform.pos = Vec2 { x, y };
-
-    ecs->CreateSpriteComponent(newId, "player");
-    const auto& playerTexture = AssetsManager::GetTexture("player");
-
-    auto& body = ecs->CreateRigidbody2DComponent(newId, Vec2 { x, y },
-                                    { 0, 0, static_cast<float>(playerTexture.width), static_cast<float>(playerTexture.height)},
-                                    true, false);
-    body.velocity.x = static_cast<float>(GetRandomValue(0, 600));
-    body.velocity.y = static_cast<float>(GetRandomValue(0, 600));
-
-    return newId;
-}
-*/
 
 
 

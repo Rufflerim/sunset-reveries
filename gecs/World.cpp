@@ -225,9 +225,18 @@ namespace gecs {
         i32 checkColsDst { 0 }; // Used to avoid empty archetype case
         i32 checkColsSrc { 0 }; // Used to avoid empty archetype case
 
+
+        auto currentArchetype = recordToUpdate.archetype;
+        const u64 lastRow = currentArchetype->GetRowCount() - 1;
+        const auto entityRecordFromLastRow = std::find_if(entityRegistry.begin(), entityRegistry.end(),
+                                                          [=](const std::pair<Id, ArchetypeRecord>& record) {
+                                                              return record.second.archetype == currentArchetype &&
+                                                                     record.second.row == lastRow;
+                                                          });
+
         // Insert in new archetype data from previous archetype
         for (Column& dstCol: nextArchetype->components) {
-            for (Column& srcCol: recordToUpdate.archetype->components) {
+            for (Column& srcCol: currentArchetype->components) {
                 if (dstCol.GetComponentId() != srcCol.GetComponentId()) continue;
 
                 // Copy data in new component columns
@@ -256,7 +265,8 @@ namespace gecs {
                 checkRow = newRow;
 
                 // Remove previous data from archetype, after saving data
-                srcCol.RemoveElement(row);
+                srcCol.RemoveElementBySwapping(row);
+                entityRecordFromLastRow->second.row = row;
                 ++checkColsSrc;
             }
             ++checkColsDst;
@@ -346,5 +356,25 @@ namespace gecs {
         }
         starts.emplace_back(currentStarts);
         return starts;
+    }
+
+    void World::DestroyEntity(Id entityId) {
+        auto& entityRecord = entityRegistry[entityId];
+        Archetype* archetype = entityRecord.archetype;
+        const u64 row = entityRecord.row;
+        const u64 lastRow = archetype->GetRowCount() - 1;
+        const auto entityRecordFromLastRow = std::find_if(entityRegistry.begin(), entityRegistry.end(),
+                                                          [=](const std::pair<Id, ArchetypeRecord>& record) {
+                                                              return record.second.archetype == archetype &&
+                                                                     record.second.row == lastRow;
+                                                          });
+        // Remove column data by swapping with last row
+        // then update the entity record
+        for (auto& column : archetype->components) {
+            column.RemoveElementBySwapping(row);
+        }
+        entityRecordFromLastRow->second.row = row;
+        // Erase entity from registry
+        entityRegistry.erase(entityId);
     }
 }
