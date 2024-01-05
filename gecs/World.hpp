@@ -8,6 +8,7 @@
 #include "Types.hpp"
 #include "Archetype.hpp"
 #include <tuple>
+#include <ranges>
 
 namespace gecs {
 
@@ -42,10 +43,55 @@ namespace gecs {
         Archetype* GetArchetype(const str& archetypeName);
         void LogWorld();
 
+        struct IdArchRow {
+            Id id;
+            ArchetypeId archId;
+            size_t row;
+        };
+
         template<typename... ComponentTypes>
-        std::tuple<std::vector<ComponentTypes>...> Query() {
+        std::tuple<vector<Id>, vector<ComponentTypes>...> Query() {
             vector<CompArchIdAndCol> filterMaterial = GetRelevantArchetypesAndCols<ComponentTypes...>();
-            return std::make_tuple(QuerySingleComp<ComponentTypes>(filterMaterial)...);
+            // We want relevant entities in the same order as the query
+
+            // Take all entities, filter them by archetype and then sort them by row
+            vector<IdArchRow> entitiesWithArchRows;
+            for (const auto& entity : entityRegistry) {
+                entitiesWithArchRows.push_back(IdArchRow { entity.first, entity.second.archetype->archetypeId, entity.second.row });
+            }
+
+            // Get relevant archetypes
+            ComponentId componentId = filterMaterial[0].componentId;
+            vector<CompArchIdAndCol> compFilter;
+            for (auto compArchCol : filterMaterial) {
+                if( compArchCol.componentId == componentId ) {
+                    compFilter.emplace_back(compArchCol);
+                }
+            }
+
+            auto filterLambda = [&compFilter](IdArchRow& a){
+                return std::find_if(compFilter.begin(), compFilter.end(), [&a](CompArchIdAndCol& filter){
+                    return filter.archId == a.archId;
+                }) != compFilter.end();
+            };
+            auto sortLambda = [=](IdArchRow a, IdArchRow b) {
+                return a.archId.to_ulong() < b.archId.to_ulong() ||
+                       (a.archId.to_ulong() == b.archId.to_ulong() && a.row < b.row);
+            };
+
+            // Filter entities by archetype existing in compFilter
+         //   entitiesWithArchRows = entitiesWithArchRows | std::views::filter();
+
+            // Sort entities by archetype and row
+            std::sort(entitiesWithArchRows.begin(), entitiesWithArchRows.end(), sortLambda);
+
+            vector<Id> entities;
+            for (const auto& entity : entitiesWithArchRows | std::views::filter(filterLambda)) {
+                entities.push_back(entity.id);
+            }
+
+            // Get relevant component values in a tuple shape
+            return make_tuple(entities, QuerySingleComp<ComponentTypes>(filterMaterial)...);
         }
 
         template<typename... ComponentTypes>
@@ -93,8 +139,6 @@ namespace gecs {
             return archetype->components[componentColumn].GetRow<T>(record.row);
         }
 
-        u64 MoveEntity(const ArchetypeRecord& recordToUpdate, size_t row, Archetype* nextArchetype);
-
         template <typename... ComponentTypes>
         vector<CompArchIdAndCol> GetRelevantArchetypesAndCols() {
             vector<CompArchIdAndCol> ret;
@@ -141,12 +185,14 @@ namespace gecs {
                 const size_t column = compArchCol.columnIndex;
                 const auto count = archetypeRegistry[archId].components[column].Count();
                 for (u32 i = 0; i < count; ++i) {
-                    result.push_back(archetypeRegistry[archId].components[column].GetRow<T>(i));
+                    result.push_back(archetypeRegistry[archId].components[column].GetRowConst<T>(i));
                 }
             }
 
             return result;
         }
+
+        u64 MoveEntity(const ArchetypeRecord& recordToUpdate, size_t row, Archetype* nextArchetype);
 
         vector<vector<std::pair<ArchetypeId, size_t>>> GetArchetypeAndColumnIndices(vector<CompArchIdAndCol> &compArchCols);
 

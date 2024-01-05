@@ -225,7 +225,6 @@ namespace gecs {
         i32 checkColsDst { 0 }; // Used to avoid empty archetype case
         i32 checkColsSrc { 0 }; // Used to avoid empty archetype case
 
-
         auto currentArchetype = recordToUpdate.archetype;
         const u64 lastRow = currentArchetype->GetRowCount() - 1;
         const auto entityRecordFromLastRow = std::find_if(entityRegistry.begin(), entityRegistry.end(),

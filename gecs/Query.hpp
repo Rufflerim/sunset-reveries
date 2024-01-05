@@ -18,7 +18,7 @@ namespace gecs {
     class QueryCache {
     public:
         QueryCache() = default;
-        explicit QueryCache(std::tuple<vector<ComponentTypes>...> && newCache): cacheSoA(std::move(newCache)) {
+        explicit QueryCache(const std::tuple<vector<ComponentTypes>...>& newCache): cacheSoA(newCache) {
             size = std::get<0>(cacheSoA).size();
             cacheAoS.reserve(size);
             UpdateAoS();
@@ -78,7 +78,9 @@ namespace gecs {
     public:
         void Each(std::function<void(ComponentTypes&...)> f) {
             if (cache.IsEmpty()) {
-                cache = QueryCache<ComponentTypes...>(world.Query<ComponentTypes...>());
+                auto result = world.Query<ComponentTypes...>();
+                entities = get<0>(result);
+                cache = QueryCache<ComponentTypes...>(tuple_tail(result));
             }
             cache.ApplyOnElements(f);
         }
@@ -91,6 +93,7 @@ namespace gecs {
     private:
         World& world { World::Instance() };
         QueryCache<ComponentTypes...> cache;
+        vector<Id> entities;
     };
 }
 #endif //GECS_QUERY_HPP
