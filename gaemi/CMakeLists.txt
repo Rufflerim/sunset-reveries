@@ -4,8 +4,8 @@ set(CMAKE_CXX_STANDARD 20)
 
 file( GLOB gaemi_SOURCES *.cpp )
 add_library( ${PROJECT_NAME} ${gaemi_SOURCES} )
-target_include_directories( ${PROJECT_NAME} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR} )
-target_link_libraries( ${PROJECT_NAME} raylib gplatform gmath flecs::flecs_static)
+target_include_directories( ${PROJECT_NAME} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
+target_link_libraries( ${PROJECT_NAME} raylib gplatform gmath gfile glog)
 
 
 if(CMAKE_BUILD_TYPE STREQUAL "Debug")

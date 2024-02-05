@@ -26,7 +26,7 @@ if (UNIX)
 endif(UNIX)
 cmake_policy(SET CMP0135 NEW)
 ## -- Raylib
-set(RAYLIB_VERSION 4.5.0)
+set(RAYLIB_VERSION 5.0)
 find_package(raylib ${RAYLIB_VERSION} QUIET) # QUIET or REQUIRED
 if (NOT raylib_FOUND) # If there's none, fetch and build raylib
     include(FetchContent)
@@ -51,7 +51,7 @@ if (NOT raylib_FOUND) # If there's none, fetch and build raylib
 endif()
 
 ## -- Raylib GUI
-set(RAYLIB_GUI_VERSION 3.2)
+set(RAYLIB_GUI_VERSION 4.0)
 find_package(raylib_gui ${RAYLIB_GUI_VERSION} QUIET) # QUIET or REQUIRED
 if (NOT raylib_gui_FOUND) # If there's none, fetch and build raylib
     include(FetchContent)
@@ -76,50 +76,22 @@ if (NOT raylib_gui_FOUND) # If there's none, fetch and build raylib
         add_subdirectory(${raylib_gui_SOURCE_DIR} ${raylib_gui_BINARY_DIR})
         file(COPY ${raylib_gui_SOURCE_DIR}/src/raygui.h
                 DESTINATION ${CMAKE_SOURCE_DIR}/gaemi/_Libs/raygui)
-        file(COPY ${raylib_gui_SOURCE_DIR}/src/icons/raygui_icons.h
+        file(COPY ${raylib_gui_SOURCE_DIR}/icons/raygui_icons.h
                 DESTINATION ${CMAKE_SOURCE_DIR}/gaemi/_Libs/raygui/icons)
     endif()
 endif()
-
-## -- flecs
-set(FLECS_VERSION 3.2.4)
-find_package(flecs ${FLECS_VERSION} QUIET) # QUIET or REQUIRED
-if (NOT flecs_FOUND) # If there's none, fetch and build raylib
-    include(FetchContent)
-    if (UNIX)
-        FetchContent_Declare(
-                flecs
-                URL https://github.com/SanderMertens/flecs/archive/refs/tags/v${FLECS_VERSION}.tar.gz
-        )
-    elseif (WIN32)
-        FetchContent_Declare(
-                flecs
-                URL https://github.com/SanderMertens/flecs/archive/refs/tags/v${FLECS_VERSION}.zip
-        )
-    endif()
-    FetchContent_GetProperties(flecs)
-    if (NOT flecs_POPULATED)
-        set(FETCHCONTENT_QUIET NO)
-        FetchContent_Populate(flecs)
-        file(COPY ${flecs_SOURCE_DIR}/CMakeLists.txt
-                DESTINATION ${flecs_SOURCE_DIR})
-        add_subdirectory(${flecs_SOURCE_DIR} ${flecs_BINARY_DIR})
-        ## file(COPY ${flecs_SOURCE_DIR}/flecs.h
-        ##         DESTINATION ${CMAKE_SOURCE_DIR}/gaemi/_Libs/flecs)
-        ## file(COPY ${flecs_SOURCE_DIR}/flecs.c
-        ##         DESTINATION ${CMAKE_SOURCE_DIR}/gaemi/_Libs/flecs)
-    endif()
-endif()
-
 
 
 
 # Add code.
 add_subdirectory( gplatform )
+add_subdirectory( glog )
+add_subdirectory( gfile )
 add_subdirectory( gmath )
+add_subdirectory( gecs )
+#add_subdirectory( gcausality )
 add_subdirectory( gaemi )
 add_subdirectory( sunset )
-
 
 
 
@@ -153,10 +125,10 @@ add_custom_command(
 )
 
 # Web Configurations
-if (${PLATFORM} STREQUAL "Web")
+#if (${PLATFORM} STREQUAL "Web")
     # Tell Emscripten to build an example.html file.
-    set_target_properties(${PROJECT_NAME} PROPERTIES SUFFIX ".html")
-endif()
+#    set_target_properties(${PROJECT_NAME} PROPERTIES SUFFIX ".html")
+#endif()
 
 # Checks if OSX and links appropriate frameworks (Only required on MacOS)
 if (APPLE)

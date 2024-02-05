@@ -7,16 +7,23 @@
 #include <ranges>
 
 void Game::Load() {
+
+    /*
     ecs = std::make_shared<ECSManager>();
     worldStateManager = std::make_unique<WorldStateManager>(ecs);
-    AddScene(std::make_unique<SceneGame>(ecs, *this));
+     */
+    AddScene(std::make_unique<SceneGame>(*this));
 }
 
 void Game::Update(f32 dt) {
+
+    /// TODO Causality: we could have a scene calling automatically named laws. A scene could register specific laws and call predefined ones.
     for (auto&& scene : std::ranges::reverse_view(sceneStack)) {
         scene->Update(dt);
         if (scene->GetLocking()) break;
     }
+
+    /*
     if (worldStateManager->IsRecording()) ecs->Update(dt, worldChanger);
     WorldState newWorldState = worldChanger.UpdateWorld(
             ecs->GetCurrentWorldState());
@@ -24,15 +31,16 @@ void Game::Update(f32 dt) {
 
     ecs->EndUpdate();
     worldChanger.ClearFrameChanges();
+     */
 }
 
 void Game::Draw() {
-    ecs->PrepareDraw();
+    //ecs->PrepareDraw();
     for (auto&& scene : std::ranges::reverse_view(sceneStack)) {
         scene->Draw();
         if (!scene->GetTransparent()) break;
     }
-    ecs->RenderWorld();
+    //ecs->RenderWorld();
 }
 
 void Game::AddScene(uptr<IScene> newScene) {
@@ -61,23 +69,26 @@ void Game::Unload() {
 }
 
 void Game::Rewind(u64 frameSpeed) {
-    worldStateManager->Rewind(frameSpeed);
+//    frameSpeedworldStateManager->Rewind(frameSpeed);
 }
 
 void Game::Forward(u64 frameSpeed) {
-    worldStateManager->Forward(frameSpeed);
+//    worldStateManager->Forward(frameSpeed);
 }
 
 void Game::Resume(bool doCreateClone) {
-    if (doCreateClone) {
+    /*if (doCreateClone) {
         worldStateManager->CloneAndResume();
     } else {
         worldStateManager->Resume();
-    }
+    }*/
 }
+
+/*
 
 void Game::PushPlayerChange(PlayerChange playerChange) {
     //playerChanges.emplace_back(playerChange);
     worldChanger.PushPlayerChange(playerChange);
 }
+*/
 

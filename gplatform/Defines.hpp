@@ -36,6 +36,13 @@ using uptr = std::unique_ptr<T>;
 template<class T>
 using sptr = std::shared_ptr<T>;
 
+template <class T, class... Ts>
+constexpr std::tuple<Ts...> tuple_tail(const std::tuple<T, Ts...>& t) {
+    return std::apply([](auto, auto&&... tail) {
+        return std::make_tuple(std::forward<decltype(tail)>(tail)...);
+    }, t);
+}
+
 /**
  * Debug
  */
@@ -78,9 +85,9 @@ using sptr = std::shared_ptr<T>;
 
 #if _MSC_VER
     #include <intrin.h>
-    #define DebugBreak() __debugbreak()
+    #define DebugBreakpoint() __debugbreak()
 #else
-    #define DebugBreak() __builtin_trap()
+    #define DebugBreakpoint() __builtin_trap()
 #endif
 
 #endif //GPLATFORM_DEFINES_HPP

@@ -18,6 +18,7 @@ namespace gmath {
         Rect();
         Rect(f32 x, f32 y, f32 w, f32 h);
         Rect(Vec2 pos, Vec2 size);
+        str Log() const;
 
         [[nodiscard]] Vec2 Position() const;
         [[nodiscard]] Vec2 Size() const;

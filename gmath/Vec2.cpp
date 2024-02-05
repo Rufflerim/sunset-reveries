@@ -49,4 +49,8 @@ namespace gmath {
         y /= scalar;
         return *this;
     }
+
+    str Vec2::Log() const {
+        return "{ x: " + std::to_string(x) + ", y:" + std::to_string(y) + " } ";
+    }
 }

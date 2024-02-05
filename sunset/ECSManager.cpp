@@ -2,6 +2,8 @@
 // Created by gaetz on 11/11/2022.
 //
 
+/*
+
 #include <algorithm>
 #include <limits>
 
@@ -309,4 +311,4 @@ WorldState ECSManager::GetCurrentWorldState() const {
     return currentWorldState;
 }
 
-
+*/

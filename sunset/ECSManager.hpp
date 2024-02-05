@@ -2,6 +2,8 @@
 // Created by gaetz on 11/11/2022.
 //
 
+/*
+
 #ifndef SUNSET_REVERIES_ECS_MANAGER_HPP
 #define SUNSET_REVERIES_ECS_MANAGER_HPP
 
@@ -12,8 +14,7 @@
 #include "WorldState.hpp"
 
 #include <variant>
-
-class Vec2;
+#include <algorithm>
 
 class ECSManager {
 public:
@@ -128,3 +129,5 @@ private:
 };
 
 #endif //SUNSET_REVERIES_ECS_MANAGER_HPP
+
+ */

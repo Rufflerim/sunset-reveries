@@ -18,7 +18,6 @@ public:
     static GAPI void UnloadSceneTextures(i32 sceneId);
 
     static void LoadData();
-    static unordered_map<str, f32> ReadFile(const str& path);
     static GAPI f32 GetData(const str& name);
 
 private:

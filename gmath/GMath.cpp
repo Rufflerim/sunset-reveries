@@ -97,6 +97,11 @@ namespace gmath {
         return static_cast<i32>(ceil(value));
     }
 
+    f32 Pow(f32 base, f32 exponent) {
+        return std::powf(base, exponent);
+    }
+
+
     f32 EaseOutExpo(f32 t) {
         return t == 1.0f ? 1.0f : 1.0f - std::pow(2.0f, -10.0f * t);
     }

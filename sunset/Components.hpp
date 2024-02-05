@@ -2,6 +2,8 @@
 // Created by gaetz on 07/11/2022.
 //
 
+/*
+
 #ifndef SUNSET_REVERIES_COMPONENTS_HPP
 #define SUNSET_REVERIES_COMPONENTS_HPP
 
@@ -16,11 +18,11 @@
 #include "EntityRingBuffer.hpp"
 #include "Ray2D.hpp"
 
-class ECSManager;
-
 using gmath::Ray2D;
 using gmath::Vec2;
 using gmath::Rect;
+
+class ECSManager;
 
 enum class ComponentIndex {
     Transform2D = 0,
@@ -30,6 +32,7 @@ enum class ComponentIndex {
     Replay = 4,
     Weapon = 5
 };
+
 
 struct Transform2D {
     explicit Transform2D(u64 entityIdP) : entityId { entityIdP } {}
@@ -200,3 +203,5 @@ struct Collision2D {
 };
 
 #endif //SUNSET_REVERIES_COMPONENTS_HPP
+
+ */

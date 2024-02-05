@@ -2,6 +2,8 @@
 // Created by gaetz on 07/03/23.
 //
 
+/*
+
 #ifndef SUNSET_REVERIES_WORLD_STATE_MANAGER_HPP
 #define SUNSET_REVERIES_WORLD_STATE_MANAGER_HPP
 
@@ -40,3 +42,5 @@ private:
 
 
 #endif //SUNSET_REVERIES_WORLD_STATE_MANAGER_HPP
+
+ */

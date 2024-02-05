@@ -2,6 +2,8 @@
 // Created by gaetz on 13/06/23.
 //
 
+/*
+
 #include "EntityRingBuffer.hpp"
 #include "Vec2.hpp"
 #include "ECSManager.hpp"
@@ -58,4 +60,5 @@ u64 EntityRingBuffer::CreateProjectile(u64 spawnerId, f32 radianShootAngle) {
     return projectileId;
 }
 
+ */
 

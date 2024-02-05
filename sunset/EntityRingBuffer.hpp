@@ -2,6 +2,8 @@
 // Created by gaetz on 13/06/23.
 //
 
+/*
+
 #ifndef SUNSET_REVERIES_ENTITY_RING_BUFFER_HPP
 #define SUNSET_REVERIES_ENTITY_RING_BUFFER_HPP
 
@@ -26,3 +28,5 @@ private:
 
 
 #endif //SUNSET_REVERIES_ENTITY_RING_BUFFER_HPP
+
+ */
