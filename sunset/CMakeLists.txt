@@ -1,5 +1,9 @@
+cmake_minimum_required(VERSION 3.20)
+project(game)
+set(CMAKE_CXX_STANDARD 20)
+
 file( GLOB GAME_SOURCES *.cpp )
 add_library( game ${GAME_SOURCES})
-target_include_directories(game PUBLIC gaemi)
+target_include_directories(game PUBLIC gaemi gcausality gecs)
 
-target_link_libraries(game raylib gaemi)
+target_link_libraries(game raylib gaemi gmath gecs glog)

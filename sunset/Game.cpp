@@ -2,29 +2,48 @@
 // Created by gaetz on 05/11/2022.
 //
 
-#include "Game.h"
-#include "SceneGame.h"
+#include "Game.hpp"
+#include "SceneGame.hpp"
 #include <ranges>
 
 void Game::Load() {
-    AddScene(std::make_unique<SceneGame>());
+
+    /*
+    ecs = std::make_shared<ECSManager>();
+    worldStateManager = std::make_unique<WorldStateManager>(ecs);
+     */
+    AddScene(std::make_unique<SceneGame>(*this));
 }
 
 void Game::Update(f32 dt) {
+
+    /// TODO Causality: we could have a scene calling automatically named laws. A scene could register specific laws and call predefined ones.
     for (auto&& scene : std::ranges::reverse_view(sceneStack)) {
         scene->Update(dt);
         if (scene->GetLocking()) break;
     }
+
+    /*
+    if (worldStateManager->IsRecording()) ecs->Update(dt, worldChanger);
+    WorldState newWorldState = worldChanger.UpdateWorld(
+            ecs->GetCurrentWorldState());
+    worldStateManager->StoreNewState(newWorldState);
+
+    ecs->EndUpdate();
+    worldChanger.ClearFrameChanges();
+     */
 }
 
 void Game::Draw() {
+    //ecs->PrepareDraw();
     for (auto&& scene : std::ranges::reverse_view(sceneStack)) {
         scene->Draw();
         if (!scene->GetTransparent()) break;
     }
+    //ecs->RenderWorld();
 }
 
-void Game::AddScene(unique_ptr<IScene> newScene) {
+void Game::AddScene(uptr<IScene> newScene) {
     sceneStack.push_back(std::move(newScene));
     sceneStack.back()->Load();
 }
@@ -35,7 +54,7 @@ void Game::RemoveCurrentScene() {
     sceneStack.pop_back();
 }
 
-void Game::SwitchScene(unique_ptr<IScene> newScene) {
+void Game::SwitchScene(uptr<IScene> newScene) {
     if (!sceneStack.empty()) {
         RemoveCurrentScene();
     }
@@ -49,4 +68,27 @@ void Game::Unload() {
     sceneStack.clear();
 }
 
+void Game::Rewind(u64 frameSpeed) {
+//    frameSpeedworldStateManager->Rewind(frameSpeed);
+}
+
+void Game::Forward(u64 frameSpeed) {
+//    worldStateManager->Forward(frameSpeed);
+}
+
+void Game::Resume(bool doCreateClone) {
+    /*if (doCreateClone) {
+        worldStateManager->CloneAndResume();
+    } else {
+        worldStateManager->Resume();
+    }*/
+}
+
+/*
+
+void Game::PushPlayerChange(PlayerChange playerChange) {
+    //playerChanges.emplace_back(playerChange);
+    worldChanger.PushPlayerChange(playerChange);
+}
+*/
 
