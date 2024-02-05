@@ -3,12 +3,10 @@
 //
 
 #include "Entity.hpp"
-#include "Types.hpp"
-#include "World.hpp"
 
 namespace gecs {
 
-    Entity::Entity(u64 idRoot) {
-        id = idRoot;
+    Entity::Entity(u64 idP) {
+        id = idP;
     }
 }

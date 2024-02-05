@@ -7,6 +7,7 @@
 #include "Log.hpp"
 #include "StringUtils.hpp"
 #include <sstream>
+#include <limits>
 
 namespace gecs {
 
@@ -159,7 +160,7 @@ namespace gecs {
         archetypeRegistry[emptyArchetypeId].archetypeChanges[ComponentId::Sprite].remove = nullptr;
         // -- Position
         archetypeRegistry[positionArchetypeId].archetypeChanges[ComponentId::Position].add = &archetypeRegistry[positionArchetypeId];
-        archetypeRegistry[positionArchetypeId].archetypeChanges[ComponentId::Position].remove = &archetypeRegistry[emptyArchetypeId];;
+        archetypeRegistry[positionArchetypeId].archetypeChanges[ComponentId::Position].remove = &archetypeRegistry[emptyArchetypeId];
         archetypeRegistry[positionArchetypeId].archetypeChanges[ComponentId::Velocity].add = &archetypeRegistry[posVelArchetypeId];
         archetypeRegistry[positionArchetypeId].archetypeChanges[ComponentId::Velocity].remove = nullptr;
         archetypeRegistry[positionArchetypeId].archetypeChanges[ComponentId::Sprite].add = &archetypeRegistry[posSprArchetypeId];
@@ -219,9 +220,20 @@ namespace gecs {
         return Entity(entityId);
     }
 
-    u64 World::MoveEntity(const ArchetypeRecord& recordToUpdate, size_t row, Archetype* nextArchetype) {
-        u64 checkRow = std::numeric_limits<uint64_t>::max();
-        u64 newRow = std::numeric_limits<uint64_t>::max();
+    void World::RemoveComponent(Id entityId, ComponentId componentId) {
+        ArchetypeRecord& recordToUpdate = GetEntities()[entityId];
+        Archetype* nextArchetype = recordToUpdate.archetype->archetypeChanges[componentId].remove;
+        // Move previous archetype data in new archetype
+        u64 newRow = MoveEntity(recordToUpdate, nextArchetype, true);
+        // Update entity's row
+        recordToUpdate.archetype = nextArchetype;
+        recordToUpdate.row = newRow;
+    }
+
+    u64 World::MoveEntity(const ArchetypeRecord& recordToUpdate, Archetype* nextArchetype, bool remove) {
+        size_t row = recordToUpdate.row;
+        u64 checkRow = std::numeric_limits<u64>::max();
+        u64 newRow = std::numeric_limits<u64>::max();
         i32 checkColsDst { 0 }; // Used to avoid empty archetype case
         i32 checkColsSrc { 0 }; // Used to avoid empty archetype case
 
@@ -232,6 +244,7 @@ namespace gecs {
                                                               return record.second.archetype == currentArchetype &&
                                                                      record.second.row == lastRow;
                                                           });
+        vector<ComponentId> unmovedComponents = ToComponentIds(currentArchetype->archetypeId);
 
         // Insert in new archetype data from previous archetype
         for (Column& dstCol: nextArchetype->components) {
@@ -258,20 +271,29 @@ namespace gecs {
                 }
 
                 // Check row is the same for each column
-                if (checkRow != std::numeric_limits<uint64_t>::max()) {
-                    GASSERT_MSG(checkRow == newRow, "Row must be the same in all archetype columns");
+                if (checkRow != std::numeric_limits<u64>::max()) {
+                    GASSERT_MSG(checkRow == newRow, "Row must be the same in all archetype columns")
                 }
                 checkRow = newRow;
 
                 // Remove previous data from archetype, after saving data
                 srcCol.RemoveElementBySwapping(row);
+                unmovedComponents.erase(std::remove(unmovedComponents.begin(), unmovedComponents.end(), dstCol.GetComponentId()), unmovedComponents.end());
                 entityRecordFromLastRow->second.row = row;
                 ++checkColsSrc;
             }
             ++checkColsDst;
         }
-        GASSERT_MSG(newRow != std::numeric_limits<uint64_t>::max() && checkColsDst > 0 && checkColsSrc > 0,
-                    "Row should exist");
+        GASSERT_MSG(newRow != std::numeric_limits<u64>::max() && checkColsDst > 0 && checkColsSrc > 0,
+                    "Row should exist")
+
+        // Remove remaining component from previous archetype
+        if (remove) {
+            GASSERT_MSG(unmovedComponents.size() == 1, "Only one component should remain");
+            const ComponentId componentId = unmovedComponents[0];
+            currentArchetype->components[static_cast<i32>(componentId)].RemoveElementBySwapping(row);
+        }
+
         return newRow;
     }
 
@@ -311,50 +333,6 @@ namespace gecs {
             }
         }
         return nullptr;
-    }
-
-
-    vector<vector<std::pair<ArchetypeId, size_t>>> World::GetArchetypeAndColumnIndices(vector<CompArchIdAndCol> &compArchCols) {
-        vector<vector<std::pair<ArchetypeId, size_t>>> ret;
-        ComponentId currentCompId = compArchCols[0].componentId;;
-        vector<std::pair<ArchetypeId, size_t>> currentArchsAndCols { {compArchCols[0].archId, compArchCols[0].columnIndex} };
-        for (u32 i = 1; i < compArchCols.size(); ++i) {
-            if (currentCompId != compArchCols[i].componentId) {
-                ret.emplace_back(currentArchsAndCols);
-                currentArchsAndCols.clear();
-                currentArchsAndCols.emplace_back(compArchCols[i].archId, compArchCols[i].columnIndex);
-                currentCompId = compArchCols[i].componentId;
-                continue;
-            }
-            currentArchsAndCols.emplace_back(compArchCols[i].archId, compArchCols[i].columnIndex);
-        }
-        ret.emplace_back(currentArchsAndCols);
-        return ret;
-    }
-
-    vector<vector<size_t>> World::GetDataStartIndices(vector<CompArchIdAndCol> &compArchCols) {
-        ComponentId currentCompId = compArchCols[0].componentId;;
-        vector<vector<size_t>> starts {};
-        vector<size_t> currentStarts { 0 };
-        size_t accumulator { 0 };
-        // We create a vector of start indices for each component.
-        // We count the number of elements for the current archetype
-        // and add it to the accumulator, so that we can know the start index
-        // for a specific archetype for the same component.
-        for (u32 i = 1; i < compArchCols.size(); ++i) {
-            if (currentCompId != compArchCols[i].componentId) {
-                starts.emplace_back(currentStarts);
-                currentStarts.clear();
-                currentStarts.push_back(0);
-                accumulator = 0;
-                currentCompId = compArchCols[i].componentId;
-                continue;
-            }
-            accumulator += archetypeRegistry[compArchCols[i].archId].components[compArchCols[i].columnIndex].Count();
-            currentStarts.push_back(accumulator);
-        }
-        starts.emplace_back(currentStarts);
-        return starts;
     }
 
     void World::DestroyEntity(Id entityId) {

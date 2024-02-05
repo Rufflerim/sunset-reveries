@@ -44,11 +44,11 @@ void SceneGame::Load() {
         auto testEntityId = world.CreateEntity();
         gecs::Entity entity = world.GetEntity(testEntityId);
         Position pos {static_cast<f32>(0 + i * 10), static_cast<f32>(0 + i * 10)};
-        entity.AddComponent<gecs::Position>(pos);
+        world.AddComponent<gecs::Position>(testEntityId, pos);
         Velocity vel {static_cast<f32>(100), 0};
-        entity.AddComponent<gecs::Velocity>(vel);
+        world.AddComponent<gecs::Velocity>(testEntityId, vel);
         gecs::Sprite sprite { AssetsManager::GetTexture("ghost") };
-        entity.AddComponent<gecs::Sprite>(sprite);
+        world.AddComponent<gecs::Sprite>(testEntityId, sprite);
         entities.push_back(testEntityId);
     }
 
@@ -121,7 +121,7 @@ void SceneGame::Load() {
 void SceneGame::Update(f32 dt) {
 
     auto q = Query<Position, Velocity>();
-    q.Each([dt](Position& pos, Velocity& vel) {
+    q.Update([dt](Position& pos, Velocity& vel) {
         const Vec2 newPos { pos.x + vel.x * dt, pos.y + vel.y * dt };
         pos.Set(newPos);
     });
@@ -246,7 +246,7 @@ void SceneGame::Draw() {
 
     // Query all entities with a position and a sprite
     auto posSprites = gecs::Query<Position, Sprite>();
-    posSprites.Each([](Position& pos, Sprite& spr) {
+    posSprites.Read([](const Position& pos, const Sprite& spr) {
         render::DrawTexture(spr.texture, pos.x, pos.y, WHITE);
     });
 

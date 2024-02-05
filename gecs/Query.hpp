@@ -9,91 +9,127 @@
 #include <unordered_map>
 #include "Defines.hpp"
 #include "Types.hpp"
-#include "World.hpp"
 #include <functional>
+#include "TupleUtils.hpp"
+#include "QueryCache.hpp"
+#include "QueryManager.hpp"
 
 namespace gecs {
 
-    template<typename... ComponentTypes>
-    class QueryCache {
-    public:
-        QueryCache() = default;
-        explicit QueryCache(const std::tuple<vector<ComponentTypes>...>& newCache): cacheSoA(newCache) {
-            size = std::get<0>(cacheSoA).size();
-            cacheAoS.reserve(size);
-            UpdateAoS();
-            isEmpty = false;
-        }
-
-        template<typename FuncT>
-        void ApplyOnElements(FuncT f) {
-            for(std::size_t i = 0; i < size; ++i) {
-                std::apply(f, cacheAoS[i]);
-            }
-            shouldRefresh = true;
-        }
-
-        void ReintegrateInWorld(World& world) {
-            if (shouldRefresh) {
-                UpdateSoA();
-                shouldRefresh = false;
-            }
-            world.ReintegrateQueryCache<ComponentTypes...>(cacheSoA);
-        }
-
-        bool IsEmpty() const { return isEmpty; }
-
-        std::tuple<vector<ComponentTypes>...> cacheSoA;
-        vector<std::tuple<ComponentTypes...>> cacheAoS;
-        
-    private:
-        bool isEmpty{true};
-        bool shouldRefresh{false};
-        size_t size{0};
-
-        void UpdateAoS() {
-            cacheAoS.clear();
-            for (size_t i = 0; i < size; ++i) {
-                std::tuple<ComponentTypes...> tuple;
-                std::apply([&](auto&&... comp) { ((comp = std::get<vector<std::decay_t<decltype(comp)>>>(cacheSoA)[i]), ...); }, tuple);
-                cacheAoS.emplace_back(std::move(tuple));
-            }
-        }
-
-        void UpdateSoA() {
-            // Empty vectors but memory allocation is kept
-            std::apply([](auto&&... vec) { (..., vec.clear()); }, cacheSoA);
-
-            for (size_t i = 0; i < size; ++i) {
-                std::apply([&](auto&&... vec) { (..., vec.push_back(std::get<ComponentTypes>(cacheAoS[i]))); }, cacheSoA);
-            }
-        }
-    };
-
-
+    /**
+     * Queries are a way to gather and cache data from world,
+     * in order to modify or read it in a more efficient way.
+     * The right way to use them is to apply several modifications on
+     * its components data then apply it to the world.
+     *
+     * @tparam ComponentTypes Component types to query
+     */
     template<typename... ComponentTypes>
     class Query {
-        friend QueryCache<ComponentTypes...>;
-
     public:
-        void Each(std::function<void(ComponentTypes&...)> f) {
-            if (cache.IsEmpty()) {
-                auto result = world.Query<ComponentTypes...>();
-                entities = get<0>(result);
-                cache = QueryCache<ComponentTypes...>(tuple_tail(result));
-            }
-            cache.ApplyOnElements(f);
+        /**
+         * Create a new query and automatically compute the cache data
+         */
+        Query() {
+            ResetCache();
         }
 
+        /**
+         * Apply a write function to all the entities' components of the query.
+         * @param f Function to apply
+         */
+        void Update(std::function<void(ComponentTypes&...)> f) {
+            cache.ApplyOnElements(f, true);
+        }
+
+        /**
+         * Apply a read function to all the entities' components of the query.
+         * Useful when you want to read data from the components without modifying them.
+         * @param f Function to apply
+         */
+        void Read(std::function<void(const ComponentTypes&...)> f) {
+            cache.ApplyOnElements(f, false);
+        }
+
+        /**
+         * The passed function will check a condition on components and
+         * delete the corresponding entity if it is true.
+         * @param f Condition function, should return true if the entity should be deleted
+         */
+        void DeleteIf(std::function<bool(const ComponentTypes&...)> f) {
+            if (cache.IsEmpty()) return;
+
+            vector<Id> toDelete = cache.BuildFilteredEntityList(f, entities);
+            if (toDelete.empty()) return;
+
+            QueryManager::Instance().DestroyEntities(toDelete);
+            Reset();
+        }
+
+        /**
+         * The passed function will check a condition on components and
+         * remove the component type passed as a template if it is true.
+         * @tparam Component Component type to remove
+         * @param f Condition function, should return true if the component should be removed
+         */
+        template<class Component>
+        void RemoveIf(std::function<bool(const ComponentTypes&...)> f) {
+            if (cache.IsEmpty()) return;
+
+            vector<Id> removeCompEntities = cache.BuildFilteredEntityList(f, entities);
+            if (removeCompEntities.empty()) return;
+
+            // Apply so last modification (in AoS) is reintegrated in SoA and world
+            Apply();
+
+            auto& manager = QueryManager::Instance();
+            for (const auto& toRemove : removeCompEntities) {
+                manager.RemoveComponentFromEntity<Component>(toRemove);
+            }
+
+            Reset();
+        }
+
+        /**
+         * Internally update the cache data then apply it to the world.
+         * WARNING: This method is heavy and should be used with caution.
+         */
         void Apply() {
-            cache.ReintegrateInWorld(world);
+            if (cache.IsEmpty()) return;
+            const auto& lastCache = cache.RefreshAndReturnCache();
+            QueryManager::Instance().ReintegrateQueryCache<ComponentTypes...>(lastCache);
+            /// TODO Could also update the cache of other queries
+        }
+
+        /**
+         * Reset the cache if it contains data for at least one entity.
+         * It is useful to check this condition when entities are destroyed or
+         * their components are removed, which imply an archetype change and might
+         * make the query invalid.
+         */
+        void Reset() {
+            if (cache.IsEmpty()) return;
+            ResetCache();
         }
 
 
     private:
-        World& world { World::Instance() };
-        QueryCache<ComponentTypes...> cache;
-        vector<Id> entities;
+        /** Components data cache */
+        QueryCache<ComponentTypes...> cache {};
+
+        /** Entities ids, in the same order as the cache */
+        vector<Id> entities {};
+
+        /**
+         * Compute the cache data and gather it from world,
+         * also get the cache's entities ids in the same order.
+         * WARNING: This method is heavy and should be used with caution.
+         */
+        void ResetCache() {
+            auto result = QueryManager::Instance().ComputeQuery<ComponentTypes...>();
+            entities = get<0>(result);
+            cache = QueryCache<ComponentTypes...>(std::move(TupleTail(result)));
+        }
     };
 }
 #endif //GECS_QUERY_HPP

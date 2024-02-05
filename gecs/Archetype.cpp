@@ -3,6 +3,7 @@
 //
 
 #include "Archetype.hpp"
+#include "Components.hpp"
 namespace gecs {
 
     size_t Archetype::GetRowCount() const {

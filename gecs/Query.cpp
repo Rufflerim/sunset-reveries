@@ -3,3 +3,7 @@
 //
 
 #include "Query.hpp"
+
+namespace gecs {
+
+}

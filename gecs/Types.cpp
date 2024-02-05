@@ -51,4 +51,22 @@ namespace gecs {
         f32 id = static_cast<f32>(componentId);
         return gmath::Floor(gmath::Pow(2, id));
     }
+
+    std::vector<ComponentId> ToComponentIds(ArchetypeId archetypeId) {
+        std::vector<ComponentId> componentIds;
+        for (i32 i = 0; i < MAX_COMPONENTS; ++i) {
+            if (archetypeId.test(i)) {
+                componentIds.push_back(IndexToComponentId(i));
+            }
+        }
+        return componentIds;
+    }
+
+    ArchetypeId ToArchetypeId(const std::vector<ComponentId>& comps) {
+        ArchetypeId id;
+        for (auto comp : comps) {
+            id.set(static_cast<size_t>(comp));
+        }
+        return id;
+    }
 }

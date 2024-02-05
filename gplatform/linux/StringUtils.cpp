@@ -3,6 +3,7 @@
 //
 
 #include "StringUtils.hpp"
+#include <cstring>
 
 namespace gplatform {
 
@@ -14,4 +15,7 @@ namespace gplatform {
         return strnlen(s, max);
     }
 
+    size_t StrLen(char* s) {
+        return strlen(s);
+    }
 }
